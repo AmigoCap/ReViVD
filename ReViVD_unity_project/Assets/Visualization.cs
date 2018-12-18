@@ -52,7 +52,7 @@ public abstract class Visualization : MonoBehaviour {
     protected void InitializeRendering() {
         foreach (Path p in PathsAsBase) {
             GameObject o = new GameObject(p.ID);
-            o.transform.parent = this.transform;
+            o.transform.parent = transform;
             MeshFilter filter = o.AddComponent<MeshFilter>();
             p.mesh = new Mesh();
             filter.sharedMesh = p.mesh;
@@ -91,7 +91,7 @@ public abstract class Visualization : MonoBehaviour {
 
     private District[,,] districts; //Array tridimensionnel de Districts
 
-    private void CalculcateBoundaries() {
+    private void CalculateBoundaries() {
         lowerBoundary = PathsAsBase[0].AtomsAsBase[0].point;
         upperBoundary = PathsAsBase[0].AtomsAsBase[0].point;
         foreach (Path p in PathsAsBase) {
@@ -103,7 +103,7 @@ public abstract class Visualization : MonoBehaviour {
     }
 
     private void CreateDistricts() { //Crée et remplit districts
-        CalculcateBoundaries();
+        CalculateBoundaries();
         int[] numberOfDistricts = {
             (int)((upperBoundary.x - lowerBoundary.x) / districtSize.x + 1),
             (int)((upperBoundary.y - lowerBoundary.y) / districtSize.y + 1),
