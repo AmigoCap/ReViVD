@@ -4,10 +4,10 @@ using System.Globalization;
 
 public class AirTrafficVisualization : TimeVisualization {
     public List<AirTrafficPath> Paths { get; set; }
-    protected override IReadOnlyList<Path> PathsAsBase { get { return Paths; } }
-    protected override IReadOnlyList<TimePath> PathsAsTime { get { return Paths; } }
+    public override IReadOnlyList<Path> PathsAsBase { get { return Paths; } }
+    public override IReadOnlyList<TimePath> PathsAsTime { get { return Paths; } }
 
-    public override bool LoadFromCSV(string filename) {
+    protected override bool LoadFromCSV(string filename) {
         TextAsset file = Resources.Load<TextAsset>(filename);
         if (file == null)
             return false;
@@ -30,10 +30,10 @@ public class AirTrafficVisualization : TimeVisualization {
             }
 
             AirTrafficAtom a = new AirTrafficAtom {
-                Time = InterpretTime(words[1]),
-                Point = new Vector3(float.Parse(words[2]), float.Parse(words[4]), float.Parse(words[3]))
+                time = InterpretTime(words[1]),
+                point = new Vector3(float.Parse(words[2]), float.Parse(words[4]), float.Parse(words[3]))
             };
-            p.Atoms.Add(a);
+            p.atoms.Add(a);
         }
 
         return true;
@@ -52,21 +52,16 @@ public class AirTrafficVisualization : TimeVisualization {
             return;
         }
         InitializeRendering();
-        foreach (AirTrafficPath p in Paths) {
-            p.GenerateMesh();
-        }
     }
 
     private void Update() {
-        foreach (AirTrafficPath p in Paths) {
-            p.UpdateVertices();
-        }
+        UpdateRendering();
     }
 
     public class AirTrafficPath : TimePath {
-        public List<AirTrafficAtom> Atoms { get; set; } = new List<AirTrafficAtom>();
-        protected override IReadOnlyList<Atom> AtomsAsBase { get { return Atoms; } }
-        protected override IReadOnlyList<TimeAtom> AtomsAsTime { get { return Atoms; } }
+        public List<AirTrafficAtom> atoms = new List<AirTrafficAtom>();
+        public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }
+        public override IReadOnlyList<TimeAtom> AtomsAsTime { get { return atoms; } }
     }
 
     public class AirTrafficAtom : TimeAtom {
