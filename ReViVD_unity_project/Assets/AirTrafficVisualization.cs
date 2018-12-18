@@ -17,7 +17,7 @@ public class AirTrafficVisualization : TimeVisualization {
         string[] rawData = file.text.Split(new char[] { '\n' });
 
         foreach (string row in rawData) {
-            string[] words = CsvSplit(row, ',');
+            string[] words = CsvSplit(row, '.');    //Selon configuration de l'OS, mettre ',' ou '.'
 
             if (words.Length < 2)
                 continue;

@@ -60,8 +60,8 @@ public abstract class Visualization : MonoBehaviour {
             renderer.sharedMaterial = material;
             p.GenerateMesh();
         }
-
         CreateDistricts();
+        
 
         Debug.Log(lowerBoundary);
     }
