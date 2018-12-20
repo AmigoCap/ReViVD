@@ -270,9 +270,13 @@ public abstract class Path {
 
         for (int p = 0; p < atomCount - 1; p++) {
             if (!AtomsAsBase[p].shouldUpdate && !forceUpdateAll) {
-                continue;
+                if (p == 0 || !AtomsAsBase[p - 1].shouldUpdate) {
+                    pointColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), AtomsAsBase[p + 1].point.y / maxHeight);
+                    continue;
+                }
             }
 
+            currentPoint = AtomsAsBase[p].point;
             nextPoint = AtomsAsBase[p+1].point;
 
             int i = 5 * p;
@@ -296,8 +300,6 @@ public abstract class Path {
             colors[i + 3] = pointColor;
             if (p < atomCount - 2)
                 colors[i+4] = pointColor;
-
-            currentPoint = nextPoint;
         }
 
         mesh.vertices = vertices;
