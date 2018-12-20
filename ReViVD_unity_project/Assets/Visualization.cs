@@ -62,10 +62,15 @@ public abstract class Visualization : MonoBehaviour {
             renderer.sharedMaterial = material;
             p.GenerateMesh();
         }
-
         CreateDistricts();
+<<<<<<< HEAD
+        
+
+        Debug.Log(lowerBoundary);
+=======
         oldCameraDistrict = GetCameraDistrict();
         oldCameraDistrict[0] = oldCameraDistrict[0] + 10; //On prend une ancienne caméra différente de la véritable pour forcer une première update de tous les atomes
+>>>>>>> f8ad0e2005f0abf594e551644ea97ffb17cf7d3c
     }
 
     int[] oldCameraDistrict;
