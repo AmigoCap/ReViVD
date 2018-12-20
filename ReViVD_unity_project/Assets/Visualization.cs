@@ -5,7 +5,8 @@ public abstract class Visualization : MonoBehaviour {
     public Material material;
     public Vector3 districtSize = new Vector3(30, 30, 30);
 
-    public bool getDebugData = false;
+    public bool getDebugData = false; //TESTING
+    public Vector3Int districtToHighlight = new Vector3Int();
 
     protected abstract bool LoadFromCSV(string filename);
 
@@ -53,6 +54,7 @@ public abstract class Visualization : MonoBehaviour {
         foreach (Path p in PathsAsBase) {
             GameObject o = new GameObject(p.ID);
             o.transform.parent = transform;
+            p.transform = o.transform;
             MeshFilter filter = o.AddComponent<MeshFilter>();
             p.mesh = new Mesh();
             filter.sharedMesh = p.mesh;
@@ -62,19 +64,52 @@ public abstract class Visualization : MonoBehaviour {
         }
 
         CreateDistricts();
-
-        Debug.Log(lowerBoundary);
+        oldCameraDistrict = GetCameraDistrict();
+        oldCameraDistrict[0] = oldCameraDistrict[0] + 10; //On prend une ancienne caméra différente de la véritable pour forcer une première update de tous les atomes
     }
 
+    int[] oldCameraDistrict;
+    HashSet<Path> pathsToUpdate = new HashSet<Path>();
+
     protected void UpdateRendering() {
-        foreach (Path p in PathsAsBase) {
-            p.UpdateVertices();
+        int[] cameraDistrict = GetCameraDistrict();
+        if (cameraDistrict[0] == oldCameraDistrict[0] && cameraDistrict[1] == oldCameraDistrict[1] && cameraDistrict[2] == oldCameraDistrict[2]) {
+            foreach (Path p in pathsToUpdate) {
+                p.UpdateVertices();
+            }
+        }
+        else {
+            foreach(Path p in pathsToUpdate) {
+                foreach(Atom a in p.AtomsAsBase) {
+                    a.shouldUpdate = false;
+                }
+            }
+            pathsToUpdate.Clear();
+            for (int i = cameraDistrict[0] - 1; i < cameraDistrict[0] + 2; i++) {
+                for (int j = cameraDistrict[1] - 1; j < cameraDistrict[1] + 2; j++) {
+                    for (int k = cameraDistrict[2] - 1; k < cameraDistrict[2] + 2; k++) {
+                        try {
+                            foreach (Atom a in districts[i, j, k].atoms) {
+                                a.shouldUpdate = true;
+                                pathsToUpdate.Add(a.path);
+                            }
+                        }
+                        catch (System.IndexOutOfRangeException) {
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            foreach (Path p in PathsAsBase) {
+                p.UpdateVertices(true);
+            }
         }
 
-        if (getDebugData) {
+        oldCameraDistrict = cameraDistrict;
+
+        if (getDebugData) { //TESTING
             getDebugData = false;
-            int[] c = GetCameraDistrict();
-            Debug.Log(c[0].ToString() + '\t' + c[1].ToString() + '\t' + c[2].ToString());
         }
     }
 
@@ -82,7 +117,6 @@ public abstract class Visualization : MonoBehaviour {
 
     private struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
         public Atom[] atoms;
-        public Path[] paths;
         public Vector3 center;
     }
 
@@ -92,12 +126,12 @@ public abstract class Visualization : MonoBehaviour {
     private District[,,] districts; //Array tridimensionnel de Districts
 
     private void CalculateBoundaries() {
-        lowerBoundary = PathsAsBase[0].AtomsAsBase[0].point;
-        upperBoundary = PathsAsBase[0].AtomsAsBase[0].point;
+        lowerBoundary = transform.InverseTransformPoint(PathsAsBase[0].transform.TransformPoint(PathsAsBase[0].AtomsAsBase[0].point));
+        upperBoundary = transform.InverseTransformPoint(PathsAsBase[0].transform.TransformPoint(PathsAsBase[0].AtomsAsBase[0].point));
         foreach (Path p in PathsAsBase) {
             foreach (Atom a in p.AtomsAsBase) {
-                lowerBoundary = Vector3.Min(lowerBoundary, a.point);
-                upperBoundary = Vector3.Max(upperBoundary, a.point);
+                lowerBoundary = Vector3.Min(lowerBoundary, transform.InverseTransformPoint(p.transform.TransformPoint(a.point)));
+                upperBoundary = Vector3.Max(upperBoundary, transform.InverseTransformPoint(p.transform.TransformPoint(a.point)));
             }
         }
     }
@@ -110,25 +144,26 @@ public abstract class Visualization : MonoBehaviour {
             (int)((upperBoundary.z - lowerBoundary.z) / districtSize.z + 1) };
 
         List<Atom>[,,] atomRepartition = new List<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
-        HashSet<Path>[,,] pathsRepartition = new HashSet<Path>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
         for (int i = 0; i < numberOfDistricts[0]; i++) {
             for (int j = 0; j < numberOfDistricts[1]; j++) {
                 for (int k = 0; k < numberOfDistricts[2]; k++) {
                     atomRepartition[i, j, k] = new List<Atom>();
-                    pathsRepartition[i, j, k] = new HashSet<Path>();
                 }
             }
         }
-    
+
         foreach (Path p in PathsAsBase) {
             foreach (Atom a in p.AtomsAsBase) {
+                //a.point est dans le repère du Path, on le place dans le repère de la visualisation
+                Vector3 vizPoint = transform.InverseTransformPoint(p.transform.TransformPoint(a.point));
+
                 int[] district = {
-                    (int)((a.point.x - lowerBoundary.x) / districtSize.x),
-                    (int)((a.point.y - lowerBoundary.y) / districtSize.y),
-                    (int)((a.point.z - lowerBoundary.z) / districtSize.z)
+                    (int)((vizPoint.x - lowerBoundary.x) / districtSize.x),
+                    (int)((vizPoint.y - lowerBoundary.y) / districtSize.y),
+                    (int)((vizPoint.z - lowerBoundary.z) / districtSize.z)
                 };
+
                 atomRepartition[district[0], district[1], district[2]].Add(a);
-                pathsRepartition[district[0], district[1], district[2]].Add(p);
             }
         }
 
@@ -140,16 +175,14 @@ public abstract class Visualization : MonoBehaviour {
                     districts[x, y, z] = new District {
                         atoms = atomRepartition[x, y, z].ToArray(),
                         center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2,
-                        paths = new Path[pathsRepartition.Length]
                     };
-                    pathsRepartition[x, y, z].CopyTo(districts[x, y, z].paths);
                 }
             }
         }
     }
 
     private int[] GetCameraDistrict() {
-        Vector3 pos = Camera.main.transform.position - lowerBoundary;
+        Vector3 pos = transform.InverseTransformPoint(Camera.main.transform.position) - lowerBoundary;
         int[] coords = {
             (int) (pos.x / districtSize.x),
             (int) (pos.y / districtSize.y),
@@ -161,6 +194,7 @@ public abstract class Visualization : MonoBehaviour {
 public abstract class Path {
     public string ID;
     public Mesh mesh;
+    public Transform transform;
     public Dictionary<int, float> specialRadii = new Dictionary<int, float>();
     public float baseRadius = 0.1f;
     public float maxHeight = 400f;
@@ -221,7 +255,7 @@ public abstract class Path {
         UpdateVertices();
     }
 
-    public void UpdateVertices() {
+    public void UpdateVertices(bool forceUpdateAll = false) {
         Vector3 camPos = Camera.main.transform.position;
         
         Vector3 vBase = new Vector3();
@@ -233,7 +267,12 @@ public abstract class Path {
         Vector3 currentPoint = AtomsAsBase[0].point;
         Vector3 nextPoint;
         Color32 pointColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), currentPoint.y / maxHeight);
+
         for (int p = 0; p < atomCount - 1; p++) {
+            if (!AtomsAsBase[p].shouldUpdate && !forceUpdateAll) {
+                continue;
+            }
+
             nextPoint = AtomsAsBase[p+1].point;
 
             int i = 5 * p;
@@ -252,6 +291,7 @@ public abstract class Path {
             colors[i] = pointColor;
             colors[i + 1] = pointColor;
             pointColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), nextPoint.y / maxHeight);
+
             colors[i + 2] = pointColor;
             colors[i + 3] = pointColor;
             if (p < atomCount - 2)
@@ -270,6 +310,8 @@ public abstract class Path {
 
 public abstract class Atom {
     public Vector3 point;
+    public Path path;
+    public bool shouldUpdate = false;
 }
 
 

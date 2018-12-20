@@ -31,7 +31,8 @@ public class AirTrafficVisualization : TimeVisualization {
 
             AirTrafficAtom a = new AirTrafficAtom {
                 time = InterpretTime(words[1]),
-                point = new Vector3(float.Parse(words[2]), float.Parse(words[4]), float.Parse(words[3]))
+                point = new Vector3(float.Parse(words[2]), float.Parse(words[4]), float.Parse(words[3])),
+                path = p
             };
             p.atoms.Add(a);
         }
