@@ -415,6 +415,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: ff56756a7f27011408a584cb8f1e5a02, type: 2}
+  districtSize: {x: 30, y: 30, z: 30}
+  getDebugData: 0
+  districtToHighlight: {x: 0, y: 0, z: 0}
 --- !u!4 &2039570153
 Transform:
   m_ObjectHideFlags: 0
