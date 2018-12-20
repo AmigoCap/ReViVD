@@ -70,6 +70,7 @@ public abstract class Visualization : MonoBehaviour {
 
     int[] oldCameraDistrict;
     HashSet<Path> pathsToUpdate = new HashSet<Path>();
+    readonly bool[] thickTowardsPositive = { true, true, true }; //Définit la position du cube de 4x4 districts autour de la caméra
 
     protected void UpdateRendering() {
         int[] cameraDistrict = GetCameraDistrict();
@@ -79,30 +80,42 @@ public abstract class Visualization : MonoBehaviour {
             }
         }
         else {
-            foreach(Path p in pathsToUpdate) {
-                foreach(Atom a in p.AtomsAsBase) {
-                    a.shouldUpdate = false;
+            bool shouldUpdateEverything = false;
+            for (int i = 0; i < 3; i++) {
+                if (cameraDistrict[i] == oldCameraDistrict[i] + (thickTowardsPositive[i] ? 1 : -1)) {
+                    thickTowardsPositive[i] = !thickTowardsPositive[i];
                 }
-            }
-            pathsToUpdate.Clear();
-            for (int i = cameraDistrict[0] - 1; i < cameraDistrict[0] + 2; i++) {
-                for (int j = cameraDistrict[1] - 1; j < cameraDistrict[1] + 2; j++) {
-                    for (int k = cameraDistrict[2] - 1; k < cameraDistrict[2] + 2; k++) {
-                        try {
-                            foreach (Atom a in districts[i, j, k].atoms) {
-                                a.shouldUpdate = true;
-                                pathsToUpdate.Add(a.path);
-                            }
-                        }
-                        catch (System.IndexOutOfRangeException) {
-                            continue;
-                        }
-                    }
+                else if (cameraDistrict[i] != oldCameraDistrict[i]) {
+                    shouldUpdateEverything = true;
                 }
             }
 
-            foreach (Path p in PathsAsBase) {
-                p.UpdateVertices(true);
+            if (shouldUpdateEverything) {
+                foreach (Path p in pathsToUpdate) {
+                    foreach (Atom a in p.AtomsAsBase) {
+                        a.shouldUpdate = false;
+                    }
+                }
+                pathsToUpdate.Clear();
+                for (int i = cameraDistrict[0] - (thickTowardsPositive[0] ? 1 : 2); i <= cameraDistrict[0] + (thickTowardsPositive[0] ? 2 : 1); i++) {
+                    for (int j = cameraDistrict[1] - (thickTowardsPositive[1] ? 1 : 2); j < cameraDistrict[1] + (thickTowardsPositive[1] ? 2 : 1); j++) {
+                        for (int k = cameraDistrict[2] - (thickTowardsPositive[2] ? 1 : 2); k < cameraDistrict[2] + (thickTowardsPositive[2] ? 2 : 1); k++) {
+                            try {
+                                foreach (Atom a in districts[i, j, k].atoms) {
+                                    a.shouldUpdate = true;
+                                    pathsToUpdate.Add(a.path);
+                                }
+                            }
+                            catch (System.IndexOutOfRangeException) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                foreach (Path p in PathsAsBase) {
+                    p.UpdateVertices(true);
+                }
             }
         }
 
