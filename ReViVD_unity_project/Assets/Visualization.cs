@@ -1,12 +1,37 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public abstract class Visualization : MonoBehaviour {
     public Material material;
-    public Vector3 districtSize = new Vector3(30, 30, 30);
+    public Vector3 districtSize = new Vector3(15, 15, 15);
 
-    public bool getDebugData = false; //TESTING
-    public Vector3Int districtToHighlight = new Vector3Int();
+    //TESTING
+    public bool debugMode = false;
+    public bool getDebugData = false;
+    private List<int[]>[] districtsToHighlight = new List<int[]>[] { new List<int[]>(), new List<int[]>(), new List<int[]>() };
+
+    private void OnDrawGizmos() {
+        if (debugMode) {
+            Gizmos.color = Color.green;
+            Vector3 sides = new Vector3(districtSize.x * districts.GetLength(0), districtSize.y * districts.GetLength(1), districtSize.z * districts.GetLength(2));
+            Gizmos.DrawWireCube(transform.TransformPoint(sides / 2 + lowerBoundary), sides);
+
+            foreach (int[] d in districtsToHighlight[0]) {
+                Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + lowerBoundary + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
+            }
+
+            Gizmos.color = Color.red;
+            foreach (int[] d in districtsToHighlight[1]) {
+                Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + lowerBoundary + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
+            }
+
+            Gizmos.color = Color.blue;
+            foreach (int[] d in districtsToHighlight[2]) {
+                Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + lowerBoundary + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
+            }
+        }
+    }
 
     protected abstract bool LoadFromCSV(string filename);
 
@@ -97,9 +122,16 @@ public abstract class Visualization : MonoBehaviour {
                     }
                 }
                 pathsToUpdate.Clear();
+
+                if (debugMode)
+                    districtsToHighlight[0].Clear();
+
                 for (int i = cameraDistrict[0] - (thickTowardsPositive[0] ? 1 : 2); i <= cameraDistrict[0] + (thickTowardsPositive[0] ? 2 : 1); i++) {
-                    for (int j = cameraDistrict[1] - (thickTowardsPositive[1] ? 1 : 2); j < cameraDistrict[1] + (thickTowardsPositive[1] ? 2 : 1); j++) {
-                        for (int k = cameraDistrict[2] - (thickTowardsPositive[2] ? 1 : 2); k < cameraDistrict[2] + (thickTowardsPositive[2] ? 2 : 1); k++) {
+                    for (int j = cameraDistrict[1] - (thickTowardsPositive[1] ? 1 : 2); j <= cameraDistrict[1] + (thickTowardsPositive[1] ? 2 : 1); j++) {
+                        for (int k = cameraDistrict[2] - (thickTowardsPositive[2] ? 1 : 2); k <= cameraDistrict[2] + (thickTowardsPositive[2] ? 2 : 1); k++) {
+                            if (debugMode)
+                                districtsToHighlight[0].Add(new int[3] { i, j, k });
+
                             try {
                                 foreach (Atom a in districts[i, j, k].atoms) {
                                     a.shouldUpdate = true;
@@ -152,9 +184,9 @@ public abstract class Visualization : MonoBehaviour {
     private void CreateDistricts() { //Crée et remplit districts
         CalculateBoundaries();
         int[] numberOfDistricts = {
-            (int)((upperBoundary.x - lowerBoundary.x) / districtSize.x + 1),
-            (int)((upperBoundary.y - lowerBoundary.y) / districtSize.y + 1),
-            (int)((upperBoundary.z - lowerBoundary.z) / districtSize.z + 1) };
+            Mathf.FloorToInt((upperBoundary.x - lowerBoundary.x) / districtSize.x + 1),
+            Mathf.FloorToInt((upperBoundary.y - lowerBoundary.y) / districtSize.y + 1),
+            Mathf.FloorToInt((upperBoundary.z - lowerBoundary.z) / districtSize.z + 1) };
 
         List<Atom>[,,] atomRepartition = new List<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
         for (int i = 0; i < numberOfDistricts[0]; i++) {
@@ -166,17 +198,110 @@ public abstract class Visualization : MonoBehaviour {
         }
 
         foreach (Path p in PathsAsBase) {
-            foreach (Atom a in p.AtomsAsBase) {
-                //a.point est dans le repère du Path, on le place dans le repère de la visualisation
-                Vector3 vizPoint = transform.InverseTransformPoint(p.transform.TransformPoint(a.point));
+            Vector3 point = transform.InverseTransformPoint(p.transform.TransformPoint(p.AtomsAsBase[0].point));
 
-                int[] district = {
-                    (int)((vizPoint.x - lowerBoundary.x) / districtSize.x),
-                    (int)((vizPoint.y - lowerBoundary.y) / districtSize.y),
-                    (int)((vizPoint.z - lowerBoundary.z) / districtSize.z)
+            for (int i = 0; i < p.AtomsAsBase.Count - 1; i++) {
+                Vector3 nextPoint = transform.InverseTransformPoint(p.transform.TransformPoint(p.AtomsAsBase[i + 1].point));
+                Vector3 delta = (nextPoint - point).normalized;
+
+                //On détermine les intersections avec les bords de la visualisation
+                Vector3 retroIntersect, proIntersect;
+                Vector3 retroCoeffs = Vector3.negativeInfinity;
+                Vector3 proCoeffs = Vector3.positiveInfinity;
+
+                float temp;
+
+                temp = (upperBoundary.x - point.x) / delta.x;
+                if (temp > 0) proCoeffs.x = temp; else retroCoeffs.x = temp;
+                temp = (upperBoundary.y - point.y) / delta.y;
+                if (temp > 0) proCoeffs.y = temp; else retroCoeffs.y = temp;
+                temp = (upperBoundary.z - point.z) / delta.z;
+                if (temp > 0) proCoeffs.z = temp; else retroCoeffs.z = temp;
+
+                temp = (lowerBoundary.x - point.x) / delta.x;
+                if (temp > 0) proCoeffs.x = temp; else retroCoeffs.x = temp;
+                temp = (lowerBoundary.y - point.y) / delta.y;
+                if (temp > 0) proCoeffs.y = temp; else retroCoeffs.y = temp;
+                temp = (lowerBoundary.z - point.z) / delta.z;
+                if (temp > 0) proCoeffs.z = temp; else retroCoeffs.z = temp;
+
+                proIntersect = Mathf.Min(proCoeffs.x, proCoeffs.y, proCoeffs.z) * delta + point;
+                retroIntersect = Mathf.Max(retroCoeffs.x, retroCoeffs.y, retroCoeffs.z) * delta + point;
+
+                //On traduit ces intersections en districts
+                int[] retroDistrict = {
+                    //On utilise Min et Max pour éviter les soucis avec les flottants (on est ici toujours à la frontière, donc il y en a !)
+                    Math.Min(numberOfDistricts[0] - 1, Math.Max(0, Mathf.FloorToInt((retroIntersect.x - lowerBoundary.x) / districtSize.x))),
+                    Math.Min(numberOfDistricts[1] - 1, Math.Max(0, Mathf.FloorToInt((retroIntersect.y - lowerBoundary.y) / districtSize.y))),
+                    Math.Min(numberOfDistricts[2] - 1, Math.Max(0, Mathf.FloorToInt((retroIntersect.z - lowerBoundary.z) / districtSize.z)))
                 };
 
-                atomRepartition[district[0], district[1], district[2]].Add(a);
+
+                int[] proDistrict = {
+                    Math.Min(numberOfDistricts[0] - 1, Math.Max(0, Mathf.FloorToInt((proIntersect.x - lowerBoundary.x) / districtSize.x))),
+                    Math.Min(numberOfDistricts[1] - 1, Math.Max(0, Mathf.FloorToInt((proIntersect.y - lowerBoundary.y) / districtSize.y))),
+                    Math.Min(numberOfDistricts[2] - 1, Math.Max(0, Mathf.FloorToInt((proIntersect.z - lowerBoundary.z) / districtSize.z)))
+                };
+
+                //Algorithme de Bresenham en 3D : on détermine tous les districts entre ces deux intersections
+                atomRepartition[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+
+                int Dx = Math.Abs(proDistrict[0] - retroDistrict[0]), Dy = Math.Abs(proDistrict[1] - retroDistrict[1]), Dz = Math.Abs(proDistrict[2] - retroDistrict[2]);
+                int xs = proDistrict[0] > retroDistrict[0] ? 1 : -1, ys = proDistrict[1] > retroDistrict[1] ? 1 : -1, zs = proDistrict[2] > retroDistrict[2] ? 1 : -1;
+
+                if (Dx >= Dy && Dx >= Dz) {
+                    int p1 = 2 * Dy - Dx, p2 = 2 * Dz - Dx;
+                    while (retroDistrict[0] != proDistrict[0]) {
+                        retroDistrict[0] += xs;
+                        if (p1 >= 0) {
+                            retroDistrict[1] += ys;
+                            p1 -= 2 * Dx;
+                        }
+                        if (p2 >= 0) {
+                            retroDistrict[2] += zs;
+                            p2 -= 2 * Dx;
+                        }
+                        p1 += 2 * Dy;
+                        p2 += 2 * Dz;
+                        atomRepartition[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                    }
+                }
+                else if (Dy >= Dx && Dy >= Dz) {
+                    int p1 = 2 * Dx - Dy, p2 = 2 * Dz - Dy;
+                    while (retroDistrict[1] != proDistrict[1]) {
+                        retroDistrict[1] += ys;
+                        if (p1 >= 0) {
+                            retroDistrict[0] += xs;
+                            p1 -= 2 * Dy;
+                        }
+                        if (p2 >= 0) {
+                            retroDistrict[2] += zs;
+                            p2 -= 2 * Dy;
+                        }
+                        p1 += 2 * Dx;
+                        p2 += 2 * Dz;
+                        atomRepartition[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                    }
+                }
+                else {
+                    int p1 = 2 * Dy - Dz, p2 = 2 * Dx - Dz;
+                    while (retroDistrict[2] != proDistrict[2]) {
+                        retroDistrict[2] += zs;
+                        if (p1 >= 0) {
+                            retroDistrict[1] += ys;
+                            p1 -= 2 * Dz;
+                        }
+                        if (p2 >= 0) {
+                            retroDistrict[0] += xs;
+                            p2 -= 2 * Dz;
+                        }
+                        p1 += 2 * Dy;
+                        p2 += 2 * Dx;
+                        atomRepartition[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                    }
+                }
+
+                point = nextPoint;
             }
         }
 
@@ -197,9 +322,9 @@ public abstract class Visualization : MonoBehaviour {
     private int[] GetCameraDistrict() {
         Vector3 pos = transform.InverseTransformPoint(Camera.main.transform.position) - lowerBoundary;
         int[] coords = {
-            (int) (pos.x / districtSize.x),
-            (int) (pos.y / districtSize.y),
-            (int) (pos.z / districtSize.z)};
+            Mathf.FloorToInt(pos.x / districtSize.x),
+            Mathf.FloorToInt(pos.y / districtSize.y),
+            Mathf.FloorToInt(pos.z / districtSize.z)};
         return coords;
     }
 }
@@ -290,7 +415,7 @@ public abstract class Path {
             }
 
             currentPoint = AtomsAsBase[p].point;
-            nextPoint = AtomsAsBase[p+1].point;
+            nextPoint = AtomsAsBase[p + 1].point;
 
             int i = 5 * p;
             float radius;
@@ -299,11 +424,11 @@ public abstract class Path {
 
             vBase = radius * Vector3.Cross(nextPoint - camPos, nextPoint - currentPoint).normalized;
             vertices[i] = currentPoint + vBase;
-            vertices[i+1] = currentPoint - vBase;
-            vertices[i+2] = vertices[i] + nextPoint - currentPoint;
-            vertices[i+3] = vertices[i + 1] + nextPoint - currentPoint;
+            vertices[i + 1] = currentPoint - vBase;
+            vertices[i + 2] = vertices[i] + nextPoint - currentPoint;
+            vertices[i + 3] = vertices[i + 1] + nextPoint - currentPoint;
             if (p < atomCount - 2)
-                vertices[i+4] = nextPoint;
+                vertices[i + 4] = nextPoint;
 
             colors[i] = pointColor;
             colors[i + 1] = pointColor;
