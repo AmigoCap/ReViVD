@@ -27,8 +27,8 @@
 ## Visualization Toolkit
 [8]	M. Cordeil, Immersive Analytics Toolkit. Contribute to MaximeCordeil/IATK development by creating an account on GitHub. 2018.
 
-
 ##New references to annotate
+
 [9]	M. Pahud and N. Riche, “(71) Applicant: MICROSOFT TECHNOLOGY LICENSING , LLC , Redmond, WA,” p. 29.
 
 [10]	“US20180364808A1.pdf.” .
