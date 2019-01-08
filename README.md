@@ -21,10 +21,10 @@ References of the project can be found in the *annotated_bibliography.md* file.
    - ~~Aircraft Visualization~~
    - ~~New code architecture~~
 - Optimization of data visualization (ongoing)
-   - Creation of districts
+   - ~~Creation of districts~~
    - Own shader
    - Multithreading
-   -  Camera (far range)
+   - Distribution on several frames
 - Interaction with data
    - Handling controllers
    - Filter data

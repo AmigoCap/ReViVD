@@ -19,7 +19,7 @@
 ## Books on Unity
 Reference [5] provides an introduction to Unity through some little game projects. Optimization of the game and the scenes, collision management, interaction with the virtual environment and user interface are some points which are discussed in this reference.
 
-In reference [6], A. Cardinale provides aspects of the history of VR technology and equipment. He uses the Google SDK to introduce the reader to a VR project with Unity. Some explanations and good practices to follow are explained for user interface and use of a controller. It also recalls the 5 fundamental rules of ergonomics and immersion to follow in a VR project: motion sickness and immersive experience
+In reference [6], A. Cardinale provides aspects of the history of VR technology and equipment. He uses the Google SDK to introduce the reader to a VR project with Unity. Some explanations and good practices to follow are explained for user interface and use of a controller. It also recalls the 5 fundamental rules of ergonomics and immersion to follow in a VR project to avoid motion sickness and enhance the immersive experience:
 
 **Ergonomics rules**
 1. Use of a reticle
