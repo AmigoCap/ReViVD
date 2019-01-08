@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Test Shader" {
+Shader "Ribbon Shader" {
 	Category{
 	Tags { "RenderType" = "Opaque" }
 	Lighting Off

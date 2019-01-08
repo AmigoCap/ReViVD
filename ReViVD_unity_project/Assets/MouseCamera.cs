@@ -11,8 +11,8 @@ public class MouseCamera : MonoBehaviour
 
 
     public float mainSpeed = 50.0f; //regular speed
-    float shiftAdd = 100.0f; //multiplied by how long shift is held.  Basically running
-    float maxShift = 1000.0f; //Maximum speed when holdin gshift
+    public float shiftAdd = 100.0f; //multiplied by how long shift is held.  Basically running
+    public float maxShift = 1000.0f; //Maximum speed when holdin gshift
     public float camSens = 0.2f; //How sensitive it with mouse
     private Vector2 mouse;
     private float totalRun = 1.0f;

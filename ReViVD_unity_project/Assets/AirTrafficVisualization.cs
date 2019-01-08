@@ -52,6 +52,10 @@ public class AirTrafficVisualization : TimeVisualization {
         if (!LoadFromCSV("data_aviation")) {
             return;
         }
+        for (int i = 0; i < 10; i += 2) {
+            Paths[60].specialRadii.Add(i, 0.2f);
+        }
+        Debug.Log(Paths[60].ID);
         InitializeRendering();
     }
 

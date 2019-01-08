@@ -9,7 +9,7 @@ public abstract class Visualization : MonoBehaviour {
     //TESTING
     public bool debugMode = false;
     public bool getDebugData = false;
-    private List<int[]>[] districtsToHighlight = new List<int[]>[] { new List<int[]>(), new List<int[]>(), new List<int[]>() };
+    private readonly List<int[]>[] districtsToHighlight = new List<int[]>[] { new List<int[]>(), new List<int[]>(), new List<int[]>() };
 
     private void OnDrawGizmos() {
         if (debugMode) {
