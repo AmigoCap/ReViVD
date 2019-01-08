@@ -24,6 +24,7 @@ References of the project can be found in the *annotated_bibliography.md* file.
    - ~~Creation of districts~~
    - Own shader
    - Multithreading
+   - Distribution on several frames
 - Interaction with data
    - Handling controllers
    - Filter data
