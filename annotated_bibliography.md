@@ -17,6 +17,24 @@
 [4]	“DXR: A Toolkit for Building Immersive Data Visualizations.” [Online]. Available: https://sites.google.com/view/dxr-vis. [Accessed: 07-Jan-2019].
 
 ## Books on Unity
+Reference [5] provides an introduction to Unity through some little game projects. Optimization of the game and the scenes, collision management, interaction with the virtual environment and user interface are some points which are discussed in this reference.
+
+In reference [6], A. Cardinale provides aspects of the history of VR technology and equipment. He uses the Google SDK to introduce the reader to a VR project with Unity. Some explanations and good practices to follow are explained for user interface and use of a controller. It also recalls the 5 fundamental rules of ergonomics and immersion to follow in a VR project: motion sickness and immersive experience
+
+**Ergonomics rules**
+1. Use of a reticle
+2. Depth and eye fatigue
+3. Use of a constant speed
+4. Put markers on the ground
+5. Head tracking
+
+**Immersion rules**
+1. Lead with light
+2. Use decor and scale
+3. Create a sound universe
+4. Interact with look
+5. Do not disregard the visual aspect
+
 [5]	A. Cardinale, Créez des jeux de A à Z avec Unity: bases et jeux mobiles. Paris: D-BookeR éditions, 2015.
 
 [6]	A. Cardinale, Développer des applis innovantes avec Unity: réalité virtuelle et réalité augmentée. Anzin: D-Booker éditions, 2017.
@@ -27,7 +45,7 @@
 ## Visualization Toolkit
 [8]	M. Cordeil, Immersive Analytics Toolkit. Contribute to MaximeCordeil/IATK development by creating an account on GitHub. 2018.
 
-##New references to annotate
+## New references to annotate
 
 [9]	M. Pahud and N. Riche, “(71) Applicant: MICROSOFT TECHNOLOGY LICENSING , LLC , Redmond, WA,” p. 29.
 
@@ -49,7 +67,7 @@
 
 [18]	“A Geometric Intuition for LDA.” [Online]. Available: https://omarshehata.github.io/lda-explorable/. [Accessed: 07-Jan-2019].
 
-
+[19]	Oh-Hyun Kwon, C. Muelder, Kyungwon Lee, and Kwan-Liu Ma, “Spherical layout and rendering methods for immersive graph visualization,” in 2015 IEEE Pacific Visualization Symposium (PacificVis), Hangzhou, China, 2015, pp. 63–67.
 
 
 
