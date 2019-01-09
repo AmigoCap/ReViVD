@@ -394,12 +394,14 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2015733474}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82895ded1d8113e469a102efaf3aca4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mainSpeed: 30
+  shiftAdd: 100
+  maxShift: 1000
   camSens: 0.25
   AZERTY: 1
 --- !u!1 &2039570151

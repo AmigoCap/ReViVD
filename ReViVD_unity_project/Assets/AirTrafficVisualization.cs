@@ -52,14 +52,22 @@ public class AirTrafficVisualization : TimeVisualization {
         if (!LoadFromCSV("data_aviation")) {
             return;
         }
-        for (int i = 0; i < 10; i += 2) {
-            Paths[60].specialRadii.Add(i, 0.2f);
-        }
-        Debug.Log(Paths[60].ID);
         InitializeRendering();
+
+        startTime = Time.time;
     }
 
+    private float startTime = 0;
+
     private void Update() {
+        if (Input.GetMouseButton(0)) {
+            startTime = Time.time;
+        }
+
+        foreach (AirTrafficPath p in Paths) {
+            p.SetTimeWindow((Time.time - startTime) * 60 - 300, (Time.time - startTime) * 60 + 300);
+        }
+
         UpdateRendering();
     }
 
