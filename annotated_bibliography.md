@@ -52,28 +52,52 @@ The blog spot [7] tackles the application of Virtual Reality in data visualizati
 ## Visualization Toolkit
 [8]	M. Cordeil, Immersive Analytics Toolkit. Contribute to MaximeCordeil/IATK development by creating an account on GitHub. 2018.
 
-## New references to annotate
-
+## Reference to annotate
 [9]	M. Pahud and N. Riche, “(71) Applicant: MICROSOFT TECHNOLOGY LICENSING , LLC , Redmond, WA,” p. 29.
 
+## Reference to annotate
 [10]	“US20180364808A1.pdf.” .
+
+## 3D Visualization of the World Wide Web
+The paper [11] reviews several approaches to visualize the Web, its structure, the searches on the Web, the users and the evolution of a website.
 
 [11]	S. Benford et al., “Three dimensional visualization of the World Wide Web,” ACM Computing Surveys, vol. 31, no. 4es, pp. 25-es, Dec. 1999.
 
+## Study of the impact of map-based visualizations on recall accuracy
+The results presented in reference [12] show that users recall data shown with node-link-group diagrams better than data shown with node-link diagrams.
+Users also spent more time exploring NLG diagrams than NL diagrams.
+
 [12]	B. Saket, C. Scheidegger, S. G. Kobourov, and K. Börner, “Map-based Visualizations Increase Recall Accuracy of Data,” Computer Graphics Forum, vol. 34, no. 3, pp. 441–450, Jun. 2015.
 
+## Reference to annotate
 [13]	P. Mindek, M. E. Gröller, and S. Bruckner, “Managing Spatial Selections With Contextual Snapshots: Managing Spatial Selections With Contextual Snapshots,” Computer Graphics Forum, vol. 33, no. 8, pp. 132–144, Dec. 2014.
 
+## Reference to annotate
 [14]	L. Yu, K. Efstathiou, P. Isenberg, and T. Isenberg, “CAST: Effective and Efficient User Interaction for Context-Aware Selection in 3D Particle Clouds,” IEEE Transactions on Visualization and Computer Graphics, vol. 22, no. 1, pp. 886–895, Jan. 2016.
+
+## Model of 3D navigation
+Model of directness in spatial interaction with visualization.
 
 [15]	S. Bruckner, T. Isenberg, T. Ropinski, and A. Wiebel, “A Model of Spatial Directness in Interactive Visualization,” IEEE Transactions on Visualization and Computer Graphics, pp. 1–1, 2018.
 
+## Comparison of 3 visualization environments
+Reference [16] presents a comparison of several visualization environments used for 3D exploration:
+* Augmented-reality head-mounted headset
+* Handheld tablet
+* Desktop setup
+The results of this paper show that each environment is efficient for some specific tasks and that overall the desktop setup is the fastest and more precise.
+
 [16]	B. Bach, R. Sicat, J. Beyer, M. Cordeil, and H. Pfister, “The Hologram in My Hand: How Effective is Interactive Exploration of 3D Visualizations in Immersive Tangible Augmented Reality?,” IEEE Transactions on Visualization and Computer Graphics, vol. PP, Jan. 2018.
 
+## Reference to annotate
 [17]	“insight3d - opensource image based 3d modeling software.” [Online]. Available: http://insight3d.sourceforge.net/. [Accessed: 07-Jan-2019].
+
+## Linear Discriminant Analysis - Dimensionality Reduction
+Reference [18] provides a geometric introduction to the LDA technique. This method allows to reduce the dimension of a dataset while keeping most of the information.
 
 [18]	“A Geometric Intuition for LDA.” [Online]. Available: https://omarshehata.github.io/lda-explorable/. [Accessed: 07-Jan-2019].
 
+## Reference to annotate
 [19]	Oh-Hyun Kwon, C. Muelder, Kyungwon Lee, and Kwan-Liu Ma, “Spherical layout and rendering methods for immersive graph visualization,” in 2015 IEEE Pacific Visualization Symposium (PacificVis), Hangzhou, China, 2015, pp. 63–67.
 
 
