@@ -85,6 +85,7 @@ Reference [16] presents a comparison of several visualization environments used 
 * Augmented-reality head-mounted headset
 * Handheld tablet
 * Desktop setup
+
 The results of this paper show that each environment is efficient for some specific tasks and that overall the desktop setup is the fastest and more precise.
 
 [16]	B. Bach, R. Sicat, J. Beyer, M. Cordeil, and H. Pfister, “The Hologram in My Hand: How Effective is Interactive Exploration of 3D Visualizations in Immersive Tangible Augmented Reality?,” IEEE Transactions on Visualization and Computer Graphics, vol. PP, Jan. 2018.
