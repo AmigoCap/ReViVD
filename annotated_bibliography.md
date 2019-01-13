@@ -97,7 +97,14 @@ Reference [18] provides a geometric introduction to the LDA technique. This meth
 
 [18]	“A Geometric Intuition for LDA.” [Online]. Available: https://omarshehata.github.io/lda-explorable/. [Accessed: 07-Jan-2019].
 
-## Reference to annotate
+## Immersive graph visualization with virtual reality
+Reference [19] creates an immersive graph visualization with virtual reality. This paper explores the point of view immersed in a graph and how to deform the layout to better explore it. 
+Main contributions of this work are:
+* "3 graph layout algorithms for the surface of a sphere"
+* "A spherical edge routing and bundling approach, to be viewed from the inside"
+* "An application of line rendering techniques from scientific visualizations to the field of graph visualization"
+* "A VR interaction paradigm for graph visualization"
+
 [19]	Oh-Hyun Kwon, C. Muelder, Kyungwon Lee, and Kwan-Liu Ma, “Spherical layout and rendering methods for immersive graph visualization,” in 2015 IEEE Pacific Visualization Symposium (PacificVis), Hangzhou, China, 2015, pp. 63–67.
 
 
