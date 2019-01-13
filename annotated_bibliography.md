@@ -2,6 +2,11 @@
 
 ## Context
 
+FiberClay [1] lets users to display and interact with 3D trajectories through virtual reality. This is the first visualization tool that provides selections of 3D trajectories "with a bi-manual, iterative, brushing technique and continuous navigation between visual configurations".
+The authors of this system took into account trajectories visualization and virtual reality considerations to develop an appropriate visualization tool.
+Fiberclay was used to explore data air traffic, interactions with data let the user identifying and emphasizing anamolies and unusual trajectories in a better way than 2D exploration did. The immersive exploration of a brain scan allowed the authors to develop different bundling algorithms to simplify the dataset display.
+The paper also alludes to the pros and cons of 2D vs 3D exploration systems.
+
 [1]	C. Hurter, N. H. Riche, S. M. Drucker, M. Cordeil, R. Alligier, and R. Vuillemot, “FiberClay: Sculpting Three Dimensional Trajectories  to Reveal Structural Insights,” p. 11.
 
 <a href="https://www.youtube.com/watch?v=8j9r9JKIqww">Demo video</a>
@@ -40,6 +45,8 @@ In reference [6], A. Cardinale provides aspects of the history of VR technology 
 [6]	A. Cardinale, Développer des applis innovantes avec Unity: réalité virtuelle et réalité augmentée. Anzin: D-Booker éditions, 2017.
 
 ## Critics of VR Data Visualization
+The blog spot [7] tackles the application of Virtual Reality in data visualization. According to the author, there is no advantage of using VR visualization instead of 2D tools to display abstract data. Moreover, it could be less effective or event counterproductive. 
+
 [7]	“Visual Business Intelligence – So Far, VR-Enabled Data Visualization is Nonsense.” [Online]. Available: http://www.perceptualedge.com/blog/?p=2865. [Accessed: 07-Jan-2019].
 
 ## Visualization Toolkit
