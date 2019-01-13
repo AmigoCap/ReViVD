@@ -107,10 +107,13 @@ Main contributions of this work are:
 
 [19]	Oh-Hyun Kwon, C. Muelder, Kyungwon Lee, and Kwan-Liu Ma, “Spherical layout and rendering methods for immersive graph visualization,” in 2015 IEEE Pacific Visualization Symposium (PacificVis), Hangzhou, China, 2015, pp. 63–67.
 
+## Bresenham's Algorithm
 
+[20] “Bresenham’s Algorithm for 3-D Line Drawing,” GeeksforGeeks, 15-Jul-2018.
 
+## Mesh Youtube tutorial
 
-
+[21] Board To Bits Games, Procedural Mesh Tutorial, Part 1: Mesh Basics.
 
 
 
