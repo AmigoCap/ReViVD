@@ -45,7 +45,7 @@ In reference [6], A. Cardinale provides aspects of the history of VR technology 
 [6]	A. Cardinale, Développer des applis innovantes avec Unity: réalité virtuelle et réalité augmentée. Anzin: D-Booker éditions, 2017.
 
 ## Critics of VR Data Visualization
-The blog spot [7] tackles the application of Virtual Reality in data visualization. According to the author, there is no advantage of using VR visualization instead of 2D tools to display abstract data. Moreover, it could be less effective or event counterproductive. 
+The blog spot [7] tackles the application of Virtual Reality in data visualization. According to the author, there is no advantage of using VR visualization instead of 2D tools to display abstract data. Moreover, it could be less effective or even counterproductive. 
 
 [7]	“Visual Business Intelligence – So Far, VR-Enabled Data Visualization is Nonsense.” [Online]. Available: http://www.perceptualedge.com/blog/?p=2865. [Accessed: 07-Jan-2019].
 
