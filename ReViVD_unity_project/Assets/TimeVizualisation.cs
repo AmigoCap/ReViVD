@@ -20,6 +20,18 @@ public abstract class TimePath : Path {
         if (shouldUpdateTriangles)
             GenerateTriangles();
     }
+
+    public void RemoveTimeWindow() {
+        bool shouldUpdateTriangles = false;
+        foreach (TimeAtom a in AtomsAsTime) {
+            if (!a.shouldDisplay) {
+                a.shouldDisplay = true;
+                shouldUpdateTriangles = true;
+            }
+        }
+        if (shouldUpdateTriangles)
+            GenerateTriangles();
+    }
 }
 
 public abstract class TimeAtom : Atom {

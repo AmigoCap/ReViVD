@@ -160,6 +160,15 @@ public abstract class Visualization : MonoBehaviour {
 
     public abstract IReadOnlyList<Path> PathsAsBase { get; }
 
+    public int GetPathIndex(string ID) {
+        int c = PathsAsBase.Count;
+        for (int i = 0; i < c; i++) {
+            if (PathsAsBase[i].ID == ID)
+                return i;
+        }
+        return -1;
+    }
+
     private struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
         public Atom[] atoms;
         public Vector3 center;
