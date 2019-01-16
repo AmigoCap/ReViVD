@@ -48,18 +48,46 @@ public class AirTrafficVisualization : TimeVisualization {
         return time;
     }
 
+    bool doTime = false;
+
     private void Start() {
         if (!LoadFromCSV("data_aviation")) {
             return;
         }
-        for (int i = 0; i < 10; i += 2) {
-            Paths[60].specialRadii.Add(i, 0.2f);
-        }
-        Debug.Log(Paths[60].ID);
+        AirTrafficPath p = Paths[GetPathIndex("60")];
+        int c = p.AtomsAsBase.Count;
+        for (int i = 0; i < c; i += 2)
+            p.specialRadii.Add(i, 0.3f);
+
         InitializeRendering();
+
+        startTime = Time.time;
     }
 
+    private float startTime = 0;
+
     private void Update() {
+        if (Input.GetMouseButtonDown(0)) {
+            startTime = Time.time;
+        }
+        if (Input.GetMouseButtonDown(1)) {
+            doTime = !doTime;
+            if (doTime) {
+                startTime = Time.time;
+            }
+            else {
+                foreach (AirTrafficPath p in Paths) {
+                    p.RemoveTimeWindow();
+                }
+            }
+        }
+
+        if (doTime) {
+            foreach (AirTrafficPath p in Paths) {
+                p.SetTimeWindow((Time.time - startTime) * 60 - 300, (Time.time - startTime) * 60 + 300);
+            }
+        }
+
         UpdateRendering();
     }
 

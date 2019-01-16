@@ -160,6 +160,15 @@ public abstract class Visualization : MonoBehaviour {
 
     public abstract IReadOnlyList<Path> PathsAsBase { get; }
 
+    public int GetPathIndex(string ID) {
+        int c = PathsAsBase.Count;
+        for (int i = 0; i < c; i++) {
+            if (PathsAsBase[i].ID == ID)
+                return i;
+        }
+        return -1;
+    }
+
     private struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
         public Atom[] atoms;
         public Vector3 center;
@@ -348,47 +357,54 @@ public abstract class Path {
             specialRadii.Remove(key);
     }
 
+    protected void GenerateTriangles() {
+        int totalAtoms = AtomsAsBase.Count;
+
+        CleanspecialRadii();
+
+        List<int> trianglesL = new List<int>();
+        int[] generator = { 0, 2, 1, 1, 2, 3, 2, 5, 4, 3, 4, 6 };
+        int[] bonusGenerator = { 2, 4, 5, 3, 6, 4 };
+
+        bool previousWasSpecial = false;
+        for (int i = 0; i < totalAtoms - 1; i++) {
+            if (AtomsAsBase[i].shouldDisplay) {
+                for (int j = 0; j < (i == totalAtoms - 2 ? 6 : 12); j++) {
+                    trianglesL.Add(generator[j] + 5 * i);
+                }
+
+                if (specialRadii.ContainsKey(i)) {
+                    if (!previousWasSpecial && i != 0 && AtomsAsBase[i - 1].shouldDisplay) {
+                        for (int j = 0; j < 6; j++) {
+                            trianglesL.Add(bonusGenerator[j] + 5 * (i - 1));
+                        }
+                    }
+                    if (i != totalAtoms - 2 && AtomsAsBase[i + 1].shouldDisplay) {
+                        for (int j = 0; j < 6; j++) {
+                            trianglesL.Add(bonusGenerator[j] + 5 * (i));
+                        }
+                    }
+                    previousWasSpecial = true;
+                }
+                else
+                    previousWasSpecial = false;
+            }
+        }
+
+        mesh.triangles = trianglesL.ToArray();
+    }
+
     public void GenerateMesh() {
         mesh.Clear();
 
-        CleanspecialRadii();
         int AtomCount = AtomsAsBase.Count;
-
-        int specialRadiiBonusTriangles = specialRadii.Count * 12
-                                         - (specialRadii.ContainsKey(0) ? 6 : 0)
-                                         - (specialRadii.ContainsKey(AtomCount - 2) ? 6 : 0);
 
         Vector3[] vertices = new Vector3[AtomCount * 5 - 6];
         Color32[] colors = new Color32[vertices.Length];
-        int[] triangles = new int[AtomCount * 12 - 18 + specialRadiiBonusTriangles];
-
-        int[] generator = { 0, 2, 1, 1, 2, 3, 2, 5, 4, 3, 4, 6 };
-        for (int i = 0; i < triangles.Length - specialRadiiBonusTriangles; i++) {
-            triangles[i] = generator[i % 12] + 5 * (i / 12);
-        }
-
-        int bonus_i = triangles.Length - specialRadiiBonusTriangles;
-        int[] bonusGenerator = { 2, 4, 5, 3, 6, 5 };
-        foreach (KeyValuePair<int, float> pair in specialRadii) {
-            int p = pair.Key;
-            int start = bonus_i;
-            if (p != 0) {
-                while (bonus_i < start + 6) {
-                    triangles[bonus_i] = bonusGenerator[bonus_i - start] + 5 * (p - 1);
-                    bonus_i++;
-                }
-            }
-            if (p != AtomCount - 2) {
-                while (bonus_i < start + 6) {
-                    triangles[bonus_i] = bonusGenerator[bonus_i - start] + 5 * p;
-                    bonus_i++;
-                }
-            }
-        }
 
         mesh.vertices = vertices;
         mesh.colors32 = colors;
-        mesh.triangles = triangles;
+        GenerateTriangles();
 
         UpdateVertices();
     }
@@ -407,17 +423,17 @@ public abstract class Path {
         Color32 pointColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), currentPoint.y / maxHeight);
 
         for (int p = 0; p < atomCount - 1; p++) {
-            if (!AtomsAsBase[p].shouldUpdate && !forceUpdateAll) {
+            if ((!AtomsAsBase[p].shouldUpdate || !AtomsAsBase[p].shouldDisplay) && !forceUpdateAll) {
                 if (p == 0 || !AtomsAsBase[p - 1].shouldUpdate) {
                     pointColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), AtomsAsBase[p + 1].point.y / maxHeight);
                     continue;
                 }
             }
 
+            int i = 5 * p;
             currentPoint = AtomsAsBase[p].point;
             nextPoint = AtomsAsBase[p + 1].point;
 
-            int i = 5 * p;
             float radius;
             if (!specialRadii.TryGetValue(p, out radius))
                 radius = baseRadius;
@@ -437,7 +453,7 @@ public abstract class Path {
             colors[i + 2] = pointColor;
             colors[i + 3] = pointColor;
             if (p < atomCount - 2)
-                colors[i+4] = pointColor;
+                colors[i + 4] = pointColor;
         }
 
         mesh.vertices = vertices;
@@ -452,20 +468,5 @@ public abstract class Atom {
     public Vector3 point;
     public Path path;
     public bool shouldUpdate = false;
-}
-
-
-
-public abstract class TimeVisualization : Visualization {
-    protected abstract float InterpretTime(string word);
-
-    public abstract IReadOnlyList<TimePath> PathsAsTime { get; }
-}
-
-public abstract class TimePath : Path {
-    public abstract IReadOnlyList<TimeAtom> AtomsAsTime { get; }
-}
-
-public abstract class TimeAtom : Atom {
-    public float time;
+    public bool shouldDisplay = true;
 }
