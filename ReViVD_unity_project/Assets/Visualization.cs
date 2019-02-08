@@ -89,7 +89,7 @@ public abstract class Visualization : MonoBehaviour {
         }
         CreateDistricts();
 
-        oldCameraDistrict = GetCameraDistrict();
+        oldCameraDistrict = FindDistrict(transform.InverseTransformPoint(Camera.main.transform.position), false);
         oldCameraDistrict[0] = oldCameraDistrict[0] + 10; //On prend une ancienne caméra différente de la véritable pour forcer une première update de tous les atomes
     }
 
@@ -98,7 +98,7 @@ public abstract class Visualization : MonoBehaviour {
     readonly bool[] thickTowardsPositive = { true, true, true }; //Définit la position du cube de 4x4 districts autour de la caméra
 
     protected void UpdateRendering() {
-        int[] cameraDistrict = GetCameraDistrict();
+        int[] cameraDistrict = FindDistrict(transform.InverseTransformPoint(Camera.main.transform.position), false);
         if (cameraDistrict[0] == oldCameraDistrict[0] && cameraDistrict[1] == oldCameraDistrict[1] && cameraDistrict[2] == oldCameraDistrict[2]) {
             foreach (Path p in pathsToUpdate) {
                 p.UpdateVertices();
@@ -133,7 +133,7 @@ public abstract class Visualization : MonoBehaviour {
                                 districtsToHighlight[0].Add(new int[3] { i, j, k });
 
                             try {
-                                foreach (Atom a in districts[i, j, k].atoms) {
+                                foreach (Atom a in districts[i, j, k].atoms_line) {
                                     a.shouldUpdate = true;
                                     pathsToUpdate.Add(a.path);
                                 }
@@ -170,7 +170,8 @@ public abstract class Visualization : MonoBehaviour {
     }
 
     private struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
-        public Atom[] atoms;
+        public Atom[] atoms_line; //Tous les atomes dont le ruban, étendu en ligne inifinie, traverse le district
+        public Atom[] atoms_segment; //Tous les atomes dont le ruban fini traverse le district
         public Vector3 center;
     }
 
@@ -190,18 +191,43 @@ public abstract class Visualization : MonoBehaviour {
         }
     }
 
+    //Donne le district dans lequel se trouve un point dans les coordonnées de la visualisation.
+    //L'option "crop" renvoie toujours un district réel (si le point est à l'extérieur de la visualisation, on prend le district le plus proche)
+    private int[] FindDistrict(Vector3 point, bool crop) {
+        int[] district;
+        if (crop) {
+            //On utilise Min et Max pour éviter les soucis avec les flottants
+            district = new int[] {
+                Math.Min(districts.GetLength(0) - 1, Math.Max(0, Mathf.FloorToInt((point.x - lowerBoundary.x) / districtSize.x))),
+                Math.Min(districts.GetLength(1) - 1, Math.Max(0, Mathf.FloorToInt((point.y - lowerBoundary.y) / districtSize.y))),
+                Math.Min(districts.GetLength(2) - 1, Math.Max(0, Mathf.FloorToInt((point.z - lowerBoundary.z) / districtSize.z)))
+            };
+        }
+        else {
+            district = new int[] {
+                Mathf.FloorToInt((point.x - lowerBoundary.x) / districtSize.x),
+                Mathf.FloorToInt((point.y - lowerBoundary.y) / districtSize.y),
+                Mathf.FloorToInt((point.z - lowerBoundary.z) / districtSize.z)
+            };
+        }
+        return district;
+    }
+
     private void CreateDistricts() { //Crée et remplit districts
         CalculateBoundaries();
         int[] numberOfDistricts = {
             Mathf.FloorToInt((upperBoundary.x - lowerBoundary.x) / districtSize.x + 1),
             Mathf.FloorToInt((upperBoundary.y - lowerBoundary.y) / districtSize.y + 1),
             Mathf.FloorToInt((upperBoundary.z - lowerBoundary.z) / districtSize.z + 1) };
+        districts = new District[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
 
-        List<Atom>[,,] atomRepartition = new List<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
+        List<Atom>[,,] atomRepartition_line = new List<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
+        List<Atom>[,,] atomRepartition_segment = new List<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
         for (int i = 0; i < numberOfDistricts[0]; i++) {
             for (int j = 0; j < numberOfDistricts[1]; j++) {
                 for (int k = 0; k < numberOfDistricts[2]; k++) {
-                    atomRepartition[i, j, k] = new List<Atom>();
+                    atomRepartition_line[i, j, k] = new List<Atom>();
+                    atomRepartition_segment[i, j, k] = new List<Atom>();
                 }
             }
         }
@@ -238,25 +264,20 @@ public abstract class Visualization : MonoBehaviour {
                 retroIntersect = Mathf.Max(retroCoeffs.x, retroCoeffs.y, retroCoeffs.z) * delta + point;
 
                 //On traduit ces intersections en districts
-                int[] retroDistrict = {
-                    //On utilise Min et Max pour éviter les soucis avec les flottants (on est ici toujours à la frontière, donc il y en a !)
-                    Math.Min(numberOfDistricts[0] - 1, Math.Max(0, Mathf.FloorToInt((retroIntersect.x - lowerBoundary.x) / districtSize.x))),
-                    Math.Min(numberOfDistricts[1] - 1, Math.Max(0, Mathf.FloorToInt((retroIntersect.y - lowerBoundary.y) / districtSize.y))),
-                    Math.Min(numberOfDistricts[2] - 1, Math.Max(0, Mathf.FloorToInt((retroIntersect.z - lowerBoundary.z) / districtSize.z)))
-                };
+                int[] retroDistrict = FindDistrict(retroIntersect, true);
+                int[] proDistrict = FindDistrict(proIntersect, true);
 
-
-                int[] proDistrict = {
-                    Math.Min(numberOfDistricts[0] - 1, Math.Max(0, Mathf.FloorToInt((proIntersect.x - lowerBoundary.x) / districtSize.x))),
-                    Math.Min(numberOfDistricts[1] - 1, Math.Max(0, Mathf.FloorToInt((proIntersect.y - lowerBoundary.y) / districtSize.y))),
-                    Math.Min(numberOfDistricts[2] - 1, Math.Max(0, Mathf.FloorToInt((proIntersect.z - lowerBoundary.z) / districtSize.z)))
-                };
+                //On obtient aussi les districts des points
+                int[] pointDistrict = FindDistrict(point, true);
+                int[] nextPointDistrict = FindDistrict(nextPoint, true);
 
                 //Algorithme de Bresenham en 3D : on détermine tous les districts entre ces deux intersections
-                atomRepartition[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                atomRepartition_line[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
 
                 int Dx = Math.Abs(proDistrict[0] - retroDistrict[0]), Dy = Math.Abs(proDistrict[1] - retroDistrict[1]), Dz = Math.Abs(proDistrict[2] - retroDistrict[2]);
                 int xs = proDistrict[0] > retroDistrict[0] ? 1 : -1, ys = proDistrict[1] > retroDistrict[1] ? 1 : -1, zs = proDistrict[2] > retroDistrict[2] ? 1 : -1;
+
+                bool inSegment = false;
 
                 if (Dx >= Dy && Dx >= Dz) {
                     int p1 = 2 * Dy - Dx, p2 = 2 * Dz - Dx;
@@ -272,7 +293,15 @@ public abstract class Visualization : MonoBehaviour {
                         }
                         p1 += 2 * Dy;
                         p2 += 2 * Dz;
-                        atomRepartition[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                        atomRepartition_line[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+
+                        if (retroDistrict[0] == pointDistrict[0] && retroDistrict[1] == pointDistrict[1] && retroDistrict[2] == pointDistrict[2])
+                            inSegment = true;
+                        if (inSegment)
+                            atomRepartition_segment[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                        if (retroDistrict[0] == nextPointDistrict[0] && retroDistrict[1] == nextPointDistrict[1] && retroDistrict[2] == nextPointDistrict[2])
+                            inSegment = false;
+
                     }
                 }
                 else if (Dy >= Dx && Dy >= Dz) {
@@ -289,7 +318,14 @@ public abstract class Visualization : MonoBehaviour {
                         }
                         p1 += 2 * Dx;
                         p2 += 2 * Dz;
-                        atomRepartition[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                        atomRepartition_line[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+
+                        if (retroDistrict[0] == pointDistrict[0] && retroDistrict[1] == pointDistrict[1] && retroDistrict[2] == pointDistrict[2])
+                            inSegment = true;
+                        if (inSegment)
+                            atomRepartition_segment[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                        if (retroDistrict[0] == nextPointDistrict[0] && retroDistrict[1] == nextPointDistrict[1] && retroDistrict[2] == nextPointDistrict[2])
+                            inSegment = false;
                     }
                 }
                 else {
@@ -306,7 +342,14 @@ public abstract class Visualization : MonoBehaviour {
                         }
                         p1 += 2 * Dy;
                         p2 += 2 * Dx;
-                        atomRepartition[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                        atomRepartition_line[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+
+                        if (retroDistrict[0] == pointDistrict[0] && retroDistrict[1] == pointDistrict[1] && retroDistrict[2] == pointDistrict[2])
+                            inSegment = true;
+                        if (inSegment)
+                            atomRepartition_segment[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
+                        if (retroDistrict[0] == nextPointDistrict[0] && retroDistrict[1] == nextPointDistrict[1] && retroDistrict[2] == nextPointDistrict[2])
+                            inSegment = false;
                     }
                 }
 
@@ -314,27 +357,17 @@ public abstract class Visualization : MonoBehaviour {
             }
         }
 
-        districts = new District[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
-
         for (int x = 0; x < numberOfDistricts[0]; x++) {
             for (int y = 0; y < numberOfDistricts[1]; y++) {
                 for (int z = 0; z < numberOfDistricts[2]; z++) {
                     districts[x, y, z] = new District {
-                        atoms = atomRepartition[x, y, z].ToArray(),
-                        center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2,
+                        atoms_line = atomRepartition_line[x, y, z].ToArray(),
+                        atoms_segment = atomRepartition_segment[x, y, z].ToArray(),
+                        center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2
                     };
                 }
             }
         }
-    }
-
-    private int[] GetCameraDistrict() {
-        Vector3 pos = transform.InverseTransformPoint(Camera.main.transform.position) - lowerBoundary;
-        int[] coords = {
-            Mathf.FloorToInt(pos.x / districtSize.x),
-            Mathf.FloorToInt(pos.y / districtSize.y),
-            Mathf.FloorToInt(pos.z / districtSize.z)};
-        return coords;
     }
 }
 
