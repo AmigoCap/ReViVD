@@ -6,24 +6,30 @@ public class Controllers : MonoBehaviour
     GameObject leftHand;
     GameObject rightHand;
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    private void Awake() {
         leftHand = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        leftHand.tag = "leftHand";
         leftHand.transform.localScale = new Vector3(0.1f, 0.1f, 0.2f);
         leftHand.transform.parent = Camera.main.transform.parent;
         rightHand = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        rightHand.tag = "rightHand";
         rightHand.transform.localScale = new Vector3(0.1f, 0.1f, 0.2f);
         rightHand.transform.parent = Camera.main.transform.parent;
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
     }
 
     // Update is called once per frame
     void Update()
     {
         leftHand.transform.localRotation = InputTracking.GetLocalRotation(XRNode.LeftHand);
-        leftHand.transform.localPosition = InputTracking.GetLocalPosition(XRNode.LeftHand) + new Vector3(0, 2, 0) - (0.1f * leftHand.transform.forward);
+        leftHand.transform.localPosition = InputTracking.GetLocalPosition(XRNode.LeftHand) + new Vector3(0, 2, 0) - 0.1f * leftHand.transform.parent.InverseTransformDirection(leftHand.transform.forward);
         rightHand.transform.localRotation = InputTracking.GetLocalRotation(XRNode.RightHand);
-        rightHand.transform.localPosition = InputTracking.GetLocalPosition(XRNode.RightHand) + new Vector3(0, 2, 0) - (0.1f * rightHand.transform.forward);
+        rightHand.transform.localPosition = InputTracking.GetLocalPosition(XRNode.RightHand) + new Vector3(0, 2, 0) - 0.1f * rightHand.transform.parent.InverseTransformDirection(rightHand.transform.forward);
 
     }
 }
