@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-public class AirTrafficVisualization : TimeVisualization {
-    public List<AirTrafficPath> Paths { get; set; }
+public class LouRugbyVisualization : TimeVisualization {
+    public List<LouRugbyPath> Paths { get; set; }
     public override IReadOnlyList<Path> PathsAsBase { get { return Paths; } }
     public override IReadOnlyList<TimePath> PathsAsTime { get { return Paths; } }
 
     protected override bool LoadFromCSV(string filename) {
+        districtSize = new Vector3(3, 3, 3);
+
         TextAsset file = Resources.Load<TextAsset>(filename);
         if (file == null)
             return false;
-        Paths = new List<AirTrafficPath>();
-        Dictionary<string, AirTrafficPath> PathsDict = new Dictionary<string, AirTrafficPath>();
+        Paths = new List<LouRugbyPath>();
+        Dictionary<string, LouRugbyPath> PathsDict = new Dictionary<string, LouRugbyPath>();
 
         string[] rawData = file.text.Split(new char[] { '\n' });
 
@@ -22,16 +24,16 @@ public class AirTrafficVisualization : TimeVisualization {
             if (words.Length < 2)
                 continue;
 
-            AirTrafficPath p;
+            LouRugbyPath p;
             if (!PathsDict.TryGetValue(words[0], out p)) {
-                p = new AirTrafficPath() { ID = words[0] };
+                p = new LouRugbyPath() { ID = words[0], baseRadius = 0.001f };
                 Paths.Add(p);
                 PathsDict.Add(p.ID, p);
             }
 
-            AirTrafficAtom a = new AirTrafficAtom {
+            LouRugbyAtom a = new LouRugbyAtom {
                 time = InterpretTime(words[4]),
-                point = new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])),
+                point = new Vector3(float.Parse(words[1]), float.Parse(words[3]), float.Parse(words[2])),
                 path = p
             };
             p.atoms.Add(a);
@@ -41,10 +43,7 @@ public class AirTrafficVisualization : TimeVisualization {
     }
 
     protected override float InterpretTime(string word) {
-        float time = 0;
-        time += float.Parse(word.Substring(6, 6).Replace('.', ','));
-        time += float.Parse(word.Substring(3, 2)) * 60;
-        time += float.Parse(word.Substring(0, 2)) * 3600;
+        float time = float.Parse(word.Replace('.', ','));
         return time;
     }
 
@@ -54,11 +53,6 @@ public class AirTrafficVisualization : TimeVisualization {
         if (!LoadFromCSV("data_lourugby")) {
             return;
         }
-        AirTrafficPath p = Paths[GetPathIndex("60")];
-        int c = p.AtomsAsBase.Count;
-        for (int i = 0; i < c; i += 2)
-            p.specialRadii.Add(i, 0.3f);
-
         InitializeRendering();
 
         startTime = Time.time;
@@ -76,14 +70,14 @@ public class AirTrafficVisualization : TimeVisualization {
                 startTime = Time.time;
             }
             else {
-                foreach (AirTrafficPath p in Paths) {
+                foreach (LouRugbyPath p in Paths) {
                     p.RemoveTimeWindow();
                 }
             }
         }
 
         if (doTime) {
-            foreach (AirTrafficPath p in Paths) {
+            foreach (LouRugbyPath p in Paths) {
                 p.SetTimeWindow((Time.time - startTime) * 60 - 300, (Time.time - startTime) * 60 + 300);
             }
         }
@@ -91,13 +85,13 @@ public class AirTrafficVisualization : TimeVisualization {
         UpdateRendering();
     }
 
-    public class AirTrafficPath : TimePath {
-        public List<AirTrafficAtom> atoms = new List<AirTrafficAtom>();
+    public class LouRugbyPath : TimePath {
+        public List<LouRugbyAtom> atoms = new List<LouRugbyAtom>();
         public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }
         public override IReadOnlyList<TimeAtom> AtomsAsTime { get { return atoms; } }
     }
 
-    public class AirTrafficAtom : TimeAtom {
+    public class LouRugbyAtom : TimeAtom {
 
     }
 }
