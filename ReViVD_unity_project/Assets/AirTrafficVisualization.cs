@@ -30,8 +30,8 @@ public class AirTrafficVisualization : TimeVisualization {
             }
 
             AirTrafficAtom a = new AirTrafficAtom {
-                time = InterpretTime(words[4]),
-                point = new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])),
+                time = InterpretTime(words[1]),
+                point = new Vector3(float.Parse(words[2]), float.Parse(words[4]), float.Parse(words[3])),
                 path = p
             };
             p.atoms.Add(a);
@@ -51,7 +51,7 @@ public class AirTrafficVisualization : TimeVisualization {
     bool doTime = false;
 
     private void Start() {
-        if (!LoadFromCSV("data_lourugby")) {
+        if (!LoadFromCSV("data_aviation")) {
             return;
         }
         AirTrafficPath p = Paths[GetPathIndex("60")];
