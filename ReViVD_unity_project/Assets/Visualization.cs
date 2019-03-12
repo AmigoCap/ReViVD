@@ -4,7 +4,7 @@ using System;
 
 public abstract class Visualization : MonoBehaviour {
     public Material material;
-    public Vector3 districtSize = new Vector3(15, 15, 15);
+    public Vector3 districtSize;
 
     //TESTING
     public bool debugMode = false;
@@ -169,7 +169,7 @@ public abstract class Visualization : MonoBehaviour {
         return -1;
     }
 
-    private struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
+    public struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
         public Atom[] atoms_line; //Tous les atomes dont le ruban, étendu en ligne inifinie, traverse le district
         public Atom[] atoms_segment; //Tous les atomes dont le ruban fini traverse le district
         public Vector3 center;
@@ -178,7 +178,7 @@ public abstract class Visualization : MonoBehaviour {
     private Vector3 lowerBoundary; //Coordonnées de l'atome de coordonnées minimales
     private Vector3 upperBoundary; //Coordonnées de l'atome de coordonnées maximales
 
-    private District[,,] districts; //Array tridimensionnel de Districts
+    public District[,,] districts; //Array tridimensionnel de Districts
 
     private void CalculateBoundaries() {
         lowerBoundary = transform.InverseTransformPoint(PathsAsBase[0].transform.TransformPoint(PathsAsBase[0].AtomsAsBase[0].point));
@@ -193,7 +193,7 @@ public abstract class Visualization : MonoBehaviour {
 
     //Donne le district dans lequel se trouve un point dans les coordonnées de la visualisation.
     //L'option "crop" renvoie toujours un district réel (si le point est à l'extérieur de la visualisation, on prend le district le plus proche)
-    private int[] FindDistrict(Vector3 point, bool crop) {
+    public int[] FindDistrict(Vector3 point, bool crop = false) {
         int[] district;
         if (crop) {
             //On utilise Min et Max pour éviter les soucis avec les flottants
@@ -221,13 +221,13 @@ public abstract class Visualization : MonoBehaviour {
             Mathf.FloorToInt((upperBoundary.z - lowerBoundary.z) / districtSize.z + 1) };
         districts = new District[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
 
-        List<Atom>[,,] atomRepartition_line = new List<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
-        List<Atom>[,,] atomRepartition_segment = new List<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
+        HashSet<Atom>[,,] atomRepartition_line = new HashSet<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
+        HashSet<Atom>[,,] atomRepartition_segment = new HashSet<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
         for (int i = 0; i < numberOfDistricts[0]; i++) {
             for (int j = 0; j < numberOfDistricts[1]; j++) {
                 for (int k = 0; k < numberOfDistricts[2]; k++) {
-                    atomRepartition_line[i, j, k] = new List<Atom>();
-                    atomRepartition_segment[i, j, k] = new List<Atom>();
+                    atomRepartition_line[i, j, k] = new HashSet<Atom>();
+                    atomRepartition_segment[i, j, k] = new HashSet<Atom>();
                 }
             }
         }
@@ -272,85 +272,13 @@ public abstract class Visualization : MonoBehaviour {
                 int[] nextPointDistrict = FindDistrict(nextPoint, true);
 
                 //Algorithme de Bresenham en 3D : on détermine tous les districts entre ces deux intersections
-                atomRepartition_line[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
-
-                int Dx = Math.Abs(proDistrict[0] - retroDistrict[0]), Dy = Math.Abs(proDistrict[1] - retroDistrict[1]), Dz = Math.Abs(proDistrict[2] - retroDistrict[2]);
-                int xs = proDistrict[0] > retroDistrict[0] ? 1 : -1, ys = proDistrict[1] > retroDistrict[1] ? 1 : -1, zs = proDistrict[2] > retroDistrict[2] ? 1 : -1;
-
-                bool inSegment = false;
-
-                if (Dx >= Dy && Dx >= Dz) {
-                    int p1 = 2 * Dy - Dx, p2 = 2 * Dz - Dx;
-                    while (retroDistrict[0] != proDistrict[0]) {
-                        retroDistrict[0] += xs;
-                        if (p1 >= 0) {
-                            retroDistrict[1] += ys;
-                            p1 -= 2 * Dx;
-                        }
-                        if (p2 >= 0) {
-                            retroDistrict[2] += zs;
-                            p2 -= 2 * Dx;
-                        }
-                        p1 += 2 * Dy;
-                        p2 += 2 * Dz;
-                        atomRepartition_line[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
-
-                        if (retroDistrict[0] == pointDistrict[0] && retroDistrict[1] == pointDistrict[1] && retroDistrict[2] == pointDistrict[2])
-                            inSegment = true;
-                        if (inSegment)
-                            atomRepartition_segment[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
-                        if (retroDistrict[0] == nextPointDistrict[0] && retroDistrict[1] == nextPointDistrict[1] && retroDistrict[2] == nextPointDistrict[2])
-                            inSegment = false;
-
-                    }
+                List<int[]> districts_line = Tools.Bresenham(retroDistrict, proDistrict);
+                foreach (int[] d in districts_line) {
+                    atomRepartition_line[d[0], d[1], d[2]].Add(p.AtomsAsBase[i]);
                 }
-                else if (Dy >= Dx && Dy >= Dz) {
-                    int p1 = 2 * Dx - Dy, p2 = 2 * Dz - Dy;
-                    while (retroDistrict[1] != proDistrict[1]) {
-                        retroDistrict[1] += ys;
-                        if (p1 >= 0) {
-                            retroDistrict[0] += xs;
-                            p1 -= 2 * Dy;
-                        }
-                        if (p2 >= 0) {
-                            retroDistrict[2] += zs;
-                            p2 -= 2 * Dy;
-                        }
-                        p1 += 2 * Dx;
-                        p2 += 2 * Dz;
-                        atomRepartition_line[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
-
-                        if (retroDistrict[0] == pointDistrict[0] && retroDistrict[1] == pointDistrict[1] && retroDistrict[2] == pointDistrict[2])
-                            inSegment = true;
-                        if (inSegment)
-                            atomRepartition_segment[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
-                        if (retroDistrict[0] == nextPointDistrict[0] && retroDistrict[1] == nextPointDistrict[1] && retroDistrict[2] == nextPointDistrict[2])
-                            inSegment = false;
-                    }
-                }
-                else {
-                    int p1 = 2 * Dy - Dz, p2 = 2 * Dx - Dz;
-                    while (retroDistrict[2] != proDistrict[2]) {
-                        retroDistrict[2] += zs;
-                        if (p1 >= 0) {
-                            retroDistrict[1] += ys;
-                            p1 -= 2 * Dz;
-                        }
-                        if (p2 >= 0) {
-                            retroDistrict[0] += xs;
-                            p2 -= 2 * Dz;
-                        }
-                        p1 += 2 * Dy;
-                        p2 += 2 * Dx;
-                        atomRepartition_line[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
-
-                        if (retroDistrict[0] == pointDistrict[0] && retroDistrict[1] == pointDistrict[1] && retroDistrict[2] == pointDistrict[2])
-                            inSegment = true;
-                        if (inSegment)
-                            atomRepartition_segment[retroDistrict[0], retroDistrict[1], retroDistrict[2]].Add(p.AtomsAsBase[i]);
-                        if (retroDistrict[0] == nextPointDistrict[0] && retroDistrict[1] == nextPointDistrict[1] && retroDistrict[2] == nextPointDistrict[2])
-                            inSegment = false;
-                    }
+                List<int[]> districts_segment = Tools.Bresenham(pointDistrict, nextPointDistrict);
+                foreach (int[] d in districts_line) {
+                    atomRepartition_segment[d[0], d[1], d[2]].Add(p.AtomsAsBase[i]);
                 }
 
                 point = nextPoint;
@@ -360,11 +288,13 @@ public abstract class Visualization : MonoBehaviour {
         for (int x = 0; x < numberOfDistricts[0]; x++) {
             for (int y = 0; y < numberOfDistricts[1]; y++) {
                 for (int z = 0; z < numberOfDistricts[2]; z++) {
-                    districts[x, y, z] = new District {
-                        atoms_line = atomRepartition_line[x, y, z].ToArray(),
-                        atoms_segment = atomRepartition_segment[x, y, z].ToArray(),
+                    districts[x, y, z] = new District() {
                         center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2
                     };
+                    districts[x, y, z].atoms_line = new Atom[atomRepartition_line[x, y, z].Count];
+                    atomRepartition_line[x, y, z].CopyTo(districts[x, y, z].atoms_line);
+                    districts[x, y, z].atoms_segment = new Atom[atomRepartition_segment[x, y, z].Count];
+                    atomRepartition_segment[x, y, z].CopyTo(districts[x, y, z].atoms_segment);
                 }
             }
         }
@@ -377,7 +307,6 @@ public abstract class Path {
     public Transform transform;
     public Dictionary<int, float> specialRadii = new Dictionary<int, float>();
     public float baseRadius = 0.1f;
-    public float maxHeight = 400f;
 
     protected void CleanspecialRadii() {
         int AtomCount = AtomsAsBase.Count;
@@ -453,15 +382,16 @@ public abstract class Path {
         int atomCount = AtomsAsBase.Count;
         Vector3 currentPoint = AtomsAsBase[0].point;
         Vector3 nextPoint;
-        Color32 pointColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), currentPoint.y / maxHeight);
+        Color32 ribbonColor;
 
         for (int p = 0; p < atomCount - 1; p++) {
             if ((!AtomsAsBase[p].shouldUpdate || !AtomsAsBase[p].shouldDisplay) && !forceUpdateAll) {
                 if (p == 0 || !AtomsAsBase[p - 1].shouldUpdate) {
-                    pointColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), AtomsAsBase[p + 1].point.y / maxHeight);
                     continue;
                 }
             }
+
+            ribbonColor = AtomsAsBase[p].GetColor();
 
             int i = 5 * p;
             currentPoint = AtomsAsBase[p].point;
@@ -479,14 +409,12 @@ public abstract class Path {
             if (p < atomCount - 2)
                 vertices[i + 4] = nextPoint;
 
-            colors[i] = pointColor;
-            colors[i + 1] = pointColor;
-            pointColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), nextPoint.y / maxHeight);
-
-            colors[i + 2] = pointColor;
-            colors[i + 3] = pointColor;
+            colors[i] = ribbonColor;
+            colors[i + 1] = ribbonColor;
+            colors[i + 2] = ribbonColor;
+            colors[i + 3] = ribbonColor;
             if (p < atomCount - 2)
-                colors[i + 4] = pointColor;
+                colors[i + 4] = ribbonColor;
         }
 
         mesh.vertices = vertices;
@@ -499,7 +427,16 @@ public abstract class Path {
 
 public abstract class Atom {
     public Vector3 point;
+    public virtual Color32 GetColor() {
+        if (shouldHighlight)
+            return highlightColor;
+        else
+            return Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), point.y / 400f);
+    }
     public Path path;
+    public int indexInPath;
     public bool shouldUpdate = false;
     public bool shouldDisplay = true;
+    public bool shouldHighlight = false;
+    public Color32 highlightColor = new Color32(0, 255, 0, 255);
 }

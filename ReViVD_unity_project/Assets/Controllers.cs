@@ -7,30 +7,32 @@ public class Controllers : MonoBehaviour
     GameObject rightHand;
 
     private void Awake() {
-        leftHand = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        leftHand.tag = "leftHand";
-        leftHand.transform.localScale = new Vector3(0.1f, 0.1f, 0.2f);
-        leftHand.transform.parent = Camera.main.transform.parent;
-        rightHand = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        rightHand.tag = "rightHand";
-        rightHand.transform.localScale = new Vector3(0.1f, 0.1f, 0.2f);
-        rightHand.transform.parent = Camera.main.transform.parent;
+        leftHand = new GameObject("leftHand");
+        rightHand = new GameObject("rightHand");
     }
 
     // Start is called before the first frame update
     void Start()
     {
-
+        leftHand.transform.parent = Camera.main.transform.parent;
+        rightHand.transform.parent = Camera.main.transform.parent;
+        GameObject leftCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        leftCube.transform.parent = leftHand.transform;
+        leftCube.transform.localPosition = leftCube.transform.InverseTransformDirection(leftHand.transform.forward) * -0.1f;
+        leftCube.transform.localScale = new Vector3(0.1f, 0.1f, 0.2f);
+        GameObject rightCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        rightCube.transform.parent = rightHand.transform;
+        rightCube.transform.localPosition = rightCube.transform.InverseTransformDirection(rightHand.transform.forward) * -0.1f;
+        rightCube.transform.localScale = new Vector3(0.1f, 0.1f, 0.2f);
     }
 
     // Update is called once per frame
     void Update()
     {
         leftHand.transform.localRotation = InputTracking.GetLocalRotation(XRNode.LeftHand);
-        leftHand.transform.localPosition = InputTracking.GetLocalPosition(XRNode.LeftHand) + new Vector3(0, 2, 0) - 0.1f * leftHand.transform.parent.InverseTransformDirection(leftHand.transform.forward);
+        leftHand.transform.localPosition = InputTracking.GetLocalPosition(XRNode.LeftHand) + new Vector3(0, 2, 0);
         rightHand.transform.localRotation = InputTracking.GetLocalRotation(XRNode.RightHand);
-        rightHand.transform.localPosition = InputTracking.GetLocalPosition(XRNode.RightHand) + new Vector3(0, 2, 0) - 0.1f * rightHand.transform.parent.InverseTransformDirection(rightHand.transform.forward);
-
+        rightHand.transform.localPosition = InputTracking.GetLocalPosition(XRNode.RightHand) + new Vector3(0, 2, 0);
     }
 }
 
