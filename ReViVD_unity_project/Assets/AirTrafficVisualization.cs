@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Globalization;
 
 public class AirTrafficVisualization : TimeVisualization {
     public List<AirTrafficPath> Paths { get; set; }
@@ -9,6 +8,7 @@ public class AirTrafficVisualization : TimeVisualization {
 
     protected override bool LoadFromCSV(string filename) {
         districtSize = new Vector3(15, 15, 15);
+
         TextAsset file = Resources.Load<TextAsset>(filename);
         if (file == null)
             return false;
@@ -33,7 +33,8 @@ public class AirTrafficVisualization : TimeVisualization {
             AirTrafficAtom a = new AirTrafficAtom {
                 time = InterpretTime(words[1]),
                 point = new Vector3(float.Parse(words[2]), float.Parse(words[4]), float.Parse(words[3])),
-                path = p
+                path = p,
+                indexInPath = p.atoms.Count
             };
             p.atoms.Add(a);
         }
@@ -51,10 +52,15 @@ public class AirTrafficVisualization : TimeVisualization {
 
     bool doTime = false;
 
-    private void Start() {
+    private void Awake() {
+        name = "airTraffic";
+
         if (!LoadFromCSV("data_aviation")) {
             return;
         }
+    }
+
+    private void Start() {
         AirTrafficPath p = Paths[GetPathIndex("60")];
         int c = p.AtomsAsBase.Count;
         for (int i = 0; i < c; i += 2)
@@ -99,6 +105,5 @@ public class AirTrafficVisualization : TimeVisualization {
     }
 
     public class AirTrafficAtom : TimeAtom {
-
     }
 }
