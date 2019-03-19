@@ -1,33 +1,50 @@
-﻿using System;
-
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Filters : MonoBehaviour {
-
-    public HashSet<Atom> ribbonsToCheck = new HashSet<Atom>();
-    public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
-
-    GameObject leftHand;
-    GameObject rightHand;
-
-    Visualization viz;
+public class SaberSelector : Selector {
 
     public float saberLength = 2f;
     public float saberThickness = 0.15f;
 
-	// Use this for initialization
-	void Start () {
-        leftHand = GameObject.Find("leftHand");
-        rightHand = GameObject.Find("rightHand");
-        viz = GameObject.Find("airTraffic").GetComponent<Visualization>();
+    private Vector3 saberStart = new Vector3();
+    private Vector3 saberEnd = new Vector3();
 
+    protected override void CreateSelectorObjects() {
         GameObject saber = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         saber.transform.parent = rightHand.transform;
         saber.transform.localPosition = saber.transform.InverseTransformDirection(rightHand.transform.forward) * saberLength / 2;
         saber.transform.localRotation = Quaternion.Euler(90, 0, 0);
-        saber.transform.localScale = new Vector3(saberThickness, saberLength/2, saberThickness);
-	}
+        saber.transform.localScale = new Vector3(saberThickness, saberLength / 2, saberThickness);
+    }
+
+    protected override void UpdateSelectorGeometry() {
+        saberStart = rightHand.transform.position;
+        saberEnd = rightHand.transform.position + rightHand.transform.forward * saberLength;
+    }
+
+    protected override void FindDistrictsToCheck() {
+        districtsToCheck.Clear();
+        Vector3 saberStart_viz = viz.transform.InverseTransformPoint(saberStart);
+        Vector3 saberEnd_viz = viz.transform.InverseTransformPoint(saberEnd);
+
+        List<int[]> cutDistricts = Tools.Bresenham(viz.FindDistrict(saberStart_viz), viz.FindDistrict(saberEnd_viz));
+
+        int[] minDistrict = new int[] { 0, 0, 0 };
+        int[] maxDistrict = new int[] { viz.districts.GetLength(0), viz.districts.GetLength(1), viz.districts.GetLength(2) };
+        foreach (int[] d in cutDistricts) {
+            for (int i = d[0] - 1; i <= d[0] + 1; i++) {
+                for (int j = d[1] - 1; j <= d[1] + 1; j++) {
+                    for (int k = d[2] - 1; k <= d[2] + 1; k++) {
+                        int[] d2 = new int[] { i, j, k };
+                        if (Tools.IsWithin(d2, minDistrict, maxDistrict)) {
+                            districtsToCheck.Add(d2);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private float Determinant(Vector3 a, Vector3 b, Vector3 c) {
         return a.x * b.y * c.z + a.y * b.z * c.x + a.z * b.x * c.y - c.x * b.y * a.z - c.y * b.z * a.x - c.z * b.x * a.y;
@@ -97,7 +114,7 @@ public class Filters : MonoBehaviour {
         var t = (b0 - a0);
         var detA = Determinant(t, _B, cross);
         var detB = Determinant(t, _A, cross);
-        
+
         var t0 = detA / denom;
         var t1 = detB / denom;
 
@@ -142,53 +159,30 @@ public class Filters : MonoBehaviour {
         return distance;
     }
 
-    // Update is called once per frame
-    void Update () {
-        Vector3 saberStart = rightHand.transform.position;
-        Vector3 saberEnd = rightHand.transform.position + rightHand.transform.forward * saberLength;
-
-        Vector3 saberStart_viz = viz.transform.InverseTransformPoint(saberStart);
-        Vector3 saberEnd_viz = viz.transform.InverseTransformPoint(saberEnd);
-        int[] saberStartDistrict = viz.FindDistrict(saberStart_viz);
-        int[] saberEndDistrict = viz.FindDistrict(saberEnd_viz);
-
-        List<int[]> cutDistricts = Tools.Bresenham(saberStartDistrict, saberEndDistrict);
-        HashSet<int[]> cutDistricts_extended = new HashSet<int[]>(new CoordsEqualityComparer());
-        int[] maxDistrict = new int[] { viz.districts.GetLength(0), viz.districts.GetLength(1), viz.districts.GetLength(2) };
-        foreach (int[] d in cutDistricts) {
-            for (int i = d[0]-1; i <= d[0]+1; i++) {
-                for (int j = d[1]-1; j <= d[1]+1; j++) {
-                    for (int k = d[2]-1; k <= d[2]+1; k++) {
-                        int[] d2 = new int[] { i, j, k };
-                        if (Tools.IsWithin(d2, new int[] { 0, 0, 0 }, maxDistrict)) {
-                            cutDistricts_extended.Add(d2);
-                        }
-                    }
-                }
-            }
-        }
-
-        foreach (Atom a in ribbonsToCheck) {
-            a.shouldHighlight = false;
-            a.highlightColor = new Color32(255, 240, 20, 255);
-        }
-
-        ribbonsToCheck.Clear();
-        foreach (int[] d in cutDistricts_extended) {
-            foreach (Atom a in viz.districts[d[0], d[1], d[2]].atoms_segment)
-                ribbonsToCheck.Add(a);            
-        }
-
+    protected override void FindSelectedRibbons() {
         selectedRibbons.Clear();
+
         foreach (Atom a in ribbonsToCheck) {
-            a.shouldHighlight = true;
             float radius;
             if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                 radius = a.path.baseRadius;
             if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < saberThickness / 2 + radius) {
-                a.highlightColor = new Color32(0, 255, 0, 255);
                 selectedRibbons.Add(a);
             }
         }
+
+        Color32 green = new Color32(0, 255, 0, 255);
+        foreach (Atom a in selectedRibbons) {
+            a.shouldHighlight = true;
+            a.highlightColor = green;
+        }
     }
+
+    void Start () {
+        BaseStart();
+	}
+	
+	void Update () {
+        BaseUpdate();
+	}
 }
