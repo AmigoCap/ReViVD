@@ -289,7 +289,7 @@ public abstract class Visualization : MonoBehaviour {
             for (int y = 0; y < numberOfDistricts[1]; y++) {
                 for (int z = 0; z < numberOfDistricts[2]; z++) {
                     districts[x, y, z] = new District() {
-                        center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2
+                        center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2 + lowerBoundary
                     };
                     districts[x, y, z].atoms_line = new Atom[atomRepartition_line[x, y, z].Count];
                     atomRepartition_line[x, y, z].CopyTo(districts[x, y, z].atoms_line);
