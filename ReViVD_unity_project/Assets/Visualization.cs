@@ -277,7 +277,7 @@ public abstract class Visualization : MonoBehaviour {
                     atomRepartition_line[d[0], d[1], d[2]].Add(p.AtomsAsBase[i]);
                 }
                 List<int[]> districts_segment = Tools.Bresenham(pointDistrict, nextPointDistrict);
-                foreach (int[] d in districts_line) {
+                foreach (int[] d in districts_segment) {
                     atomRepartition_segment[d[0], d[1], d[2]].Add(p.AtomsAsBase[i]);
                 }
 
