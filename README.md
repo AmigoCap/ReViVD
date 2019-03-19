@@ -26,10 +26,10 @@ References of the project can be found in the *annotated_bibliography.md* file.
    - Own shader
    - Multithreading
    - Distribution on several frames
-- Interaction with data
-   - Handling controllers
+- Interaction with data (ongoing)
+   - ~~Handling controllers~~
    - Filter data
-   - Moving camera
+   - ~~Moving camera~~
    - ...
 
 ## Docs
