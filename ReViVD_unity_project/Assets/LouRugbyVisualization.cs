@@ -8,8 +8,7 @@ public class LouRugbyVisualization : TimeVisualization {
     public override IReadOnlyList<TimePath> PathsAsTime { get { return Paths; } }
 
     protected override bool LoadFromCSV(string filename) {
-        districtSize = new Vector3(3, 3, 3);
-
+        districtSize = new Vector3(10, 10, 10);
         TextAsset file = Resources.Load<TextAsset>(filename);
         if (file == null)
             return false;
@@ -18,15 +17,15 @@ public class LouRugbyVisualization : TimeVisualization {
 
         string[] rawData = file.text.Split(new char[] { '\n' });
 
-        foreach (string row in rawData) {
-            string[] words = CsvSplit(row, ',');    //Selon configuration de l'OS, mettre ',' ou '.'
+        for (int i = 0; i < rawData.Length/10; i++) {
+            string[] words = CsvSplit(rawData[10*i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
 
             if (words.Length < 2)
                 continue;
 
             LouRugbyPath p;
             if (!PathsDict.TryGetValue(words[0], out p)) {
-                p = new LouRugbyPath() { ID = words[0], baseRadius = 0.001f };
+                p = new LouRugbyPath() { ID = words[0], baseRadius = 0.1f };
                 Paths.Add(p);
                 PathsDict.Add(p.ID, p);
             }
@@ -40,6 +39,7 @@ public class LouRugbyVisualization : TimeVisualization {
         }
 
         return true;
+
     }
 
     protected override float InterpretTime(string word) {
@@ -78,7 +78,7 @@ public class LouRugbyVisualization : TimeVisualization {
 
         if (doTime) {
             foreach (LouRugbyPath p in Paths) {
-                p.SetTimeWindow((Time.time - startTime) * 60 - 300, (Time.time - startTime) * 60 + 300);
+                p.SetTimeWindow((Time.time - startTime)*5  - 10, (Time.time - startTime)*5 + 10);
             }
         }
 

@@ -8,6 +8,7 @@ public class AirTrafficVisualization : TimeVisualization {
     public override IReadOnlyList<TimePath> PathsAsTime { get { return Paths; } }
 
     protected override bool LoadFromCSV(string filename) {
+        districtSize = new Vector3(15, 15, 15);
         TextAsset file = Resources.Load<TextAsset>(filename);
         if (file == null)
             return false;
