@@ -6,8 +6,7 @@
 ![picture](img/outside_view.PNG)
 
 ## Objective
-The main objective is to develop new 3D data visualization and exploration in Virtual Reality.
-We intend, through the ReViVD project, to showcase options of interacting with data that are exclusive to VR. One of our objectives is to develop VR interactions with data that are simply not possible with other desktop configurations.
+The main objective is to develop new 3D data visualization and exploration tools in Virtual Reality. We intend, through the ReViVD project, to showcase methods of interacting with data in VR which are simply not possible in other desktop configurations.
 
 ## Bibliography
 References of the project can be found in the *annotated_bibliography.md* file.
