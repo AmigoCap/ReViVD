@@ -21,8 +21,6 @@ public class SphereSelector : Selector {
     }
 
     protected override void FindDistrictsToCheck() {
-        districtsToCheck.Clear();
-
         Vector3 sphereCenter_viz = viz.transform.InverseTransformPoint(sphereCenter);
 
         int[] d0 = viz.FindDistrict(sphereCenter_viz);
@@ -86,9 +84,7 @@ public class SphereSelector : Selector {
         return Vector3.Cross(b - a, point - a).magnitude / (b - a).magnitude;
     } 
 
-    protected override void FindSelectedRibbons() {
-        selectedRibbons.Clear();
-
+    protected override void AddToSelectedRibbons() {
         foreach (Atom a in ribbonsToCheck) {
             float radius;
             if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
@@ -97,19 +93,13 @@ public class SphereSelector : Selector {
                 selectedRibbons.Add(a);
             }
         }
-
-        Color32 green = new Color32(0, 255, 0, 255);
-        foreach (Atom a in selectedRibbons) {
-            a.shouldHighlight = true;
-            a.highlightColor = green;
-        }
     }
 
-    void Start() {
+    private void Start() {
         BaseStart();
     }
 
-    void Update() {
+    private void Update() {
         BaseUpdate();
     }
 }

@@ -6,6 +6,8 @@ public abstract class Visualization : MonoBehaviour {
     public Material material;
     public Vector3 districtSize;
 
+    public bool needsFullRenderingUpdate = false;
+
     //TESTING
     public bool debugMode = false;
     public bool getDebugData = false;
@@ -99,13 +101,14 @@ public abstract class Visualization : MonoBehaviour {
 
     protected void UpdateRendering() {
         int[] cameraDistrict = FindDistrict(transform.InverseTransformPoint(Camera.main.transform.position), false);
-        if (cameraDistrict[0] == oldCameraDistrict[0] && cameraDistrict[1] == oldCameraDistrict[1] && cameraDistrict[2] == oldCameraDistrict[2]) {
+        if (!needsFullRenderingUpdate && cameraDistrict[0] == oldCameraDistrict[0] && cameraDistrict[1] == oldCameraDistrict[1] && cameraDistrict[2] == oldCameraDistrict[2]) {
             foreach (Path p in pathsToUpdate) {
                 p.UpdateVertices();
             }
         }
         else {
-            bool shouldUpdateEverything = false;
+            bool shouldUpdateEverything = needsFullRenderingUpdate;
+            needsFullRenderingUpdate = false;
             for (int i = 0; i < 3; i++) {
                 if (cameraDistrict[i] == oldCameraDistrict[i] + (thickTowardsPositive[i] ? 1 : -1)) {
                     thickTowardsPositive[i] = !thickTowardsPositive[i];
@@ -319,7 +322,7 @@ public abstract class Path {
             specialRadii.Remove(key);
     }
 
-    protected void GenerateTriangles() {
+    public void GenerateTriangles() {
         int totalAtoms = AtomsAsBase.Count;
 
         CleanspecialRadii();

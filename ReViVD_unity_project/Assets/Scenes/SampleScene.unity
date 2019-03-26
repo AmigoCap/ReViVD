@@ -417,24 +417,26 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1562563008}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ee28917a4dbbc004a9ed0c651b4d793e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shouldSelect: 0
   saberLength: 20
-  saberThickness: 0.15
+  saberThickness: 0.3
 --- !u!114 &1562563011
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1562563008}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6115a76249d779f4884cd2470a95bf1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shouldSelect: 0
   sphereDistance: 20
   sphereRadius: 10
 --- !u!1 &1759583637
@@ -681,6 +683,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: ff56756a7f27011408a584cb8f1e5a02, type: 2}
   districtSize: {x: 30, y: 30, z: 30}
+  needsFullRenderingUpdate: 0
   debugMode: 0
   getDebugData: 0
 --- !u!4 &2039570153
@@ -709,5 +712,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: ff56756a7f27011408a584cb8f1e5a02, type: 2}
   districtSize: {x: 20, y: 20, z: 20}
+  needsFullRenderingUpdate: 0
   debugMode: 0
   getDebugData: 0
