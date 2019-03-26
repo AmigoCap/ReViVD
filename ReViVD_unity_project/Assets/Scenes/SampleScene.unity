@@ -417,7 +417,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1562563008}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ee28917a4dbbc004a9ed0c651b4d793e, type: 3}
   m_Name: 
@@ -431,14 +431,14 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1562563008}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6115a76249d779f4884cd2470a95bf1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   shouldSelect: 0
   sphereDistance: 20
-  sphereRadius: 10
+  sphereRadius: 5
 --- !u!1 &1759583637
 GameObject:
   m_ObjectHideFlags: 0

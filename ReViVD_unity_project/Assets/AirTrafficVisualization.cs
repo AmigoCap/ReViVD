@@ -36,6 +36,8 @@ public class AirTrafficVisualization : TimeVisualization {
                 path = p,
                 indexInPath = p.atoms.Count
             };
+            a.baseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), a.point.y / 400f);
+
             p.atoms.Add(a);
         }
 

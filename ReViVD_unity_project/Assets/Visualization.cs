@@ -385,19 +385,18 @@ public abstract class Path {
         int atomCount = AtomsAsBase.Count;
         Vector3 currentPoint = AtomsAsBase[0].point;
         Vector3 nextPoint;
-        Color32 ribbonColor;
 
         for (int p = 0; p < atomCount - 1; p++) {
-            if ((!AtomsAsBase[p].shouldUpdate || !AtomsAsBase[p].shouldDisplay) && !forceUpdateAll) {
+            Atom currentAtom = AtomsAsBase[p];
+
+            if ((!currentAtom.shouldUpdate || !currentAtom.shouldDisplay) && !forceUpdateAll) {
                 if (p == 0 || !AtomsAsBase[p - 1].shouldUpdate) {
                     continue;
                 }
             }
 
-            ribbonColor = AtomsAsBase[p].GetColor();
-
             int i = 5 * p;
-            currentPoint = AtomsAsBase[p].point;
+            currentPoint = currentAtom.point;
             nextPoint = AtomsAsBase[p + 1].point;
 
             float radius;
@@ -412,12 +411,23 @@ public abstract class Path {
             if (p < atomCount - 2)
                 vertices[i + 4] = nextPoint;
 
-            colors[i] = ribbonColor;
-            colors[i + 1] = ribbonColor;
-            colors[i + 2] = ribbonColor;
-            colors[i + 3] = ribbonColor;
-            if (p < atomCount - 2)
-                colors[i + 4] = ribbonColor;
+            if (currentAtom.shouldHighlight) {
+                colors[i] = currentAtom.highlightColor;
+                colors[i + 1] = currentAtom.highlightColor;
+                colors[i + 2] = currentAtom.highlightColor;
+                colors[i + 3] = currentAtom.highlightColor;
+                if (p < atomCount - 2)
+                    colors[i + 4] = currentAtom.highlightColor;
+            }
+            else {
+                Atom nextAtom = AtomsAsBase[p + 1];
+                colors[i] = currentAtom.baseColor;
+                colors[i + 1] = currentAtom.baseColor;
+                colors[i + 2] = nextAtom.baseColor;
+                colors[i + 3] = nextAtom.baseColor;
+                if (p < atomCount - 2)
+                    colors[i + 4] = nextAtom.baseColor;
+            }
         }
 
         mesh.vertices = vertices;
@@ -430,16 +440,11 @@ public abstract class Path {
 
 public abstract class Atom {
     public Vector3 point;
-    public virtual Color32 GetColor() {
-        if (shouldHighlight)
-            return highlightColor;
-        else
-            return Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), point.y / 400f);
-    }
     public Path path;
     public int indexInPath;
     public bool shouldUpdate = false;
     public bool shouldDisplay = true;
     public bool shouldHighlight = false;
+    public Color32 baseColor = new Color32(255, 255, 255, 255);
     public Color32 highlightColor = new Color32(0, 255, 0, 255);
 }
