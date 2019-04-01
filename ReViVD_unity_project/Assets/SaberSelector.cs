@@ -10,20 +10,23 @@ public class SaberSelector : Selector {
     private Vector3 saberStart = new Vector3();
     private Vector3 saberEnd = new Vector3();
 
-    protected override void CreateSelectorObjects() {
+    protected override void CreateObjects() {
         GameObject saber = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        saber.transform.parent = rightHand.transform;
-        saber.transform.localPosition = saber.transform.InverseTransformDirection(rightHand.transform.forward) * saberLength / 2;
+        transform.parent = SelectorManager.Instance.RightHand.transform;
+        transform.localPosition = Vector3.zero;
+        saber.transform.parent = transform;
+        saber.transform.localPosition = transform.InverseTransformDirection(SelectorManager.Instance.RightHand.transform.forward) * saberLength / 2;
         saber.transform.localRotation = Quaternion.Euler(90, 0, 0);
         saber.transform.localScale = new Vector3(saberThickness, saberLength / 2, saberThickness);
     }
 
-    protected override void UpdateSelectorGeometry() {
-        saberStart = rightHand.transform.position;
-        saberEnd = rightHand.transform.position + rightHand.transform.forward * saberLength;
+    public override void UpdateGeometry() {
+        saberStart = SelectorManager.Instance.RightHand.transform.position;
+        saberEnd = SelectorManager.Instance.RightHand.transform.position + SelectorManager.Instance.RightHand.transform.forward * saberLength;
     }
 
-    protected override void FindDistrictsToCheck() {
+    public override void FindDistrictsToCheck() {
+        Visualization viz = SelectorManager.Instance.Viz;
         Vector3 saberStart_viz = viz.transform.InverseTransformPoint(saberStart);
         Vector3 saberEnd_viz = viz.transform.InverseTransformPoint(saberEnd);
 
@@ -158,22 +161,14 @@ public class SaberSelector : Selector {
         return distance;
     }
 
-    protected override void AddToSelectedRibbons() {
+    public override void AddToSelectedRibbons() {
         foreach (Atom a in ribbonsToCheck) {
             float radius;
             if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                 radius = a.path.baseRadius;
             if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < saberThickness / 2 + radius) {
-                selectedRibbons.Add(a);
+                SelectorManager.Instance.Viz.selectedRibbons.Add(a);
             }
         }
     }
-
-    private void Start () {
-        BaseStart();
-	}
-
-    private void Update () {
-        BaseUpdate();
-	}
 }

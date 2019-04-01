@@ -121,7 +121,7 @@ public abstract class Visualization : MonoBehaviour {
             if (shouldUpdateEverything) {
                 foreach (Path p in pathsToUpdate) {
                     foreach (Atom a in p.AtomsAsBase) {
-                        a.shouldUpdate = false;
+                        a.shouldUpdateVertices = false;
                     }
                 }
                 pathsToUpdate.Clear();
@@ -137,7 +137,7 @@ public abstract class Visualization : MonoBehaviour {
 
                             try {
                                 foreach (Atom a in districts[i, j, k].atoms_line) {
-                                    a.shouldUpdate = true;
+                                    a.shouldUpdateVertices = true;
                                     pathsToUpdate.Add(a.path);
                                 }
                             }
@@ -302,6 +302,8 @@ public abstract class Visualization : MonoBehaviour {
             }
         }
     }
+
+    public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
 }
 
 public abstract class Path {
@@ -389,44 +391,50 @@ public abstract class Path {
         for (int p = 0; p < atomCount - 1; p++) {
             Atom currentAtom = AtomsAsBase[p];
 
-            if ((!currentAtom.shouldUpdate || !currentAtom.shouldDisplay) && !forceUpdateAll) {
-                if (p == 0 || !AtomsAsBase[p - 1].shouldUpdate) {
+            if (((!currentAtom.shouldUpdateVertices && !currentAtom.shouldUpdateColor_once) || !currentAtom.shouldDisplay) && !forceUpdateAll) {
+                if (p == 0 || !AtomsAsBase[p - 1].shouldUpdateVertices) {
                     continue;
                 }
             }
 
             int i = 5 * p;
-            currentPoint = currentAtom.point;
-            nextPoint = AtomsAsBase[p + 1].point;
 
-            float radius;
-            if (!specialRadii.TryGetValue(p, out radius))
-                radius = baseRadius;
+            if (currentAtom.shouldUpdateVertices || forceUpdateAll) {
+                currentPoint = currentAtom.point;
+                nextPoint = AtomsAsBase[p + 1].point;
 
-            vBase = radius * Vector3.Cross(nextPoint - camPos, nextPoint - currentPoint).normalized;
-            vertices[i] = currentPoint + vBase;
-            vertices[i + 1] = currentPoint - vBase;
-            vertices[i + 2] = vertices[i] + nextPoint - currentPoint;
-            vertices[i + 3] = vertices[i + 1] + nextPoint - currentPoint;
-            if (p < atomCount - 2)
-                vertices[i + 4] = nextPoint;
+                float radius;
+                if (!specialRadii.TryGetValue(p, out radius))
+                    radius = baseRadius;
 
-            if (currentAtom.shouldHighlight) {
-                colors[i] = currentAtom.highlightColor;
-                colors[i + 1] = currentAtom.highlightColor;
-                colors[i + 2] = currentAtom.highlightColor;
-                colors[i + 3] = currentAtom.highlightColor;
+                vBase = radius * Vector3.Cross(nextPoint - camPos, nextPoint - currentPoint).normalized;
+                vertices[i] = currentPoint + vBase;
+                vertices[i + 1] = currentPoint - vBase;
+                vertices[i + 2] = vertices[i] + nextPoint - currentPoint;
+                vertices[i + 3] = vertices[i + 1] + nextPoint - currentPoint;
                 if (p < atomCount - 2)
-                    colors[i + 4] = currentAtom.highlightColor;
+                    vertices[i + 4] = nextPoint;
             }
-            else {
-                Atom nextAtom = AtomsAsBase[p + 1];
-                colors[i] = currentAtom.baseColor;
-                colors[i + 1] = currentAtom.baseColor;
-                colors[i + 2] = nextAtom.baseColor;
-                colors[i + 3] = nextAtom.baseColor;
-                if (p < atomCount - 2)
-                    colors[i + 4] = nextAtom.baseColor;
+
+            if (currentAtom.shouldUpdateColor_once || currentAtom.shouldUpdateColor || forceUpdateAll) {
+                currentAtom.shouldUpdateColor_once = false;
+                if (currentAtom.ShouldHighlight) {
+                    colors[i] = currentAtom.highlightColor;
+                    colors[i + 1] = currentAtom.highlightColor;
+                    colors[i + 2] = currentAtom.highlightColor;
+                    colors[i + 3] = currentAtom.highlightColor;
+                    if (p < atomCount - 2)
+                        colors[i + 4] = currentAtom.highlightColor;
+                }
+                else {
+                    Atom nextAtom = AtomsAsBase[p + 1];
+                    colors[i] = currentAtom.baseColor;
+                    colors[i + 1] = currentAtom.baseColor;
+                    colors[i + 2] = nextAtom.baseColor;
+                    colors[i + 3] = nextAtom.baseColor;
+                    if (p < atomCount - 2)
+                        colors[i + 4] = nextAtom.baseColor;
+                }
             }
         }
 
@@ -442,9 +450,24 @@ public abstract class Atom {
     public Vector3 point;
     public Path path;
     public int indexInPath;
-    public bool shouldUpdate = false;
+    public bool shouldUpdateVertices = false; //Should vertices be updated each frame?
+    public bool shouldUpdateColor = false; //Should color be updated each frame?
+    public bool shouldUpdateColor_once = true; //Should color be updated next frame only?
     public bool shouldDisplay = true;
-    public bool shouldHighlight = false;
+    private bool shouldHighlight = false;
     public Color32 baseColor = new Color32(255, 255, 255, 255);
     public Color32 highlightColor = new Color32(0, 255, 0, 255);
+
+    public bool ShouldHighlight {
+        get {
+            return shouldHighlight;
+        }
+
+        set {
+            if (shouldHighlight != value) {
+                shouldHighlight = value;
+                shouldUpdateColor_once = true;
+            }
+        }
+    }
 }
