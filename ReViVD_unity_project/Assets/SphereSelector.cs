@@ -4,25 +4,32 @@ using UnityEngine;
 
 public class SphereSelector : Selector {
 
-    public float sphereDistance = 2f;
-    public float sphereRadius = 0.5f;
+    public float distance = 2f;
+    public float radius = 0.5f;
+    public float upOffset = 0f;
+    public float rightOffset = 0f;
 
     private Vector3 sphereCenter = new Vector3();
 
-    protected override void CreateSelectorObjects() {
+    protected override void CreateObjects() {
         GameObject saber = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        saber.transform.parent = rightHand.transform;
-        saber.transform.localPosition = saber.transform.InverseTransformDirection(rightHand.transform.forward) * sphereDistance;
-        saber.transform.localScale = new Vector3(sphereRadius*2, sphereRadius*2, sphereRadius*2);
+        transform.parent = SelectorManager.Instance.RightHand.transform;
+        transform.localPosition = Vector3.zero;
+        saber.transform.parent = transform;
+        saber.transform.localPosition = transform.InverseTransformDirection(SelectorManager.Instance.RightHand.transform.forward * distance
+                                                                            + SelectorManager.Instance.RightHand.transform.up * upOffset
+                                                                            + SelectorManager.Instance.RightHand.transform.right * rightOffset);
+        saber.transform.localScale = new Vector3(radius*2, radius*2, radius*2);
     }
 
-    protected override void UpdateSelectorGeometry() {
-        sphereCenter = rightHand.transform.position + rightHand.transform.forward * sphereDistance;
+    public override void UpdateGeometry() {
+        sphereCenter = SelectorManager.Instance.RightHand.transform.position + SelectorManager.Instance.RightHand.transform.forward * distance
+                                                                             + SelectorManager.Instance.RightHand.transform.up * upOffset
+                                                                             + SelectorManager.Instance.RightHand.transform.right * rightOffset;
     }
 
-    protected override void FindDistrictsToCheck() {
-        districtsToCheck.Clear();
-
+    public override void FindDistrictsToCheck() {
+        Visualization viz = SelectorManager.Instance.Viz;
         Vector3 sphereCenter_viz = viz.transform.InverseTransformPoint(sphereCenter);
 
         int[] d0 = viz.FindDistrict(sphereCenter_viz);
@@ -42,7 +49,7 @@ public class SphereSelector : Selector {
                 for (int j = d0[1] - dist; j <= d0[1] + dist; j++) {
                     for (int k = d0[2] - dist; k <= d0[2] + dist; k += 2 * dist) {
                         int[] d2 = new int[] { i, j, k };
-                        if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < sphereRadius + halfDiag + margin) {
+                        if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
                             districtsToCheck.Add(d2);
                             foundMoreDistricts = true;
                         }
@@ -53,7 +60,7 @@ public class SphereSelector : Selector {
                 for (int j = d0[1] - dist; j <= d0[1] + dist; j += 2 * dist) {
                     for (int k = d0[2] - dist; k <= d0[2] + dist; k++) {
                         int[] d2 = new int[] { i, j, k };
-                        if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < sphereRadius + halfDiag + margin) {
+                        if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
                             districtsToCheck.Add(d2);
                             foundMoreDistricts = true;
                         }
@@ -64,7 +71,7 @@ public class SphereSelector : Selector {
                 for (int j = d0[1] - dist; j <= d0[1] + dist; j++) {
                     for (int k = d0[2] - dist; k <= d0[2] + dist; k++) {
                         int[] d2 = new int[] { i, j, k };
-                        if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < sphereRadius + halfDiag + margin) {
+                        if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
                             districtsToCheck.Add(d2);
                             foundMoreDistricts = true;
                         }
@@ -84,32 +91,16 @@ public class SphereSelector : Selector {
             return (point - b).magnitude;
         }
         return Vector3.Cross(b - a, point - a).magnitude / (b - a).magnitude;
-    } 
+    }
 
-    protected override void FindSelectedRibbons() {
-        selectedRibbons.Clear();
-
+    public override void AddToSelectedRibbons() {
         foreach (Atom a in ribbonsToCheck) {
             float radius;
             if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                 radius = a.path.baseRadius;
-            if (DistancePointSegment(sphereCenter, a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point)) < sphereRadius + radius) {
-                selectedRibbons.Add(a);
+            if (DistancePointSegment(sphereCenter, a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point)) < this.radius + radius) {
+                SelectorManager.Instance.Viz.selectedRibbons.Add(a);
             }
         }
-
-        Color32 green = new Color32(0, 255, 0, 255);
-        foreach (Atom a in selectedRibbons) {
-            a.shouldHighlight = true;
-            a.highlightColor = green;
-        }
-    }
-
-    void Start() {
-        BaseStart();
-    }
-
-    void Update() {
-        BaseUpdate();
     }
 }
