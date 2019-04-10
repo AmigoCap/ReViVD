@@ -14,6 +14,7 @@
 
 # Unity project setups
 * Setup a Unity Project with the files from *ReViVD_unity_project* folder.
+* Add the OpenVR (Standalone) package using the Package Manager Window.
 * Setup your [Unity Input Manager](https://docs.unity3d.com/Manual/class-InputManager.html]
 * Download data and use your VR headset to interact with
 
