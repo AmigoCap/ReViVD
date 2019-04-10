@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 
 public class AirTrafficVisualization : TimeVisualization {
-    public List<AirTrafficPath> Paths { get; set; }
-    public override IReadOnlyList<Path> PathsAsBase { get { return Paths; } }
-    public override IReadOnlyList<TimePath> PathsAsTime { get { return Paths; } }
+    public List<AirTrafficPath> paths;
+    public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
+    public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
     protected override bool LoadFromCSV(string filename) {
         districtSize = new Vector3(15, 15, 15);
@@ -12,7 +12,7 @@ public class AirTrafficVisualization : TimeVisualization {
         TextAsset file = Resources.Load<TextAsset>(filename);
         if (file == null)
             return false;
-        Paths = new List<AirTrafficPath>();
+        paths = new List<AirTrafficPath>();
         Dictionary<string, AirTrafficPath> PathsDict = new Dictionary<string, AirTrafficPath>();
 
         string[] rawData = file.text.Split(new char[] { '\n' });
@@ -26,7 +26,7 @@ public class AirTrafficVisualization : TimeVisualization {
             AirTrafficPath p;
             if (!PathsDict.TryGetValue(words[0], out p)) {
                 p = new AirTrafficPath() { ID = words[0] };
-                Paths.Add(p);
+                paths.Add(p);
                 PathsDict.Add(p.ID, p);
             }
 
@@ -63,7 +63,7 @@ public class AirTrafficVisualization : TimeVisualization {
     }
 
     private void Start() {
-        AirTrafficPath p = Paths[GetPathIndex("60")];
+        AirTrafficPath p = paths[GetPathIndex("60")];
         int c = p.AtomsAsBase.Count;
         for (int i = 0; i < c; i += 2)
             p.specialRadii.Add(i, 0.3f);
@@ -85,14 +85,14 @@ public class AirTrafficVisualization : TimeVisualization {
                 startTime = Time.time;
             }
             else {
-                foreach (AirTrafficPath p in Paths) {
+                foreach (AirTrafficPath p in paths) {
                     p.RemoveTimeWindow();
                 }
             }
         }
 
         if (doTime) {
-            foreach (AirTrafficPath p in Paths) {
+            foreach (AirTrafficPath p in paths) {
                 p.SetTimeWindow((Time.time - startTime) * 60 - 300, (Time.time - startTime) * 60 + 300);
             }
         }
