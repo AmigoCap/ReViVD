@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Movement : MonoBehaviour {
+    private static Movement _instance;
+
+    public static Movement Instance { get { return _instance; } }
 
     public float horizontalSensitivity = 150;
     public float verticalSensitivity = 150;
@@ -10,13 +13,23 @@ public class Movement : MonoBehaviour {
     public float maxTrimVelocity = 150;
     public float baseSpeed = 20;
     public bool invertVerticalControl = false;
+    public bool doJoystickControls = true;
 
     private Transform camTrans;
     private Vector2 oldTouchPos = Vector2.zero;
     private float trimToDo = 0;
 
-	// Use this for initialization
-	void Start () {
+    private void Awake() {
+        if (_instance != null && _instance != this) {
+            Destroy(this.gameObject);
+        }
+        else {
+            _instance = this;
+        }
+    }
+
+    // Use this for initialization
+    void Start () {
         camTrans = transform.GetChild(0);
     }
 
@@ -26,7 +39,6 @@ public class Movement : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        Vector3 camStr = Time.deltaTime * baseSpeed * (Input.GetAxis("Left_Vert") * (-camTrans.forward) + Input.GetAxis("Left_Hori") * camTrans.right);
         Vector3 camRot = Time.deltaTime * (horizontalSensitivity * Input.GetAxis("Right_Hori") * camTrans.up + verticalSensitivity * (invertVerticalControl ? -1 : 1) * Input.GetAxis("Right_Vert") * camTrans.right);
 
         Vector2 touchPos = new Vector2(Input.GetAxis("Right_Touch_Hori"), -Input.GetAxis("Right_Touch_Vert"));
@@ -40,8 +52,12 @@ public class Movement : MonoBehaviour {
             trimToDo -= step;
         }
 
+        if (doJoystickControls) {
+            Vector3 camStr = Time.deltaTime * baseSpeed * (Input.GetAxis("Left_Vert") * (-camTrans.forward) + Input.GetAxis("Left_Hori") * camTrans.right);
+            transform.Translate(camStr + Vector3.Cross(camTrans.position - transform.position, camRot * 0.0174533f), Space.World);
+        }
+
         transform.Rotate(camRot, Space.World);
-        transform.Translate(camStr + Vector3.Cross(camTrans.position - transform.position, camRot * 0.0174533f), Space.World);
-	}
+    }
 
 }

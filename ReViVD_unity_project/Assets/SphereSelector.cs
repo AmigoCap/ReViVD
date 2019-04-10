@@ -15,6 +15,7 @@ public class SphereSelector : Selector {
         GameObject saber = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         transform.parent = SelectorManager.Instance.RightHand.transform;
         transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
         saber.transform.parent = transform;
         saber.transform.localPosition = transform.InverseTransformDirection(SelectorManager.Instance.RightHand.transform.forward * distance
                                                                             + SelectorManager.Instance.RightHand.transform.up * upOffset

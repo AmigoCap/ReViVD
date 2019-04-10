@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class SaberSelector : Selector {
 
-    public float saberLength = 2f;
-    public float saberThickness = 0.15f;
+    public float saberLength = 5f;
+    public float saberThickness = 0.3f;
 
     private Vector3 saberStart = new Vector3();
     private Vector3 saberEnd = new Vector3();
@@ -14,6 +14,7 @@ public class SaberSelector : Selector {
         GameObject saber = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         transform.parent = SelectorManager.Instance.RightHand.transform;
         transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
         saber.transform.parent = transform;
         saber.transform.localPosition = transform.InverseTransformDirection(SelectorManager.Instance.RightHand.transform.forward) * saberLength / 2;
         saber.transform.localRotation = Quaternion.Euler(90, 0, 0);
