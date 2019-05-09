@@ -12,23 +12,23 @@ The main objective is to develop new 3D data visualization and exploration tools
 References of the project can be found in the *annotated_bibliography.md* file.
 
 ## Roadmap
-- ~~State of the art of VR technologies~~
-- ~~Bibliography~~
-- ~~Headset test and configuration of programming environment~~
-   - ~~First demo with basic examples~~
-   - ~~Visualization demo~~
-   - ~~Creation of our own LineRenderer and RubanMaker~~
-   - ~~Aircraft Visualization~~
-   - ~~New code architecture~~
+- [x] State of the art of VR technologies
+- [x] Bibliography
+- [x] Headset test and configuration of programming environment
+   - [x] First demo with basic examples
+   - [x] Visualization demo
+   - [x] Creation of our own LineRenderer and RubanMaker
+   - [x] Aircraft Visualization
+   - [x] New code architecture
 - Optimization of data visualization (ongoing)
-   - ~~Creation of districts~~
+   - [x] Creation of districts
    - Own shader
    - Multithreading
    - Distribution on several frames
 - Interaction with data (ongoing)
-   - ~~Handling controllers~~
-   - ~~Filter data~~
-   - ~~Moving camera~~
+   - [x] Handling controllers
+   - [x] Filter data
+   - [x] Moving camera
    - ...
 
 ## Docs
