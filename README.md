@@ -22,14 +22,14 @@ References of the project can be found in the *annotated_bibliography.md* file.
    - [x] New code architecture
 - Optimization of data visualization (ongoing)
    - [x] Creation of districts
-   - Own shader
-   - Multithreading
-   - Distribution on several frames
+   - [] Own shader
+   - [] Multithreading
+   - [] Distribution on several frames
 - Interaction with data (ongoing)
    - [x] Handling controllers
    - [x] Filter data
    - [x] Moving camera
-   - ...
+   - [] Several forms of selectors
 
 ## Docs
 Some documentation can be found under the *docs* folder.
