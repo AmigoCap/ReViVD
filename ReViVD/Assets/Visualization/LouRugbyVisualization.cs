@@ -18,6 +18,8 @@ namespace Revivd {
             Paths = new List<LouRugbyPath>();
             Dictionary<string, LouRugbyPath> PathsDict = new Dictionary<string, LouRugbyPath>();
 
+            Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
+
             string[] rawData = file.text.Split(new char[] { '\n' });
 
             for (int i = 0; i < rawData.Length / 10; i++) {
@@ -31,13 +33,17 @@ namespace Revivd {
                     p = new LouRugbyPath() { ID = words[0], baseRadius = 0.1f };
                     Paths.Add(p);
                     PathsDict.Add(p.ID, p);
+                    colorsDict.Add(p.ID, Random.ColorHSV());
                 }
 
+                float t = InterpretTime(words[4]);
                 LouRugbyAtom a = new LouRugbyAtom {
-                    time = InterpretTime(words[4]),
-                    point = new Vector3(float.Parse(words[1]), float.Parse(words[3]), float.Parse(words[2])),
+                    time = t,
+                    point = new Vector3(float.Parse(words[1]), t/20, float.Parse(words[2])),
                     path = p
                 };
+
+                a.baseColor = colorsDict[p.ID];
                 p.atoms.Add(a);
             }
 
