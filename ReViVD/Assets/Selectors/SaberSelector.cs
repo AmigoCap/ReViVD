@@ -29,7 +29,7 @@ namespace Revivd {
         }
 
         public override void FindDistrictsToCheck() {
-            Visualization viz = SelectorManager.Instance.Viz;
+            Visualization viz = Visualization.Instance;
             Vector3 saberStart_viz = viz.transform.InverseTransformPoint(saberStart);
             Vector3 saberEnd_viz = viz.transform.InverseTransformPoint(saberEnd);
 
@@ -170,7 +170,7 @@ namespace Revivd {
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                     radius = a.path.baseRadius;
                 if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < saberThickness / 2 + radius) {
-                    SelectorManager.Instance.Viz.selectedRibbons.Add(a);
+                    Visualization.Instance.selectedRibbons.Add(a);
                 }
             }
         }

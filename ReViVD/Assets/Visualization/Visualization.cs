@@ -8,12 +8,27 @@ namespace Revivd {
         public Material material;
         public Vector3 districtSize;
 
+        public string dataFileName;
+
         public bool needsFullRenderingUpdate = false;
 
         //TESTING
         public bool debugMode = false;
         public bool getDebugData = false;
         private readonly List<int[]>[] districtsToHighlight = new List<int[]>[] { new List<int[]>(), new List<int[]>(), new List<int[]>() };
+
+        private static Visualization _instance;
+        public static Visualization Instance { get { return _instance; } }
+
+        public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
+
+        protected virtual void Awake() {
+            _instance = this;
+            if (!LoadFromCSV(dataFileName)) {
+                return;
+            }
+            InitializeRendering();
+        }
 
         private void OnDrawGizmos() {
             if (debugMode) {
@@ -304,8 +319,6 @@ namespace Revivd {
                 }
             }
         }
-
-        public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
     }
 
     public abstract class Path {

@@ -11,37 +11,22 @@ namespace Revivd {
 
         public HashSet<Selector> selectors = new HashSet<Selector>();
 
-        public Visualization Viz { get; set; }
-
         public bool highlightChecked = false;
         private bool old_highightChecked = false;
         public bool highlightSelected = true;
         private bool old_highlightSelected = true;
 
         private void Awake() {
-            if (_instance != null && _instance != this) {
-                Destroy(this.gameObject);
-            }
-            else {
-                _instance = this;
-            }
-        }
-
-        private bool isInitialized;
-        public void initialize() {
-            if (!isInitialized) {
-                Viz = GameObject.Find("airTraffic").GetComponent<Visualization>();
-                isInitialized = true;
-            }
+            _instance = this;
         }
 
         private void DisplayOnlySelected(SteamVR_TrackedController sender) {
             HashSet<Path> selectedPaths = new HashSet<Path>();
-            foreach (Atom a in Viz.selectedRibbons) {
+            foreach (Atom a in Visualization.Instance.selectedRibbons) {
                 selectedPaths.Add(a.path);
             }
 
-            foreach (Path p in Viz.PathsAsBase) {
+            foreach (Path p in Visualization.Instance.PathsAsBase) {
                 if (!selectedPaths.Contains(p)) {
                     bool shouldUpdateTriangles = false;
                     foreach (Atom a in p.AtomsAsBase) {
@@ -54,11 +39,11 @@ namespace Revivd {
                         p.GenerateTriangles();
                 }
             }
-            Viz.needsFullRenderingUpdate = true;
+            Visualization.Instance.needsFullRenderingUpdate = true;
         }
 
         private void DisplayAll(SteamVR_TrackedController sender) {
-            foreach (Path p in Viz.PathsAsBase) {
+            foreach (Path p in Visualization.Instance.PathsAsBase) {
                 bool shouldUpdateTriangles = false;
                 foreach (Atom a in p.AtomsAsBase) {
                     if (!a.shouldDisplay) {
@@ -70,18 +55,18 @@ namespace Revivd {
                     p.GenerateTriangles();
             }
 
-            Viz.needsFullRenderingUpdate = true;
+            Visualization.Instance.needsFullRenderingUpdate = true;
         }
 
         private void ClearSelected(SteamVR_TrackedController sender) {
-            if (Viz.selectedRibbons.Count != 0) {
+            if (Visualization.Instance.selectedRibbons.Count != 0) {
                 if (highlightSelected) {
-                    foreach (Atom a in Viz.selectedRibbons) {
+                    foreach (Atom a in Visualization.Instance.selectedRibbons) {
                         a.ShouldHighlight = false;
                     }
                 }
-                Viz.selectedRibbons.Clear();
-                Viz.needsFullRenderingUpdate = true;
+                Visualization.Instance.selectedRibbons.Clear();
+                Visualization.Instance.needsFullRenderingUpdate = true;
             }
         }
 
@@ -92,9 +77,12 @@ namespace Revivd {
         }
 
         private void OnDisable() {
-            SteamVR_ControllerManager.RightController.Gripped -= DisplayOnlySelected;
-            SteamVR_ControllerManager.LeftController.Gripped -= DisplayAll;
-            SteamVR_ControllerManager.LeftController.TriggerClicked -= ClearSelected;
+            if (SteamVR_ControllerManager.RightController != null)
+                SteamVR_ControllerManager.RightController.Gripped -= DisplayOnlySelected;
+            if (SteamVR_ControllerManager.LeftController != null) {
+                SteamVR_ControllerManager.LeftController.Gripped -= DisplayAll;
+                SteamVR_ControllerManager.LeftController.TriggerClicked -= ClearSelected;
+            }
         }
 
         private bool ShouldSelect {
@@ -125,7 +113,7 @@ namespace Revivd {
                 s.ribbonsToCheck.Clear();
                 if (ShouldSelect) {
                     foreach (int[] d in s.districtsToCheck) {
-                        foreach (Atom a in Viz.districts[d[0], d[1], d[2]].atoms_segment)
+                        foreach (Atom a in Visualization.Instance.districts[d[0], d[1], d[2]].atoms_segment)
                             s.ribbonsToCheck.Add(a);
                     }
                 }
@@ -143,7 +131,7 @@ namespace Revivd {
             }
 
             if (highlightSelected || old_highlightSelected) {
-                foreach (Atom a in Viz.selectedRibbons) {
+                foreach (Atom a in Visualization.Instance.selectedRibbons) {
                     a.ShouldHighlight = false;
                 }
             }
@@ -156,14 +144,14 @@ namespace Revivd {
 
             if (highlightSelected) {
                 Color32 green = new Color32(0, 255, 0, 255);
-                foreach (Atom a in Viz.selectedRibbons) {
+                foreach (Atom a in Visualization.Instance.selectedRibbons) {
                     a.ShouldHighlight = true;
                     a.highlightColor = green;
                 }
             }
 
             if (highlightSelected != old_highlightSelected || highlightChecked != old_highightChecked) {
-                Viz.needsFullRenderingUpdate = true;
+                Visualization.Instance.needsFullRenderingUpdate = true;
             }
 
             old_highightChecked = highlightChecked;
@@ -184,7 +172,6 @@ namespace Revivd {
         public abstract void AddToSelectedRibbons();
 
         protected virtual void OnEnable() {
-            SelectorManager.Instance.initialize();
             SelectorManager.Instance.selectors.Add(this);
             CreateObjects();
         }

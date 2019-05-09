@@ -32,7 +32,7 @@ namespace Revivd {
         }
 
         public override void FindDistrictsToCheck() {
-            Visualization viz = SelectorManager.Instance.Viz;
+            Visualization viz = Visualization.Instance;
             Vector3 sphereCenter_viz = viz.transform.InverseTransformPoint(sphereCenter);
 
             int[] d0 = viz.FindDistrict(sphereCenter_viz);
@@ -102,7 +102,7 @@ namespace Revivd {
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                     radius = a.path.baseRadius;
                 if (DistancePointSegment(sphereCenter, a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point)) < this.radius + radius) {
-                    SelectorManager.Instance.Viz.selectedRibbons.Add(a);
+                    Visualization.Instance.selectedRibbons.Add(a);
                 }
             }
         }

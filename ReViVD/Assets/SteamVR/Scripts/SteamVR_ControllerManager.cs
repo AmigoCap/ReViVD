@@ -26,30 +26,20 @@ public class SteamVR_ControllerManager : MonoBehaviour {
     private static SteamVR_ControllerManager _instance;
     public static SteamVR_ControllerManager Instance {
         get {
-            if (_instance == null) {
-                _instance = GameObject.FindObjectOfType<SteamVR_ControllerManager>();
-
-                if (_instance == null)
-                    _instance = new GameObject("[ControllerManager]").AddComponent<SteamVR_ControllerManager>();
-            }
             return _instance;
         }
     }
 
     public static SteamVR_TrackedController LeftController {
         get {
-            return Instance.left.GetComponent<SteamVR_TrackedController>();
+            return _instance == null ? null : _instance.left.GetComponent<SteamVR_TrackedController>();
         }
     }
 
     public static SteamVR_TrackedController RightController {
         get {
-            return Instance.right.GetComponent<SteamVR_TrackedController>();
+            return _instance == null ? null : _instance.right.GetComponent<SteamVR_TrackedController>();
         }
-    }
-
-    void OnDestroy() {
-        _instance = null;
     }
 
     // Helper function to avoid adding duplicates to object array.
@@ -81,6 +71,7 @@ public class SteamVR_ControllerManager : MonoBehaviour {
     SteamVR_Events.Action inputFocusAction, deviceConnectedAction, trackedDeviceRoleChangedAction;
 
     void Awake() {
+        _instance = this;
         UpdateTargets();
     }
 

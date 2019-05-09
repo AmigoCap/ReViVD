@@ -11,6 +11,7 @@ namespace Revivd {
 
         protected override bool LoadFromCSV(string filename) {
             districtSize = new Vector3(10, 10, 10);
+
             TextAsset file = Resources.Load<TextAsset>(filename);
             if (file == null)
                 return false;
@@ -52,11 +53,6 @@ namespace Revivd {
         bool doTime = false;
 
         private void Start() {
-            if (!LoadFromCSV("data_lourugby")) {
-                return;
-            }
-            InitializeRendering();
-
             startTime = Time.time;
         }
 

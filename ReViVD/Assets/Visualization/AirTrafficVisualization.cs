@@ -56,14 +56,6 @@ namespace Revivd {
 
         bool doTime = false;
 
-        private void Awake() {
-            name = "airTraffic";
-
-            if (!LoadFromCSV("data_aviation")) {
-                return;
-            }
-        }
-
         private void Start() {
             AirTrafficPath p = paths[GetPathIndex("60")];
             int c = p.AtomsAsBase.Count;

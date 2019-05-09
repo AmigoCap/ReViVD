@@ -4,6 +4,8 @@
 //
 //=============================================================================
 
+#pragma warning disable
+
 using UnityEngine;
 using UnityEditor;
 using System.IO;
