@@ -10,7 +10,7 @@ namespace Revivd {
 
         public Vector3 districtSize;
 
-        public string dataFileName;
+        public TextAsset dataFile;
 
         public bool needsFullRenderingUpdate = false;
 
@@ -26,10 +26,9 @@ namespace Revivd {
         protected virtual void Awake() {
             material = Resources.Load<Material>("Materials/Ribbon");
             _instance = this;
-            if (!LoadFromCSV("Data/" + dataFileName)) {
+            if (!LoadFromCSV()) {
                 return;
             }
-            InitializeRendering();
         }
 
         private void OnDrawGizmos() {
@@ -54,7 +53,7 @@ namespace Revivd {
             }
         }
 
-        protected abstract bool LoadFromCSV(string filename);
+        protected abstract bool LoadFromCSV();
 
         protected string[] CsvSplit(string row, char decimalChar = '.') { //En cas de CSV récalcitrant
             List<string> words = new List<string>();

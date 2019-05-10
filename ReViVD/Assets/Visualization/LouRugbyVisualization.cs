@@ -1,48 +1,47 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace Revivd {
 
     public class LouRugbyVisualization : TimeVisualization {
-        public List<LouRugbyPath> Paths { get; set; }
-        public override IReadOnlyList<Path> PathsAsBase { get { return Paths; } }
-        public override IReadOnlyList<TimePath> PathsAsTime { get { return Paths; } }
+        public List<LouRugbyPath> paths { get; set; }
+        public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
+        public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
         public void Reset() {
             districtSize = new Vector3(10, 10, 10);
         }
 
-        protected override bool LoadFromCSV(string filename) {
-            TextAsset file = Resources.Load<TextAsset>(filename);
-            if (file == null)
+        protected override bool LoadFromCSV() {
+            if (dataFile == null)
                 return false;
-            Paths = new List<LouRugbyPath>();
-            Dictionary<string, LouRugbyPath> PathsDict = new Dictionary<string, LouRugbyPath>();
+            paths = new List<LouRugbyPath>();
+            Dictionary<string, LouRugbyPath> pathsDict = new Dictionary<string, LouRugbyPath>();
 
             Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
 
-            string[] rawData = file.text.Split(new char[] { '\n' });
+            string[] rawData = dataFile.text.Split(new char[] { '\n' });
 
-            for (int i = 0; i < rawData.Length / 50; i++) {
-                string[] words = CsvSplit(rawData[50 * i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
+            for (int i = 0; i < rawData.Length / 20; i++) {
+                string[] words = CsvSplit(rawData[20 * i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
 
                 if (words.Length < 2)
                     continue;
 
                 LouRugbyPath p;
-                if (!PathsDict.TryGetValue(words[0], out p)) {
-                    p = new LouRugbyPath() { ID = words[0], baseRadius = 0.1f };
-                    Paths.Add(p);
-                    PathsDict.Add(p.ID, p);
+                if (!pathsDict.TryGetValue(words[0], out p)) {
+                    p = new LouRugbyPath() { ID = words[0] };
+                    paths.Add(p);
+                    pathsDict.Add(p.ID, p);
                     colorsDict.Add(p.ID, Random.ColorHSV());
                 }
 
                 float t = InterpretTime(words[4]);
                 LouRugbyAtom a = new LouRugbyAtom {
                     time = t,
-                    point = new Vector3(float.Parse(words[1]), t/20, float.Parse(words[2])),
-                    path = p
+                    point = new Vector3(float.Parse(words[1]), t / 20, float.Parse(words[2])),
+                    path = p,
+                    indexInPath = p.atoms.Count
                 };
 
                 a.baseColor = colorsDict[p.ID];
@@ -61,6 +60,8 @@ namespace Revivd {
         bool doTime = false;
 
         private void Start() {
+            InitializeRendering();
+
             startTime = Time.time;
         }
 
@@ -76,14 +77,14 @@ namespace Revivd {
                     startTime = Time.time;
                 }
                 else {
-                    foreach (LouRugbyPath p in Paths) {
+                    foreach (LouRugbyPath p in paths) {
                         p.RemoveTimeWindow();
                     }
                 }
             }
 
             if (doTime) {
-                foreach (LouRugbyPath p in Paths) {
+                foreach (LouRugbyPath p in paths) {
                     p.SetTimeWindow((Time.time - startTime) * 5 - 10, (Time.time - startTime) * 5 + 10);
                 }
             }

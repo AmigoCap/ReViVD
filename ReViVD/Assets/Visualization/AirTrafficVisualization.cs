@@ -12,14 +12,13 @@ namespace Revivd {
             districtSize = new Vector3(15, 15, 15);
         }
 
-        protected override bool LoadFromCSV(string filename) {
-            TextAsset file = Resources.Load<TextAsset>(filename);
-            if (file == null)
+        protected override bool LoadFromCSV() {
+            if (dataFile == null)
                 return false;
             paths = new List<AirTrafficPath>();
-            Dictionary<string, AirTrafficPath> PathsDict = new Dictionary<string, AirTrafficPath>();
+            Dictionary<string, AirTrafficPath> pathsDict = new Dictionary<string, AirTrafficPath>();
 
-            string[] rawData = file.text.Split(new char[] { '\n' });
+            string[] rawData = dataFile.text.Split(new char[] { '\n' });
 
             foreach (string row in rawData) {
                 string[] words = CsvSplit(row, ',');    //Selon configuration de l'OS, mettre ',' ou '.'
@@ -28,10 +27,10 @@ namespace Revivd {
                     continue;
 
                 AirTrafficPath p;
-                if (!PathsDict.TryGetValue(words[0], out p)) {
+                if (!pathsDict.TryGetValue(words[0], out p)) {
                     p = new AirTrafficPath() { ID = words[0] };
                     paths.Add(p);
-                    PathsDict.Add(p.ID, p);
+                    pathsDict.Add(p.ID, p);
                 }
 
                 AirTrafficAtom a = new AirTrafficAtom {
