@@ -12,7 +12,7 @@ The main objective is to develop new 3D data visualization and exploration tools
 References of the project can be found in the *annotated_bibliography.md* file.
 
 ## Roadmap
-- [x] State of the art of VR technologies
+- [x] Research on the state of the art of VR technologies
 - [x] Bibliography
 - [x] Headset test and configuration of programming environment
    - [x] First demo with basic examples
@@ -22,14 +22,16 @@ References of the project can be found in the *annotated_bibliography.md* file.
    - [x] New code architecture
 - Optimization of data visualization (ongoing)
    - [x] Creation of districts
-   - [ ] Own shader
+   - [x] Custom shader
    - [ ] Multithreading
-   - [ ] Distribution on several frames
+   - [ ] Update load distribution on several frames
 - Interaction with data (ongoing)
    - [x] Handling controllers
    - [x] Filter data
    - [x] Moving camera
-   - [ ] Several forms of selectors
+   - [x] Standardized, combinable 3D selectors
+   - [ ] More functionality for selectors: erasers, negative space
+   - [ ] In-program selector creator
 
 ## Docs
 Some documentation can be found under the *docs* folder.
