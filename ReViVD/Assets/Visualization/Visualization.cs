@@ -210,8 +210,6 @@ namespace Revivd {
                     upperBoundary = Vector3.Max(upperBoundary, transform.InverseTransformPoint(p.transform.TransformPoint(a.point)));
                 }
             }
-            Debug.Log(upperBoundary);
-            Debug.Log(lowerBoundary);
         }
 
         //Donne le district dans lequel se trouve un point dans les coordonnées de la visualisation.

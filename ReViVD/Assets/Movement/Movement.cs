@@ -9,6 +9,8 @@ namespace Revivd {
 
         public static Movement Instance { get { return _instance; } }
 
+        public bool FullControlMode = false;
+
         public float horizontalSensitivity = 150;
         public float verticalSensitivity = 150;
         public float trimSensitivity = 0.3f;
@@ -39,24 +41,32 @@ namespace Revivd {
 
         // Update is called once per frame
         void Update() {
-            Vector3 camRot = Time.deltaTime * (horizontalSensitivity * SteamVR_ControllerManager.RightController.Joystick.x * camTrans.up + verticalSensitivity * (invertVerticalControl ? 1 : -1) * SteamVR_ControllerManager.RightController.Joystick.y * camTrans.right);
+            Vector3 camRot;
+            Vector3 camStr;
 
-            Vector2 touchPos = new Vector2(SteamVR_ControllerManager.RightController.Pad.x, -SteamVR_ControllerManager.RightController.Pad.y);
-            if (!oldTouchPos.Equals(Vector2.zero) && !touchPos.Equals(Vector2.zero)) {
-                trimToDo -= trimSensitivity * Vector2.SignedAngle(oldTouchPos, touchPos);
+            if (FullControlMode) {
+                camRot = Time.deltaTime * (horizontalSensitivity * SteamVR_ControllerManager.RightController.Joystick.x * camTrans.up + verticalSensitivity * (invertVerticalControl ? 1 : -1) * SteamVR_ControllerManager.RightController.Joystick.y * camTrans.right);
+
+                Vector2 touchPos = new Vector2(SteamVR_ControllerManager.RightController.Pad.x, -SteamVR_ControllerManager.RightController.Pad.y);
+                if (!oldTouchPos.Equals(Vector2.zero) && !touchPos.Equals(Vector2.zero)) {
+                    trimToDo -= trimSensitivity * Vector2.SignedAngle(oldTouchPos, touchPos);
+                }
+                oldTouchPos.Set(touchPos.x, touchPos.y);
+                if (trimToDo != 0) {
+                    float step = Mathf.Max(Mathf.Min(trimToDo, maxTrimVelocity * Time.deltaTime), -maxTrimVelocity * Time.deltaTime);
+                    camRot += step * camTrans.forward;
+                    trimToDo -= step;
+                }
+
+                camStr = Time.deltaTime * baseSpeed * (SteamVR_ControllerManager.LeftController.Joystick.y * camTrans.forward + SteamVR_ControllerManager.LeftController.Joystick.x * camTrans.right);
             }
-            oldTouchPos.Set(touchPos.x, touchPos.y);
-            if (trimToDo != 0) {
-                float step = Mathf.Max(Mathf.Min(trimToDo, maxTrimVelocity * Time.deltaTime), -maxTrimVelocity * Time.deltaTime);
-                camRot += step * camTrans.forward;
-                trimToDo -= step;
+            else {
+                camRot = Time.deltaTime * (horizontalSensitivity * SteamVR_ControllerManager.RightController.Joystick.x * Vector3.up);
+                camStr = Time.deltaTime * baseSpeed * (SteamVR_ControllerManager.LeftController.Joystick.y * camTrans.forward + SteamVR_ControllerManager.LeftController.Joystick.x * camTrans.right + SteamVR_ControllerManager.RightController.Joystick.y * Vector3.up);
             }
 
-            if (doJoystickControls) {
-                Vector3 camStr = Time.deltaTime * baseSpeed * (SteamVR_ControllerManager.LeftController.Joystick.y * camTrans.forward + SteamVR_ControllerManager.LeftController.Joystick.x * camTrans.right);
-                this.transform.Translate(camStr + Vector3.Cross(camTrans.position - transform.position, camRot * 0.0174533f), Space.World);
-            }
-
+            
+            this.transform.Translate(camStr + Vector3.Cross(camTrans.position - transform.position, camRot * 0.0174533f), Space.World);
             this.transform.Rotate(camRot, Space.World);
         }
 

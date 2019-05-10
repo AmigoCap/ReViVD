@@ -26,27 +26,40 @@ public class SteamVR_TrackedController : MonoBehaviour {
     public event ClickedEventHandler Gripped;
     public event ClickedEventHandler Ungripped;
 
-    Vector2 ApplyDead(float x, float y, float dead) {
-        Vector2 v = new Vector2(x, y);
-        if (v.magnitude < dead)
-            return Vector2.zero;
-        return v;
+    Vector2 ApplyDead(float x, float y, float d) {
+        return new Vector2((x > -d && x < d) ? 0 : x, (y > -d && y < d) ? 0 : y);
 
     }
 
     const float joystickDead = 0.2f;
     Vector2 joystick = Vector2.zero;
+    bool joystickNeedsUpdate = true;
     public Vector2 Joystick {
         get {
+            if (joystickNeedsUpdate) {
+                joystick = ApplyDead(controllerState.rAxis2.x, controllerState.rAxis2.y, joystickDead);
+                joystickNeedsUpdate = false;
+            }
             return joystick;
         }
     }
 
     const float padDead = 0.2f;
     Vector2 pad = Vector2.zero;
+    bool padNeedsUpdate = true;
     public Vector2 Pad {
         get {
+            if (padNeedsUpdate) {
+                pad = ApplyDead(controllerState.rAxis0.x, controllerState.rAxis0.y, padDead);
+                padNeedsUpdate = false;
+            }
             return pad;
+        }
+    }
+
+    public float Shoulder {
+        get {
+            return controllerState.rAxis1.x;
         }
     }
 
@@ -184,7 +197,7 @@ public class SteamVR_TrackedController : MonoBehaviour {
             }
         }
 
-        joystick = ApplyDead(controllerState.rAxis2.x, controllerState.rAxis2.y, joystickDead);
-        pad = ApplyDead(controllerState.rAxis0.x, controllerState.rAxis0.y, padDead);
+        joystickNeedsUpdate = true;
+        padNeedsUpdate = true;
     }
 }
