@@ -9,9 +9,11 @@ namespace Revivd {
         public override IReadOnlyList<Path> PathsAsBase { get { return Paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return Paths; } }
 
-        protected override bool LoadFromCSV(string filename) {
+        public void Reset() {
             districtSize = new Vector3(10, 10, 10);
+        }
 
+        protected override bool LoadFromCSV(string filename) {
             TextAsset file = Resources.Load<TextAsset>(filename);
             if (file == null)
                 return false;
@@ -22,8 +24,8 @@ namespace Revivd {
 
             string[] rawData = file.text.Split(new char[] { '\n' });
 
-            for (int i = 0; i < rawData.Length / 10; i++) {
-                string[] words = CsvSplit(rawData[10 * i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
+            for (int i = 0; i < rawData.Length / 50; i++) {
+                string[] words = CsvSplit(rawData[50 * i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
 
                 if (words.Length < 2)
                     continue;

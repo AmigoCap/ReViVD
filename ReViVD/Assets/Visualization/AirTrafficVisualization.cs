@@ -8,9 +8,11 @@ namespace Revivd {
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
-        protected override bool LoadFromCSV(string filename) {
+        public void Reset() {
             districtSize = new Vector3(15, 15, 15);
+        }
 
+        protected override bool LoadFromCSV(string filename) {
             TextAsset file = Resources.Load<TextAsset>(filename);
             if (file == null)
                 return false;

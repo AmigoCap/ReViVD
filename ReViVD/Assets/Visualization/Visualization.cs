@@ -5,26 +5,28 @@ using System;
 namespace Revivd {
 
     public abstract class Visualization : MonoBehaviour {
-        public Material material;
+        private static Visualization _instance;
+        public static Visualization Instance { get { return _instance; } }
+
         public Vector3 districtSize;
 
         public string dataFileName;
 
         public bool needsFullRenderingUpdate = false;
 
+        public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
+
+        Material material;
+
         //TESTING
         public bool debugMode = false;
         public bool getDebugData = false;
         private readonly List<int[]>[] districtsToHighlight = new List<int[]>[] { new List<int[]>(), new List<int[]>(), new List<int[]>() };
 
-        private static Visualization _instance;
-        public static Visualization Instance { get { return _instance; } }
-
-        public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
-
         protected virtual void Awake() {
+            material = Resources.Load<Material>("Materials/Ribbon");
             _instance = this;
-            if (!LoadFromCSV(dataFileName)) {
+            if (!LoadFromCSV("Data/" + dataFileName)) {
                 return;
             }
             InitializeRendering();
@@ -209,6 +211,8 @@ namespace Revivd {
                     upperBoundary = Vector3.Max(upperBoundary, transform.InverseTransformPoint(p.transform.TransformPoint(a.point)));
                 }
             }
+            Debug.Log(upperBoundary);
+            Debug.Log(lowerBoundary);
         }
 
         //Donne le district dans lequel se trouve un point dans les coordonnées de la visualisation.
