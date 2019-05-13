@@ -4,21 +4,12 @@ using UnityEngine;
 
 namespace Revivd {
 
-    public class SelectorManager : MonoBehaviour {
-        private static SelectorManager _instance;
-
-        public static SelectorManager Instance { get { return _instance; } }
-
-        public HashSet<Selector> selectors = new HashSet<Selector>();
-
+    [DisallowMultipleComponent]
+    public class Selector : MonoBehaviour {
         public bool highlightChecked = false;
         private bool old_highightChecked = false;
         public bool highlightSelected = true;
         private bool old_highlightSelected = true;
-
-        private void Awake() {
-            _instance = this;
-        }
 
         private void DisplayOnlySelected(SteamVR_TrackedController sender) {
             HashSet<Path> selectedPaths = new HashSet<Path>();
@@ -92,8 +83,10 @@ namespace Revivd {
         }
 
         private void Update() {
-            foreach (Selector s in selectors) {
-                s.UpdateGeometry();
+            SelectorPart[] parts = GetComponents<SelectorPart>();
+
+            foreach (SelectorPart s in parts) {
+                s.UpdatePrimitive();
                 s.districtsToCheck.Clear();
                 if (ShouldSelect) {
                     s.FindDistrictsToCheck();
@@ -101,7 +94,7 @@ namespace Revivd {
             }
 
             if (highlightChecked || old_highightChecked) {
-                foreach (Selector s in selectors) {
+                foreach (SelectorPart s in parts) {
                     foreach (Atom a in s.ribbonsToCheck) {
                         a.ShouldHighlight = false;
                     }
@@ -109,7 +102,7 @@ namespace Revivd {
             }
 
 
-            foreach (Selector s in selectors) {
+            foreach (SelectorPart s in parts) {
                 s.ribbonsToCheck.Clear();
                 if (ShouldSelect) {
                     foreach (int[] d in s.districtsToCheck) {
@@ -122,7 +115,7 @@ namespace Revivd {
 
             if (highlightChecked) {
                 Color32 yellow = new Color32(255, 240, 20, 255);
-                foreach (Selector s in selectors) {
+                foreach (SelectorPart s in parts) {
                     foreach (Atom a in s.ribbonsToCheck) {
                         a.ShouldHighlight = true;
                         a.highlightColor = yellow;
@@ -136,7 +129,7 @@ namespace Revivd {
                 }
             }
 
-            foreach (Selector s in selectors) {
+            foreach (SelectorPart s in parts) {
                 if (ShouldSelect) {
                     s.AddToSelectedRibbons();
                 }
@@ -158,29 +151,4 @@ namespace Revivd {
             old_highlightSelected = highlightSelected;
         }
     }
-
-    public abstract class Selector : MonoBehaviour {
-        public HashSet<int[]> districtsToCheck = new HashSet<int[]>(new CoordsEqualityComparer());
-        public HashSet<Atom> ribbonsToCheck = new HashSet<Atom>();
-
-        protected abstract void CreateObjects();
-
-        public abstract void UpdateGeometry();
-
-        public abstract void FindDistrictsToCheck();
-
-        public abstract void AddToSelectedRibbons();
-
-        protected virtual void OnEnable() {
-            SelectorManager.Instance.selectors.Add(this);
-            CreateObjects();
-        }
-
-        protected virtual void OnDisable() {
-            for (int i = 0; i < transform.childCount; i++)
-                Destroy(transform.GetChild(i).gameObject);
-            SelectorManager.Instance.selectors.Remove(this);
-        }
-    }
-
 }

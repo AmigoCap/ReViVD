@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Revivd {
 
-    public class SaberSelector : Selector {
+    public class CylinderPart : SelectorPart {
 
         public float saberLength = 5f;
         public float saberThickness = 0.3f;
@@ -12,20 +12,17 @@ namespace Revivd {
         private Vector3 saberStart = new Vector3();
         private Vector3 saberEnd = new Vector3();
 
-        protected override void CreateObjects() {
-            GameObject saber = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            transform.parent = SteamVR_ControllerManager.Instance.right.transform;
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
-            saber.transform.parent = transform;
-            saber.transform.localPosition = transform.InverseTransformDirection(SteamVR_ControllerManager.Instance.right.transform.forward) * saberLength / 2;
-            saber.transform.localRotation = Quaternion.Euler(90, 0, 0);
-            saber.transform.localScale = new Vector3(saberThickness, saberLength / 2, saberThickness);
+        protected override void CreatePrimitive() {
+            primitive = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
+            primitive.transform.localPosition = new Vector3(0, 0, saberLength / 2);
+            primitive.transform.localRotation = Quaternion.Euler(90, 0, 0);
+            primitive.transform.localScale = new Vector3(saberThickness, saberLength / 2, saberThickness);
         }
 
-        public override void UpdateGeometry() {
-            saberStart = SteamVR_ControllerManager.Instance.right.transform.position;
-            saberEnd = SteamVR_ControllerManager.Instance.right.transform.position + SteamVR_ControllerManager.Instance.right.transform.forward * saberLength;
+        public override void UpdatePrimitive() {
+            saberStart = primitive.transform.position;
+            saberEnd = primitive.transform.position + primitive.transform.parent.forward * saberLength;
         }
 
         public override void FindDistrictsToCheck() {
@@ -166,8 +163,7 @@ namespace Revivd {
 
         public override void AddToSelectedRibbons() {
             foreach (Atom a in ribbonsToCheck) {
-                float radius;
-                if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
+                if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
                     radius = a.path.baseRadius;
                 if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < saberThickness / 2 + radius) {
                     Visualization.Instance.selectedRibbons.Add(a);
