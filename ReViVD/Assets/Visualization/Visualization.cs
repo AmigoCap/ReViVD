@@ -4,6 +4,7 @@ using System;
 
 namespace Revivd {
 
+    [DisallowMultipleComponent]
     public abstract class Visualization : MonoBehaviour {
         private static Visualization _instance;
         public static Visualization Instance { get { return _instance; } }
@@ -12,24 +13,19 @@ namespace Revivd {
 
         public TextAsset dataFile;
 
-        public bool needsFullRenderingUpdate = false;
+        public bool needsFullVerticesUpdate = false;
 
         public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
 
-        Material material;
+        [NonSerialized]
+        public Material material;
+
+        public abstract IReadOnlyList<Path> PathsAsBase { get; }
 
         //TESTING
         public bool debugMode = false;
         public bool getDebugData = false;
         private readonly List<int[]>[] districtsToHighlight = new List<int[]>[] { new List<int[]>(), new List<int[]>(), new List<int[]>() };
-
-        protected virtual void Awake() {
-            material = Resources.Load<Material>("Materials/Ribbon");
-            _instance = this;
-            if (!LoadFromCSV()) {
-                return;
-            }
-        }
 
         private void OnDrawGizmos() {
             if (debugMode) {
@@ -95,68 +91,46 @@ namespace Revivd {
             return words.ToArray();
         }
 
-        protected void InitializeRendering() {
-            foreach (Path p in PathsAsBase) {
-                GameObject o = new GameObject(p.ID);
-                o.transform.parent = transform;
-                p.transform = o.transform;
-                MeshFilter filter = o.AddComponent<MeshFilter>();
-                p.mesh = new Mesh();
-                filter.sharedMesh = p.mesh;
-                MeshRenderer renderer = o.AddComponent<MeshRenderer>();
-                renderer.sharedMaterial = material;
-                p.GenerateMesh();
+        int[] oldCameraDistrict;
+        readonly bool[] thickTowardsPositive = { true, true, true }; //Définit la position du cube de 4x4 districts autour de la caméra
+
+        protected virtual void Awake() {
+            material = Resources.Load<Material>("Materials/Ribbon");
+
+            if (_instance != null) {
+                Debug.LogError("Multiple instances of visualization singleton");
+                Destroy(Instance);
             }
+            _instance = this;
+
+            if (!LoadFromCSV())
+                return;
+
             CreateDistricts();
 
             oldCameraDistrict = FindDistrict(transform.InverseTransformPoint(Camera.main.transform.position), false);
-            oldCameraDistrict[0] = oldCameraDistrict[0] + 10; //On prend une ancienne caméra différente de la véritable pour forcer une première update de tous les atomes
+            needsFullVerticesUpdate = true;
         }
-
-        int[] oldCameraDistrict;
-        HashSet<Path> pathsToUpdate = new HashSet<Path>();
-        readonly bool[] thickTowardsPositive = { true, true, true }; //Définit la position du cube de 4x4 districts autour de la caméra
 
         protected void UpdateRendering() {
             int[] cameraDistrict = FindDistrict(transform.InverseTransformPoint(Camera.main.transform.position), false);
-            if (!needsFullRenderingUpdate && cameraDistrict[0] == oldCameraDistrict[0] && cameraDistrict[1] == oldCameraDistrict[1] && cameraDistrict[2] == oldCameraDistrict[2]) {
-                foreach (Path p in pathsToUpdate) {
-                    p.UpdateVertices();
-                }
-            }
-            else {
-                bool shouldUpdateEverything = needsFullRenderingUpdate;
-                needsFullRenderingUpdate = false;
+            if (cameraDistrict[0] != oldCameraDistrict[0] || cameraDistrict[1] != oldCameraDistrict[1] || cameraDistrict[2] != oldCameraDistrict[2]) {
                 for (int i = 0; i < 3; i++) {
                     if (cameraDistrict[i] == oldCameraDistrict[i] + (thickTowardsPositive[i] ? 1 : -1)) {
                         thickTowardsPositive[i] = !thickTowardsPositive[i];
                     }
                     else if (cameraDistrict[i] != oldCameraDistrict[i]) {
-                        shouldUpdateEverything = true;
+                        needsFullVerticesUpdate = true;
                     }
                 }
 
-                if (shouldUpdateEverything) {
-                    foreach (Path p in pathsToUpdate) {
-                        foreach (Atom a in p.AtomsAsBase) {
-                            a.shouldUpdateVertices = false;
-                        }
-                    }
-                    pathsToUpdate.Clear();
-
-                    if (debugMode)
-                        districtsToHighlight[0].Clear();
-
+                if (!needsFullVerticesUpdate) {
                     for (int i = cameraDistrict[0] - (thickTowardsPositive[0] ? 1 : 2); i <= cameraDistrict[0] + (thickTowardsPositive[0] ? 2 : 1); i++) {
                         for (int j = cameraDistrict[1] - (thickTowardsPositive[1] ? 1 : 2); j <= cameraDistrict[1] + (thickTowardsPositive[1] ? 2 : 1); j++) {
                             for (int k = cameraDistrict[2] - (thickTowardsPositive[2] ? 1 : 2); k <= cameraDistrict[2] + (thickTowardsPositive[2] ? 2 : 1); k++) {
-                                if (debugMode)
-                                    districtsToHighlight[0].Add(new int[3] { i, j, k });
-
                                 try {
                                     foreach (Atom a in districts[i, j, k].atoms_line) {
-                                        a.shouldUpdateVertices = true;
-                                        pathsToUpdate.Add(a.path);
+                                        a.ShouldUpdateVertices = true;
                                     }
                                 }
                                 catch (System.IndexOutOfRangeException) {
@@ -165,9 +139,11 @@ namespace Revivd {
                             }
                         }
                     }
-
+                }
+                else {
                     foreach (Path p in PathsAsBase) {
-                        p.UpdateVertices(true);
+                        p.needsVerticesUpdate = true;
+                        p.forceFullVerticesUpdate = true;
                     }
                 }
             }
@@ -179,12 +155,10 @@ namespace Revivd {
             }
         }
 
-        public abstract IReadOnlyList<Path> PathsAsBase { get; }
-
-        public int GetPathIndex(string ID) {
+        public int GetPathIndex(string name) {
             int c = PathsAsBase.Count;
             for (int i = 0; i < c; i++) {
-                if (PathsAsBase[i].ID == ID)
+                if (PathsAsBase[i].name == name)
                     return i;
             }
             return -1;
@@ -321,171 +295,4 @@ namespace Revivd {
             }
         }
     }
-
-    public abstract class Path {
-        public string ID;
-        public Mesh mesh;
-        public Transform transform;
-        public Dictionary<int, float> specialRadii = new Dictionary<int, float>();
-        public float baseRadius = 0.1f;
-
-        protected void CleanspecialRadii() {
-            int AtomCount = AtomsAsBase.Count;
-            List<int> keysToRemove = new List<int>();
-            foreach (KeyValuePair<int, float> pair in specialRadii) {
-                if (pair.Key > AtomCount - 2 || pair.Key < 0)
-                    keysToRemove.Add(pair.Key);
-            }
-            foreach (int key in keysToRemove)
-                specialRadii.Remove(key);
-        }
-
-        public void GenerateTriangles() {
-            int totalAtoms = AtomsAsBase.Count;
-
-            CleanspecialRadii();
-
-            List<int> trianglesL = new List<int>();
-            int[] generator = { 0, 2, 1, 1, 2, 3, 2, 5, 4, 3, 4, 6 };
-            int[] bonusGenerator = { 2, 4, 5, 3, 6, 4 };
-
-            bool previousWasSpecial = false;
-            for (int i = 0; i < totalAtoms - 1; i++) {
-                if (AtomsAsBase[i].shouldDisplay) {
-                    for (int j = 0; j < (i == totalAtoms - 2 ? 6 : 12); j++) {
-                        trianglesL.Add(generator[j] + 5 * i);
-                    }
-
-                    if (specialRadii.ContainsKey(i)) {
-                        if (!previousWasSpecial && i != 0 && AtomsAsBase[i - 1].shouldDisplay) {
-                            for (int j = 0; j < 6; j++) {
-                                trianglesL.Add(bonusGenerator[j] + 5 * (i - 1));
-                            }
-                        }
-                        if (i != totalAtoms - 2 && AtomsAsBase[i + 1].shouldDisplay) {
-                            for (int j = 0; j < 6; j++) {
-                                trianglesL.Add(bonusGenerator[j] + 5 * (i));
-                            }
-                        }
-                        previousWasSpecial = true;
-                    }
-                    else
-                        previousWasSpecial = false;
-                }
-            }
-
-            mesh.triangles = trianglesL.ToArray();
-        }
-
-        public void GenerateMesh() {
-            mesh.Clear();
-
-            int AtomCount = AtomsAsBase.Count;
-
-            Vector3[] vertices = new Vector3[AtomCount * 5 - 6];
-            Color32[] colors = new Color32[vertices.Length];
-
-            mesh.vertices = vertices;
-            mesh.colors32 = colors;
-            GenerateTriangles();
-
-            UpdateVertices();
-        }
-
-        public void UpdateVertices(bool forceUpdateAll = false) {
-            Vector3 camPos = Camera.main.transform.position;
-
-            Vector3 vBase = new Vector3();
-
-            Vector3[] vertices = mesh.vertices; //vertices et colors32 sont des propriétés et renvoient des copies
-            Color32[] colors = mesh.colors32;
-
-            int atomCount = AtomsAsBase.Count;
-            Vector3 currentPoint = AtomsAsBase[0].point;
-            Vector3 nextPoint;
-
-            for (int p = 0; p < atomCount - 1; p++) {
-                Atom currentAtom = AtomsAsBase[p];
-
-                if (((!currentAtom.shouldUpdateVertices && !currentAtom.shouldUpdateColor_once) || !currentAtom.shouldDisplay) && !forceUpdateAll) {
-                    if (p == 0 || !AtomsAsBase[p - 1].shouldUpdateVertices) {
-                        continue;
-                    }
-                }
-
-                int i = 5 * p;
-
-                if (currentAtom.shouldUpdateVertices || forceUpdateAll) {
-                    currentPoint = currentAtom.point;
-                    nextPoint = AtomsAsBase[p + 1].point;
-
-                    float radius;
-                    if (!specialRadii.TryGetValue(p, out radius))
-                        radius = baseRadius;
-
-                    vBase = radius * Vector3.Cross(nextPoint - camPos, nextPoint - currentPoint).normalized;
-                    vertices[i] = currentPoint + vBase;
-                    vertices[i + 1] = currentPoint - vBase;
-                    vertices[i + 2] = vertices[i] + nextPoint - currentPoint;
-                    vertices[i + 3] = vertices[i + 1] + nextPoint - currentPoint;
-                    if (p < atomCount - 2)
-                        vertices[i + 4] = nextPoint;
-                }
-
-                if (currentAtom.shouldUpdateColor_once || currentAtom.shouldUpdateColor || forceUpdateAll) {
-                    currentAtom.shouldUpdateColor_once = false;
-                    if (currentAtom.ShouldHighlight) {
-                        colors[i] = currentAtom.highlightColor;
-                        colors[i + 1] = currentAtom.highlightColor;
-                        colors[i + 2] = currentAtom.highlightColor;
-                        colors[i + 3] = currentAtom.highlightColor;
-                        if (p < atomCount - 2)
-                            colors[i + 4] = currentAtom.highlightColor;
-                    }
-                    else {
-                        Atom nextAtom = AtomsAsBase[p + 1];
-                        colors[i] = currentAtom.baseColor;
-                        colors[i + 1] = currentAtom.baseColor;
-                        colors[i + 2] = nextAtom.baseColor;
-                        colors[i + 3] = nextAtom.baseColor;
-                        if (p < atomCount - 2)
-                            colors[i + 4] = nextAtom.baseColor;
-                    }
-                }
-            }
-
-            mesh.vertices = vertices;
-            mesh.colors32 = colors;
-            mesh.RecalculateBounds();
-        }
-
-        public abstract IReadOnlyList<Atom> AtomsAsBase { get; }
-    }
-
-    public abstract class Atom {
-        public Vector3 point;
-        public Path path;
-        public int indexInPath;
-        public bool shouldUpdateVertices = false; //Should vertices be updated each frame?
-        public bool shouldUpdateColor = false; //Should color be updated each frame?
-        public bool shouldUpdateColor_once = true; //Should color be updated next frame only?
-        public bool shouldDisplay = true;
-        private bool shouldHighlight = false;
-        public Color32 baseColor = new Color32(255, 255, 255, 255);
-        public Color32 highlightColor = new Color32(0, 255, 0, 255);
-
-        public bool ShouldHighlight {
-            get {
-                return shouldHighlight;
-            }
-
-            set {
-                if (shouldHighlight != value) {
-                    shouldHighlight = value;
-                    shouldUpdateColor_once = true;
-                }
-            }
-        }
-    }
-
 }

@@ -22,34 +22,22 @@ namespace Revivd {
 
             foreach (Path p in Visualization.Instance.PathsAsBase) {
                 if (!selectedPaths.Contains(p)) {
-                    bool shouldUpdateTriangles = false;
                     foreach (Atom a in p.AtomsAsBase) {
-                        if (a.shouldDisplay) {
-                            a.shouldDisplay = false;
-                            shouldUpdateTriangles = true;
-                        }
+                        a.ShouldDisplay = false;
                     }
-                    if (shouldUpdateTriangles)
-                        p.GenerateTriangles();
                 }
             }
-            Visualization.Instance.needsFullRenderingUpdate = true;
+            Visualization.Instance.needsFullVerticesUpdate = true;
         }
 
         private void DisplayAll(SteamVR_TrackedController sender) {
             foreach (Path p in Visualization.Instance.PathsAsBase) {
-                bool shouldUpdateTriangles = false;
                 foreach (Atom a in p.AtomsAsBase) {
-                    if (!a.shouldDisplay) {
-                        a.shouldDisplay = true;
-                        shouldUpdateTriangles = true;
-                    }
+                    a.ShouldDisplay = true;
                 }
-                if (shouldUpdateTriangles)
-                    p.GenerateTriangles();
             }
 
-            Visualization.Instance.needsFullRenderingUpdate = true;
+            Visualization.Instance.needsFullVerticesUpdate = true;
         }
 
         private void ClearSelected(SteamVR_TrackedController sender) {
@@ -60,7 +48,7 @@ namespace Revivd {
                     }
                 }
                 Visualization.Instance.selectedRibbons.Clear();
-                Visualization.Instance.needsFullRenderingUpdate = true;
+                Visualization.Instance.needsFullVerticesUpdate = true;
             }
         }
 
@@ -182,7 +170,7 @@ namespace Revivd {
             }
 
             if (highlightSelected != old_highlightSelected || highlightChecked != old_highightChecked) {
-                Visualization.Instance.needsFullRenderingUpdate = true;
+                Visualization.Instance.needsFullVerticesUpdate = true;
             }
 
             old_highightChecked = highlightChecked;

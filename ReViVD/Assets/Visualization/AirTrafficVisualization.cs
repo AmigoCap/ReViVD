@@ -26,11 +26,12 @@ namespace Revivd {
                 if (words.Length < 2)
                     continue;
 
-                AirTrafficPath p;
-                if (!pathsDict.TryGetValue(words[0], out p)) {
-                    p = new AirTrafficPath() { ID = words[0] };
+                if (!pathsDict.TryGetValue(words[0], out AirTrafficPath p)) {
+                    GameObject go = new GameObject(words[0]);
+                    go.transform.parent = Visualization.Instance.transform;
+                    p = go.AddComponent<AirTrafficPath>();
                     paths.Add(p);
-                    pathsDict.Add(p.ID, p);
+                    pathsDict.Add(p.name, p);
                 }
 
                 AirTrafficAtom a = new AirTrafficAtom {
@@ -44,6 +45,11 @@ namespace Revivd {
                 p.atoms.Add(a);
             }
 
+            AirTrafficPath p60 = pathsDict["60"];
+            int c = p60.AtomsAsBase.Count;
+            for (int i = 0; i < c; i += 2)
+                p60.specialRadii.Add(i, 0.3f);
+
             return true;
         }
 
@@ -56,17 +62,6 @@ namespace Revivd {
         }
 
         bool doTime = false;
-
-        private void Start() {
-            AirTrafficPath p = paths[GetPathIndex("60")];
-            int c = p.AtomsAsBase.Count;
-            for (int i = 0; i < c; i += 2)
-                p.specialRadii.Add(i, 0.3f);
-
-            InitializeRendering();
-
-            startTime = Time.time;
-        }
 
         private float startTime = 0;
 
