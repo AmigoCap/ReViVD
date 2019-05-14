@@ -11,6 +11,9 @@ namespace Revivd {
         public bool highlightSelected = true;
         private bool old_highlightSelected = true;
 
+        public bool inverse = false;
+        public bool erase = false;
+
         private void DisplayOnlySelected(SteamVR_TrackedController sender) {
             HashSet<Path> selectedPaths = new HashSet<Path>();
             foreach (Atom a in Visualization.Instance.selectedRibbons) {
@@ -87,8 +90,8 @@ namespace Revivd {
 
             foreach (SelectorPart s in parts) {
                 s.UpdatePrimitive();
-                s.districtsToCheck.Clear();
                 if (ShouldSelect) {
+                    s.districtsToCheck.Clear();
                     s.FindDistrictsToCheck();
                 }
             }
@@ -102,9 +105,10 @@ namespace Revivd {
             }
 
 
-            foreach (SelectorPart s in parts) {
-                s.ribbonsToCheck.Clear();
-                if (ShouldSelect) {
+            
+            if (ShouldSelect) {
+                foreach (SelectorPart s in parts) {
+                    s.ribbonsToCheck.Clear();
                     foreach (int[] d in s.districtsToCheck) {
                         foreach (Atom a in Visualization.Instance.districts[d[0], d[1], d[2]].atoms_segment)
                             s.ribbonsToCheck.Add(a);
@@ -129,9 +133,43 @@ namespace Revivd {
                 }
             }
 
-            foreach (SelectorPart s in parts) {
-                if (ShouldSelect) {
-                    s.AddToSelectedRibbons();
+            HashSet<Atom> handledRibbons = new HashSet<Atom>();
+
+            if (ShouldSelect) {
+                foreach (SelectorPart s in parts) {
+                    s.touchedRibbons.Clear();
+                    s.FindTouchedRibbons();
+                    if (s.Positive) {
+                        foreach (Atom a in s.touchedRibbons) {
+                            handledRibbons.Add(a);
+                        }
+                    }
+                    else {
+                        foreach (Atom a in s.touchedRibbons) {
+                            handledRibbons.Remove(a);
+                        }
+                    }
+                }
+
+                
+                if (inverse) { //Very inefficient code for now, needs an in-depth restructuration of the Viz/Path/Atom architecture
+                    List<Atom> allRibbons = new List<Atom>();
+                    foreach (Path p in Visualization.Instance.PathsAsBase) {
+                        allRibbons.AddRange(p.AtomsAsBase);
+                    }
+                    HashSet<Atom> inversed = new HashSet<Atom>(allRibbons);
+                    inversed.ExceptWith(handledRibbons);
+
+                    if (erase)
+                        Visualization.Instance.selectedRibbons.ExceptWith(inversed);
+                    else
+                        Visualization.Instance.selectedRibbons.UnionWith(inversed);
+                }
+                else {
+                    if (erase)
+                        Visualization.Instance.selectedRibbons.ExceptWith(handledRibbons);
+                    else
+                        Visualization.Instance.selectedRibbons.UnionWith(handledRibbons);
                 }
             }
 

@@ -353,6 +353,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   highlightChecked: 0
   highlightSelected: 1
+  inverse: 0
+  erase: 0
 --- !u!114 &281215299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365,7 +367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07c2fa16cafc6cf4d8879344a433eb47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  positive: 1
+  _positive: 1
   saberLength: 5
   saberThickness: 0.3
 --- !u!114 &281215300
@@ -380,7 +382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c4ade576bbe644ab2ea7123ba5c70d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  positive: 1
+  _positive: 1
   distance: 6
   radius: 1
   upOffset: 0
@@ -831,7 +833,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1722164516
 Transform:
   m_ObjectHideFlags: 0
@@ -1192,7 +1194,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2138234665
 Transform:
   m_ObjectHideFlags: 0

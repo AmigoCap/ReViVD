@@ -161,12 +161,12 @@ namespace Revivd {
             return distance;
         }
 
-        public override void AddToSelectedRibbons() {
+        public override void FindTouchedRibbons() {
             foreach (Atom a in ribbonsToCheck) {
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
                     radius = a.path.baseRadius;
                 if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < saberThickness / 2 + radius) {
-                    Visualization.Instance.selectedRibbons.Add(a);
+                    touchedRibbons.Add(a);
                 }
             }
         }

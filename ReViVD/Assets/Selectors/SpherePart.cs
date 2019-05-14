@@ -89,13 +89,13 @@ namespace Revivd {
             return Vector3.Cross(b - a, point - a).magnitude / (b - a).magnitude;
         }
 
-        public override void AddToSelectedRibbons() {
+        public override void FindTouchedRibbons() {
             foreach (Atom a in ribbonsToCheck) {
                 float radius;
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                     radius = a.path.baseRadius;
                 if (DistancePointSegment(sphereCenter, a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point)) < this.radius + radius) {
-                    Visualization.Instance.selectedRibbons.Add(a);
+                    touchedRibbons.Add(a);
                 }
             }
         }

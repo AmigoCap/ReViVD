@@ -7,8 +7,17 @@ namespace Revivd {
     public abstract class SelectorPart : MonoBehaviour {
         public HashSet<int[]> districtsToCheck = new HashSet<int[]>(new CoordsEqualityComparer());
         public HashSet<Atom> ribbonsToCheck = new HashSet<Atom>();
+        public HashSet<Atom> touchedRibbons = new HashSet<Atom>();
 
-        public bool positive = true;
+        [SerializeField]
+        private bool _positive = true;
+        public bool Positive {
+            get => _positive;
+            set {
+                _positive = value;
+                primitive.GetComponent<MeshRenderer>().material.color = _positive ? Color.white : Color.red;
+            }
+        }
 
         protected GameObject primitive;
 
@@ -18,7 +27,7 @@ namespace Revivd {
 
         public abstract void FindDistrictsToCheck();
 
-        public abstract void AddToSelectedRibbons();
+        public abstract void FindTouchedRibbons();
 
         protected virtual void OnEnable() {
             CreatePrimitive();
