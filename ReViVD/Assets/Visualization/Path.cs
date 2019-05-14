@@ -70,7 +70,7 @@ namespace Revivd {
             for (int p = 0; p < atomCount - 1; p++) {
                 Atom currentAtom = AtomsAsBase[p];
 
-                if (!forceFullVerticesUpdate || !currentAtom.ShouldDisplay || (!currentAtom.ShouldUpdateVertices && (p == 0 || !AtomsAsBase[p - 1].ShouldUpdateVertices))) {
+                if (!currentAtom.ShouldDisplay || (!forceFullVerticesUpdate && !currentAtom.ShouldUpdateVertices && (p == 0 || !AtomsAsBase[p - 1].ShouldUpdateVertices))) {
                     continue;
                 }
 
@@ -196,8 +196,8 @@ namespace Revivd {
         public Path path;
         public int indexInPath;
 
-        private bool shouldUpdateVertices = false; //Should vertices be updated each frame?
-        private bool shouldUpdateColor = false; //Should color be updated each frame?
+        private bool shouldUpdateVertices = false;
+        private bool shouldUpdateColor = false;
         private bool shouldDisplay = true;
         private bool shouldHighlight = false;
 
