@@ -30,10 +30,12 @@ namespace Revivd {
 
                 LouRugbyPath p;
                 if (!pathsDict.TryGetValue(words[0], out p)) {
-                    p = new LouRugbyPath() { ID = words[0] };
+                    GameObject go = new GameObject(words[0]);
+                    go.transform.parent = transform;
+                    p = go.AddComponent<LouRugbyPath>();
                     paths.Add(p);
-                    pathsDict.Add(p.ID, p);
-                    colorsDict.Add(p.ID, Random.ColorHSV());
+                    pathsDict.Add(p.name, p);
+                    colorsDict.Add(p.name, Random.ColorHSV());
                 }
 
                 float t = InterpretTime(words[4]);
@@ -44,7 +46,7 @@ namespace Revivd {
                     indexInPath = p.atoms.Count
                 };
 
-                a.baseColor = colorsDict[p.ID];
+                a.BaseColor = colorsDict[p.name];
                 p.atoms.Add(a);
             }
 
@@ -58,12 +60,6 @@ namespace Revivd {
         }
 
         bool doTime = false;
-
-        private void Start() {
-            InitializeRendering();
-
-            startTime = Time.time;
-        }
 
         private float startTime = 0;
 

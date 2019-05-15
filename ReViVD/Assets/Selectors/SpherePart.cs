@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Revivd {
 
-    public class SphereSelector : Selector {
+    public class SpherePart : SelectorPart {
 
         public float distance = 2f;
         public float radius = 0.5f;
@@ -13,22 +13,15 @@ namespace Revivd {
 
         private Vector3 sphereCenter = new Vector3();
 
-        protected override void CreateObjects() {
-            GameObject saber = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            transform.parent = SteamVR_ControllerManager.Instance.right.transform;
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
-            saber.transform.parent = transform;
-            saber.transform.localPosition = transform.InverseTransformDirection(SteamVR_ControllerManager.Instance.right.transform.forward * distance
-                                                                                + SteamVR_ControllerManager.Instance.right.transform.up * upOffset
-                                                                                + SteamVR_ControllerManager.Instance.right.transform.right * rightOffset);
-            saber.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
+        protected override void CreatePrimitive() {
+            primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform; ;
+            primitive.transform.localPosition = new Vector3(rightOffset, upOffset, distance);
+            primitive.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
         }
 
-        public override void UpdateGeometry() {
-            sphereCenter = SteamVR_ControllerManager.Instance.right.transform.position + SteamVR_ControllerManager.Instance.right.transform.forward * distance
-                                                                                 + SteamVR_ControllerManager.Instance.right.transform.up * upOffset
-                                                                                 + SteamVR_ControllerManager.Instance.right.transform.right * rightOffset;
+        public override void UpdatePrimitive() {
+            sphereCenter = primitive.transform.position;
         }
 
         public override void FindDistrictsToCheck() {
@@ -96,13 +89,13 @@ namespace Revivd {
             return Vector3.Cross(b - a, point - a).magnitude / (b - a).magnitude;
         }
 
-        public override void AddToSelectedRibbons() {
+        public override void FindTouchedRibbons() {
             foreach (Atom a in ribbonsToCheck) {
                 float radius;
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                     radius = a.path.baseRadius;
                 if (DistancePointSegment(sphereCenter, a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point)) < this.radius + radius) {
-                    Visualization.Instance.selectedRibbons.Add(a);
+                    touchedRibbons.Add(a);
                 }
             }
         }
