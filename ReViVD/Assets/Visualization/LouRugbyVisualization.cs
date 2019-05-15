@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Revivd {
 
     public class LouRugbyVisualization : TimeVisualization {
-        public List<LouRugbyPath> paths { get; set; }
+        public List<LouRugbyPath> paths;
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
@@ -28,8 +28,7 @@ namespace Revivd {
                 if (words.Length < 2)
                     continue;
 
-                LouRugbyPath p;
-                if (!pathsDict.TryGetValue(words[0], out p)) {
+                if (!pathsDict.TryGetValue(words[0], out LouRugbyPath p)) {
                     GameObject go = new GameObject(words[0]);
                     go.transform.parent = transform;
                     p = go.AddComponent<LouRugbyPath>();

@@ -100,8 +100,10 @@ namespace Revivd {
                 foreach (SelectorPart s in parts) {
                     s.ribbonsToCheck.Clear();
                     foreach (int[] d in s.districtsToCheck) {
-                        foreach (Atom a in Visualization.Instance.districts[d[0], d[1], d[2]].atoms_segment)
-                            s.ribbonsToCheck.Add(a);
+                        foreach (Atom a in Visualization.Instance.districts[d[0], d[1], d[2]].atoms_segment) {
+                            if (a.ShouldDisplay)
+                                s.ribbonsToCheck.Add(a);
+                        }
                     }
                 }
             }

@@ -833,7 +833,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1722164516
 Transform:
   m_ObjectHideFlags: 0
@@ -864,8 +864,11 @@ MonoBehaviour:
   districtSize: {x: 10, y: 10, z: 10}
   dataFile: {fileID: 4900000, guid: 06a47f6ade34cb948bb355897f4f2647, type: 3}
   needsFullVerticesUpdate: 0
+  material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
+  debugInts: 00000000000000000000000000000000
   getDebugData: 0
+  paths: []
 --- !u!1 &1758705935
 GameObject:
   m_ObjectHideFlags: 0
@@ -1080,7 +1083,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2004474616}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0.53847194, y: -0.31626981, z: -0.6976186, w: 0.35121188}
   m_LocalPosition: {x: 0, y: 1, z: 2}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children: []
@@ -1194,7 +1197,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2138234665
 Transform:
   m_ObjectHideFlags: 0
@@ -1225,6 +1228,8 @@ MonoBehaviour:
   districtSize: {x: 15, y: 15, z: 15}
   dataFile: {fileID: 4900000, guid: 5fd28a27ea65b9b46be2ed7f7bf8c63f, type: 3}
   needsFullVerticesUpdate: 0
+  material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
+  debugInts: 00000000000000000000000000000000
   getDebugData: 0
   paths: []

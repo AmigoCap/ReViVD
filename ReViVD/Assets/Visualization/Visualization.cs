@@ -17,7 +17,6 @@ namespace Revivd {
 
         public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
 
-        [NonSerialized]
         public Material material;
 
         public abstract IReadOnlyList<Path> PathsAsBase { get; }
@@ -96,11 +95,11 @@ namespace Revivd {
         readonly bool[] thickTowardsPositive = { true, true, true }; //Définit la position du cube de 4x4 districts autour de la caméra
 
         protected virtual void Awake() {
-            material = Resources.Load<Material>("Materials/Ribbon");
+            if (material == null)
+                material = Resources.Load<Material>("Materials/Ribbon");
 
             if (_instance != null) {
-                Debug.LogError("Multiple instances of visualization singleton");
-                Destroy(Instance);
+                Debug.LogWarning("Multiple instances of visualization singleton");
             }
             _instance = this;
 
