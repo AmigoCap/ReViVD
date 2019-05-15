@@ -99,8 +99,7 @@ namespace Revivd {
                 material = Resources.Load<Material>("Materials/Ribbon");
 
             if (_instance != null) {
-                Debug.LogError("Multiple instances of visualization singleton");
-                Destroy(Instance);
+                Debug.LogWarning("Multiple instances of visualization singleton");
             }
             _instance = this;
 

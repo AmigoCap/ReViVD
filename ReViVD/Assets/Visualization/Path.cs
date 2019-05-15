@@ -155,7 +155,6 @@ namespace Revivd {
                     }
 
                     if (specialRadii.ContainsKey(i)) {
-                        Visualization.Instance.debugInts[0]++; //DEBUG
                         if (!previousWasSpecial && i != 0 && AtomsAsBase[i - 1].ShouldDisplay) {
                             for (int j = 0; j < 6; j++) {
                                 trianglesL.Add(bonusGenerator[j] + 5 * (i - 1));
