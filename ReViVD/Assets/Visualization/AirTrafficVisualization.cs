@@ -28,7 +28,7 @@ namespace Revivd {
 
                 if (!pathsDict.TryGetValue(words[0], out AirTrafficPath p)) {
                     GameObject go = new GameObject(words[0]);
-                    go.transform.parent = Visualization.Instance.transform;
+                    go.transform.parent = transform;
                     p = go.AddComponent<AirTrafficPath>();
                     paths.Add(p);
                     pathsDict.Add(p.name, p);

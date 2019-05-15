@@ -22,8 +22,9 @@ namespace Revivd {
 
         public abstract IReadOnlyList<Path> PathsAsBase { get; }
 
-        //TESTING
+        //DEBUG
         public bool debugMode = false;
+        public int[] debugInts = { 0, 0, 0, 0 }; //Counters that reset every update, printed via getDebugData
         public bool getDebugData = false;
         private readonly List<int[]>[] districtsToHighlight = new List<int[]>[] { new List<int[]>(), new List<int[]>(), new List<int[]>() };
 
@@ -142,6 +143,7 @@ namespace Revivd {
                 }
             }
             else {
+                needsFullVerticesUpdate = false;
                 foreach (Path p in PathsAsBase) {
                     p.needsVerticesUpdate = true;
                     p.forceFullVerticesUpdate = true;
@@ -154,8 +156,17 @@ namespace Revivd {
 
             oldCameraDistrict = cameraDistrict;
 
-            if (getDebugData) { //TESTING
+            if (getDebugData) { //DEBUG
                 getDebugData = false;
+                string s = "Debug ints: ";
+                foreach (int i in debugInts)
+                    s += i.ToString() + '\t';
+                Debug.Log(s);
+            }
+
+            if (debugMode) {
+                for (int i = 0; i < 4; i++)
+                    debugInts[i] = 0;
             }
         }
 

@@ -74,7 +74,9 @@ namespace Revivd {
         }
 
         private void Update() {
-            SelectorPart[] parts = GetComponents<SelectorPart>();
+            List<SelectorPart> parts = new List<SelectorPart>();
+            GetComponents(parts);
+            parts.RemoveAll(p => p.isActiveAndEnabled == false);
 
             foreach (SelectorPart s in parts) {
                 s.UpdatePrimitive();

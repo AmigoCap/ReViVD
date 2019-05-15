@@ -31,7 +31,7 @@ namespace Revivd {
                 LouRugbyPath p;
                 if (!pathsDict.TryGetValue(words[0], out p)) {
                     GameObject go = new GameObject(words[0]);
-                    go.transform.parent = Visualization.Instance.transform;
+                    go.transform.parent = transform;
                     p = go.AddComponent<LouRugbyPath>();
                     paths.Add(p);
                     pathsDict.Add(p.name, p);

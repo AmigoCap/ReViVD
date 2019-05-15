@@ -21,8 +21,8 @@ namespace Revivd {
         }
 
         public override void UpdatePrimitive() {
-            saberStart = primitive.transform.position;
-            saberEnd = primitive.transform.position + primitive.transform.parent.forward * saberLength;
+            saberStart = primitive.transform.position - primitive.transform.parent.forward * saberLength / 2;
+            saberEnd = primitive.transform.position + primitive.transform.parent.forward * saberLength / 2;
         }
 
         public override void FindDistrictsToCheck() {
