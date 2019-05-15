@@ -110,7 +110,7 @@ namespace Revivd {
                 foreach (SelectorPart s in parts) {
                     foreach (Atom a in s.ribbonsToCheck) {
                         a.ShouldHighlight = true;
-                        a.highlightColor = yellow;
+                        a.HighlightColor = yellow;
                     }
                 }
             }
@@ -165,7 +165,7 @@ namespace Revivd {
                 Color32 green = new Color32(0, 255, 0, 255);
                 foreach (Atom a in Visualization.Instance.selectedRibbons) {
                     a.ShouldHighlight = true;
-                    a.highlightColor = green;
+                    a.HighlightColor = green;
                 }
             }
 

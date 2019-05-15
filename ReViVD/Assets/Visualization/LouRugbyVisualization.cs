@@ -46,7 +46,7 @@ namespace Revivd {
                     indexInPath = p.atoms.Count
                 };
 
-                a.baseColor = colorsDict[p.name];
+                a.BaseColor = colorsDict[p.name];
                 p.atoms.Add(a);
             }
 

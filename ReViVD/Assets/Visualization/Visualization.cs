@@ -123,29 +123,33 @@ namespace Revivd {
                         needsFullVerticesUpdate = true;
                     }
                 }
+            }
 
-                if (!needsFullVerticesUpdate) {
-                    for (int i = cameraDistrict[0] - (thickTowardsPositive[0] ? 1 : 2); i <= cameraDistrict[0] + (thickTowardsPositive[0] ? 2 : 1); i++) {
-                        for (int j = cameraDistrict[1] - (thickTowardsPositive[1] ? 1 : 2); j <= cameraDistrict[1] + (thickTowardsPositive[1] ? 2 : 1); j++) {
-                            for (int k = cameraDistrict[2] - (thickTowardsPositive[2] ? 1 : 2); k <= cameraDistrict[2] + (thickTowardsPositive[2] ? 2 : 1); k++) {
-                                try {
-                                    foreach (Atom a in districts[i, j, k].atoms_line) {
-                                        a.ShouldUpdateVertices = true;
-                                    }
+            if (!needsFullVerticesUpdate) {
+                for (int i = cameraDistrict[0] - (thickTowardsPositive[0] ? 1 : 2); i <= cameraDistrict[0] + (thickTowardsPositive[0] ? 2 : 1); i++) {
+                    for (int j = cameraDistrict[1] - (thickTowardsPositive[1] ? 1 : 2); j <= cameraDistrict[1] + (thickTowardsPositive[1] ? 2 : 1); j++) {
+                        for (int k = cameraDistrict[2] - (thickTowardsPositive[2] ? 1 : 2); k <= cameraDistrict[2] + (thickTowardsPositive[2] ? 2 : 1); k++) {
+                            try {
+                                foreach (Atom a in districts[i, j, k].atoms_line) {
+                                    a.ShouldUpdateVertices = true;
                                 }
-                                catch (System.IndexOutOfRangeException) {
-                                    continue;
-                                }
+                            }
+                            catch (System.IndexOutOfRangeException) {
+                                continue;
                             }
                         }
                     }
                 }
-                else {
-                    foreach (Path p in PathsAsBase) {
-                        p.needsVerticesUpdate = true;
-                        p.forceFullVerticesUpdate = true;
-                    }
+            }
+            else {
+                foreach (Path p in PathsAsBase) {
+                    p.needsVerticesUpdate = true;
+                    p.forceFullVerticesUpdate = true;
                 }
+            }
+
+            foreach (Path p in PathsAsBase) {
+                p.UpdatePath();
             }
 
             oldCameraDistrict = cameraDistrict;

@@ -20,15 +20,18 @@ namespace Revivd {
 
         public bool needsColorUpdate = false; //Update the color of the vertices
 
+        private Mesh mesh;
+
         protected virtual void Awake() {
             MeshFilter filter = gameObject.AddComponent<MeshFilter>();
-            filter.sharedMesh = new Mesh();
+            mesh = new Mesh();
+            filter.sharedMesh = mesh;
             MeshRenderer renderer = gameObject.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = Visualization.Instance.material;
             needsMeshUpdate = true;
         }
 
-        protected virtual void Update() {
+        public void UpdatePath() {
             if (needsMeshUpdate)
                 UpdateMesh();
             if (needsVerticesUpdate)
@@ -40,7 +43,6 @@ namespace Revivd {
         }
 
         private void UpdateMesh() {
-            Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
             mesh.Clear();
 
             int AtomCount = AtomsAsBase.Count;
@@ -58,7 +60,6 @@ namespace Revivd {
         }
 
         private void UpdateVertices() {
-            Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
             Vector3 camPos = Camera.main.transform.position;
 
             Vector3 vBase = new Vector3();
@@ -100,8 +101,6 @@ namespace Revivd {
         }
 
         private void UpdateColor() {
-            Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
-
             Color32[] colors = mesh.colors32;
 
             int atomCount = AtomsAsBase.Count;
@@ -116,21 +115,21 @@ namespace Revivd {
                 int i = 5 * p;
 
                 if (currentAtom.ShouldHighlight) {
-                    colors[i] = currentAtom.highlightColor;
-                    colors[i + 1] = currentAtom.highlightColor;
-                    colors[i + 2] = currentAtom.highlightColor;
-                    colors[i + 3] = currentAtom.highlightColor;
+                    colors[i] = currentAtom.HighlightColor;
+                    colors[i + 1] = currentAtom.HighlightColor;
+                    colors[i + 2] = currentAtom.HighlightColor;
+                    colors[i + 3] = currentAtom.HighlightColor;
                     if (p < atomCount - 2)
-                        colors[i + 4] = currentAtom.highlightColor;
+                        colors[i + 4] = currentAtom.HighlightColor;
                 }
                 else {
                     Atom nextAtom = AtomsAsBase[p + 1];
-                    colors[i] = currentAtom.baseColor;
-                    colors[i + 1] = currentAtom.baseColor;
-                    colors[i + 2] = nextAtom.baseColor;
-                    colors[i + 3] = nextAtom.baseColor;
+                    colors[i] = currentAtom.BaseColor;
+                    colors[i + 1] = currentAtom.BaseColor;
+                    colors[i + 2] = nextAtom.BaseColor;
+                    colors[i + 3] = nextAtom.BaseColor;
                     if (p < atomCount - 2)
-                        colors[i + 4] = nextAtom.baseColor;
+                        colors[i + 4] = nextAtom.BaseColor;
                 }
 
                 currentAtom.ShouldUpdateColor = false;
@@ -174,7 +173,7 @@ namespace Revivd {
                 }
             }
 
-            GetComponent<MeshFilter>().sharedMesh.triangles = trianglesL.ToArray();
+            mesh.triangles = trianglesL.ToArray();
 
             needsTriangleUpdate = false;
         }
@@ -197,12 +196,12 @@ namespace Revivd {
         public int indexInPath;
 
         private bool shouldUpdateVertices = false;
-        private bool shouldUpdateColor = false;
         private bool shouldDisplay = true;
+        private bool shouldUpdateColor = false;
         private bool shouldHighlight = false;
 
-        public Color32 baseColor = new Color32(255, 255, 255, 255);
-        public Color32 highlightColor = new Color32(0, 255, 0, 255);
+        private Color32 baseColor = new Color32(255, 255, 255, 255);
+        private Color32 highlightColor = new Color32(0, 255, 0, 255);
 
         public bool ShouldUpdateVertices {
             get => shouldUpdateVertices;
@@ -219,6 +218,30 @@ namespace Revivd {
                 shouldUpdateColor = value;
                 if (shouldUpdateColor)
                     path.needsColorUpdate = true;
+            }
+        }
+
+        public Color32 BaseColor {
+            get => baseColor;
+            set {
+                if (!baseColor.Equals(value)) {
+                    baseColor = value;
+                    shouldUpdateColor = true;
+                    path.needsColorUpdate = true;
+                }
+            }
+        }
+
+        public Color32 HighlightColor {
+            get => highlightColor;
+            set {
+                if (!highlightColor.Equals(value)) {
+                    highlightColor = value;
+                    if (shouldHighlight) {
+                        shouldUpdateColor = true;
+                        path.needsColorUpdate = true;
+                    }
+                }
             }
         }
 
