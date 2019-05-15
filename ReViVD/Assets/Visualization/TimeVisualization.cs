@@ -12,27 +12,15 @@ namespace Revivd {
         public abstract IReadOnlyList<TimeAtom> AtomsAsTime { get; }
 
         public void SetTimeWindow(float startTime, float stopTime) { //Met à jour les atomes à afficher en fonction de si leur temps est dans la fenêtre recherchée
-            bool shouldUpdateTriangles = false;
             foreach (TimeAtom a in AtomsAsTime) {
-                if (a.shouldDisplay != (a.time > startTime && a.time < stopTime)) {
-                    a.shouldDisplay = !a.shouldDisplay;
-                    shouldUpdateTriangles = true;
-                }
+                a.ShouldDisplay = a.time > startTime && a.time < stopTime;
             }
-            if (shouldUpdateTriangles)
-                GenerateTriangles();
         }
 
         public void RemoveTimeWindow() {
-            bool shouldUpdateTriangles = false;
             foreach (TimeAtom a in AtomsAsTime) {
-                if (!a.shouldDisplay) {
-                    a.shouldDisplay = true;
-                    shouldUpdateTriangles = true;
-                }
+                a.ShouldDisplay = true;
             }
-            if (shouldUpdateTriangles)
-                GenerateTriangles();
         }
     }
 
