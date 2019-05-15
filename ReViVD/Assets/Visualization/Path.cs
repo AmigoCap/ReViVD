@@ -62,11 +62,9 @@ namespace Revivd {
         private void UpdateVertices() {
             Vector3 camPos = Camera.main.transform.position;
 
-            Vector3 vBase = new Vector3();
-
-            Vector3[] vertices = mesh.vertices; //vertices et colors32 sont des propriétés et renvoient des copies
-
             int atomCount = AtomsAsBase.Count;
+
+            Vector3[] vertices = mesh.vertices;
 
             for (int p = 0; p < atomCount - 1; p++) {
                 Atom currentAtom = AtomsAsBase[p];
@@ -82,7 +80,7 @@ namespace Revivd {
                 if (!specialRadii.TryGetValue(p, out float radius))
                     radius = baseRadius;
 
-                vBase = radius * Vector3.Cross(nextPoint - camPos, nextPoint - currentPoint).normalized;
+                Vector3 vBase = radius * Vector3.Cross(nextPoint - camPos, nextPoint - currentPoint).normalized;
                 vertices[i] = currentPoint + vBase;
                 vertices[i + 1] = currentPoint - vBase;
                 vertices[i + 2] = vertices[i] + nextPoint - currentPoint;
@@ -94,6 +92,7 @@ namespace Revivd {
             }
 
             mesh.vertices = vertices;
+
             mesh.RecalculateBounds();
 
             needsVerticesUpdate = false;
@@ -156,6 +155,7 @@ namespace Revivd {
                     }
 
                     if (specialRadii.ContainsKey(i)) {
+                        Visualization.Instance.debugInts[0]++; //DEBUG
                         if (!previousWasSpecial && i != 0 && AtomsAsBase[i - 1].ShouldDisplay) {
                             for (int j = 0; j < 6; j++) {
                                 trianglesL.Add(bonusGenerator[j] + 5 * (i - 1));
