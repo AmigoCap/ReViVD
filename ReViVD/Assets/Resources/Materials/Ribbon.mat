@@ -5,9 +5,10 @@ Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: Ribbon
-  m_Shader: {fileID: 4800000, guid: 246f939e08f3d4946a1d1c0f68bc0b42, type: 3}
+  m_Shader: {fileID: 4800000, guid: 912e8aaaf2fbd8d4b962ce9a961d1a9a, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0

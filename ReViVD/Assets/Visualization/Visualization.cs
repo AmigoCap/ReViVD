@@ -91,9 +91,6 @@ namespace Revivd {
             return words.ToArray();
         }
 
-        int[] oldCameraDistrict;
-        readonly bool[] thickTowardsPositive = { true, true, true }; //Définit la position du cube de 4x4 districts autour de la caméra
-
         protected virtual void Awake() {
             if (material == null)
                 material = Resources.Load<Material>("Materials/Ribbon");
@@ -107,53 +104,12 @@ namespace Revivd {
                 return;
 
             CreateDistricts();
-
-            oldCameraDistrict = FindDistrict(transform.InverseTransformPoint(Camera.main.transform.position), false);
-            needsFullVerticesUpdate = true;
         }
 
         protected void UpdateRendering() {
-            int[] cameraDistrict = FindDistrict(transform.InverseTransformPoint(Camera.main.transform.position), false);
-            if (cameraDistrict[0] != oldCameraDistrict[0] || cameraDistrict[1] != oldCameraDistrict[1] || cameraDistrict[2] != oldCameraDistrict[2]) {
-                for (int i = 0; i < 3; i++) {
-                    if (cameraDistrict[i] == oldCameraDistrict[i] + (thickTowardsPositive[i] ? 1 : -1)) {
-                        thickTowardsPositive[i] = !thickTowardsPositive[i];
-                    }
-                    else if (cameraDistrict[i] != oldCameraDistrict[i]) {
-                        needsFullVerticesUpdate = true;
-                    }
-                }
-            }
-
-            if (!needsFullVerticesUpdate) {
-                for (int i = cameraDistrict[0] - (thickTowardsPositive[0] ? 1 : 2); i <= cameraDistrict[0] + (thickTowardsPositive[0] ? 2 : 1); i++) {
-                    for (int j = cameraDistrict[1] - (thickTowardsPositive[1] ? 1 : 2); j <= cameraDistrict[1] + (thickTowardsPositive[1] ? 2 : 1); j++) {
-                        for (int k = cameraDistrict[2] - (thickTowardsPositive[2] ? 1 : 2); k <= cameraDistrict[2] + (thickTowardsPositive[2] ? 2 : 1); k++) {
-                            try {
-                                foreach (Atom a in districts[i, j, k].atoms_line) {
-                                    a.ShouldUpdateVertices = true;
-                                }
-                            }
-                            catch (System.IndexOutOfRangeException) {
-                                continue;
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                needsFullVerticesUpdate = false;
-                foreach (Path p in PathsAsBase) {
-                    p.needsVerticesUpdate = true;
-                    p.forceFullVerticesUpdate = true;
-                }
-            }
-
             foreach (Path p in PathsAsBase) {
                 p.UpdatePath();
             }
-
-            oldCameraDistrict = cameraDistrict;
 
             if (getDebugData) { //DEBUG
                 getDebugData = false;

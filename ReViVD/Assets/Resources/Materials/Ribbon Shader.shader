@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Ribbon Shader" {
+﻿Shader "Custom/Ribbon Shader" {
 	Category{
 	Tags { "RenderType" = "Opaque" }
 	Lighting Off
@@ -16,6 +14,7 @@ Shader "Ribbon Shader" {
 
 			struct appdata_t {
 				float4 vertex : POSITION;
+				float4 tex0 : TEXCOORD0;
 				fixed4 color : COLOR;
 			};
 
@@ -27,7 +26,7 @@ Shader "Ribbon Shader" {
 			v2f vert(appdata_t v)
 			{
 				v2f o;
-				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.vertex = UnityObjectToClipPos(v.vertex + normalize(cross(WorldSpaceViewDir(v.vertex), v.tex0.xyz)) * v.tex0.w);
 				o.color = v.color;
 				return o;
 			}
