@@ -135,7 +135,6 @@ namespace Revivd {
         }
 
         public struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
-            public Atom[] atoms_line; //Tous les atomes dont le ruban, étendu en ligne inifinie, traverse le district
             public Atom[] atoms_segment; //Tous les atomes dont le ruban fini traverse le district
             public Vector3 center;
         }
@@ -186,12 +185,10 @@ namespace Revivd {
             Mathf.FloorToInt((upperBoundary.z - lowerBoundary.z) / districtSize.z + 1) };
             districts = new District[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
 
-            HashSet<Atom>[,,] atomRepartition_line = new HashSet<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
             HashSet<Atom>[,,] atomRepartition_segment = new HashSet<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
             for (int i = 0; i < numberOfDistricts[0]; i++) {
                 for (int j = 0; j < numberOfDistricts[1]; j++) {
                     for (int k = 0; k < numberOfDistricts[2]; k++) {
-                        atomRepartition_line[i, j, k] = new HashSet<Atom>();
                         atomRepartition_segment[i, j, k] = new HashSet<Atom>();
                     }
                 }
@@ -204,43 +201,11 @@ namespace Revivd {
                     Vector3 nextPoint = transform.InverseTransformPoint(p.transform.TransformPoint(p.AtomsAsBase[i + 1].point));
                     Vector3 delta = (nextPoint - point).normalized;
 
-                    //On détermine les intersections avec les bords de la visualisation
-                    Vector3 retroIntersect, proIntersect;
-                    Vector3 retroCoeffs = Vector3.negativeInfinity;
-                    Vector3 proCoeffs = Vector3.positiveInfinity;
-
-                    float temp;
-
-                    temp = (upperBoundary.x - point.x) / delta.x;
-                    if (temp > 0) proCoeffs.x = temp; else retroCoeffs.x = temp;
-                    temp = (upperBoundary.y - point.y) / delta.y;
-                    if (temp > 0) proCoeffs.y = temp; else retroCoeffs.y = temp;
-                    temp = (upperBoundary.z - point.z) / delta.z;
-                    if (temp > 0) proCoeffs.z = temp; else retroCoeffs.z = temp;
-
-                    temp = (lowerBoundary.x - point.x) / delta.x;
-                    if (temp > 0) proCoeffs.x = temp; else retroCoeffs.x = temp;
-                    temp = (lowerBoundary.y - point.y) / delta.y;
-                    if (temp > 0) proCoeffs.y = temp; else retroCoeffs.y = temp;
-                    temp = (lowerBoundary.z - point.z) / delta.z;
-                    if (temp > 0) proCoeffs.z = temp; else retroCoeffs.z = temp;
-
-                    proIntersect = Mathf.Min(proCoeffs.x, proCoeffs.y, proCoeffs.z) * delta + point;
-                    retroIntersect = Mathf.Max(retroCoeffs.x, retroCoeffs.y, retroCoeffs.z) * delta + point;
-
-                    //On traduit ces intersections en districts
-                    int[] retroDistrict = FindDistrict(retroIntersect, true);
-                    int[] proDistrict = FindDistrict(proIntersect, true);
-
-                    //On obtient aussi les districts des points
+                    //On obtient les districts des points
                     int[] pointDistrict = FindDistrict(point, true);
                     int[] nextPointDistrict = FindDistrict(nextPoint, true);
 
-                    //Algorithme de Bresenham en 3D : on détermine tous les districts entre ces deux intersections
-                    List<int[]> districts_line = Tools.Bresenham(retroDistrict, proDistrict);
-                    foreach (int[] d in districts_line) {
-                        atomRepartition_line[d[0], d[1], d[2]].Add(p.AtomsAsBase[i]);
-                    }
+                    //Algorithme de Bresenham en 3D : on détermine tous les districts entre ces deux districts
                     List<int[]> districts_segment = Tools.Bresenham(pointDistrict, nextPointDistrict);
                     foreach (int[] d in districts_segment) {
                         atomRepartition_segment[d[0], d[1], d[2]].Add(p.AtomsAsBase[i]);
@@ -254,11 +219,9 @@ namespace Revivd {
                 for (int y = 0; y < numberOfDistricts[1]; y++) {
                     for (int z = 0; z < numberOfDistricts[2]; z++) {
                         districts[x, y, z] = new District() {
-                            center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2 + lowerBoundary
+                            center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2 + lowerBoundary,
+                            atoms_segment = new Atom[atomRepartition_segment[x, y, z].Count]
                         };
-                        districts[x, y, z].atoms_line = new Atom[atomRepartition_line[x, y, z].Count];
-                        atomRepartition_line[x, y, z].CopyTo(districts[x, y, z].atoms_line);
-                        districts[x, y, z].atoms_segment = new Atom[atomRepartition_segment[x, y, z].Count];
                         atomRepartition_segment[x, y, z].CopyTo(districts[x, y, z].atoms_segment);
                     }
                 }
