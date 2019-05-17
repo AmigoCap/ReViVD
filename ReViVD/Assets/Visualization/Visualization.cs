@@ -171,18 +171,16 @@ namespace Revivd {
                     Vector3 nextPoint = transform.InverseTransformPoint(p.transform.TransformPoint(p.AtomsAsBase[i + 1].point));
                     Vector3 delta = (nextPoint - point).normalized;
 
-                    //On obtient les districts des points
-                    int[] pointDistrict = FindDistrictCoords(point);
-                    int[] nextPointDistrict = FindDistrictCoords(nextPoint);
 
-                    //Algorithme de Bresenham en 3D : on détermine tous les districts entre ces deux districts
-                    List<int[]> districts_segment = Tools.Bresenham(pointDistrict, nextPointDistrict);
+                    //Algorithme d'Amanatides en 3D : on détermine tous les districts entre ces deux districts
+                    List<int[]> districts_segment = Tools.Amanatides(point, nextPoint);
                     foreach (int[] c in districts_segment) {
                         if (!districts.TryGetValue(c, out District d)) {
                             d = new District() {
                                 atoms_segment = new List<Atom>()
                             };
                             districts.Add(c, d);
+                            districtsToHighlight[0].Add(c);
                         }
                         d.atoms_segment.Add(p.AtomsAsBase[i]);
                     }
