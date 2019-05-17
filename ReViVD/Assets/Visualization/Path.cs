@@ -15,9 +15,6 @@ namespace Revivd {
 
         public bool needsTriangleUpdate = false; //Update which atoms are displayed
 
-        public bool needsVerticesUpdate = false; //Update the position of the vertices
-        public bool forceFullVerticesUpdate = false;
-
         public bool needsColorUpdate = false; //Update the color of the vertices
 
         private Mesh mesh;
@@ -34,8 +31,6 @@ namespace Revivd {
         public void UpdatePath() {
             if (needsMeshUpdate)
                 UpdateMesh();
-            if (needsVerticesUpdate)
-                UpdateVertices();
             if (needsColorUpdate)
                 UpdateColor();
             if (needsTriangleUpdate)
@@ -48,55 +43,45 @@ namespace Revivd {
             int AtomCount = AtomsAsBase.Count;
 
             Vector3[] vertices = new Vector3[AtomCount * 5 - 6];
+            for (int p = 0; p < AtomCount - 1; p++) {
+                int i = 5 * p;
+                ref Vector3 currentPoint = ref AtomsAsBase[p].point;
+                ref Vector3 nextPoint = ref AtomsAsBase[p + 1].point;
+
+                vertices[i] = currentPoint;
+                vertices[i + 1] = currentPoint;
+                vertices[i + 2] = nextPoint;
+                vertices[i + 3] = nextPoint;
+                if (p < AtomCount - 2)
+                    vertices[i + 4] = nextPoint;
+            }
+
             Color32[] colors = new Color32[vertices.Length];
 
             mesh.vertices = vertices;
             mesh.colors32 = colors;
 
-            needsMeshUpdate = false;
-            needsVerticesUpdate = true;
-            needsTriangleUpdate = true;
-            needsColorUpdate = true;
-        }
+            CleanspecialRadii();
 
-        private void UpdateVertices() {
-            Vector3 camPos = Camera.main.transform.position;
-
-            int atomCount = AtomsAsBase.Count;
-
-            Vector3[] vertices = mesh.vertices;
-
-            for (int p = 0; p < atomCount - 1; p++) {
-                Atom currentAtom = AtomsAsBase[p];
-
-                if (!currentAtom.ShouldDisplay || (!forceFullVerticesUpdate && !currentAtom.ShouldUpdateVertices && (p == 0 || !AtomsAsBase[p - 1].ShouldUpdateVertices))) {
-                    continue;
-                }
-
-                int i = 5 * p;
-                Vector3 currentPoint = currentAtom.point;
-                Vector3 nextPoint = AtomsAsBase[p + 1].point;
-
+            List<Vector4> uvs = new List<Vector4>(); //Sneakily putting extra vertex info in the uv textures field
+            for (int p = 0; p < AtomCount - 1; p++) {
+                Vector3 v = AtomsAsBase[p + 1].point - AtomsAsBase[p].point;
                 if (!specialRadii.TryGetValue(p, out float radius))
                     radius = baseRadius;
-
-                Vector3 vBase = radius * Vector3.Cross(nextPoint - camPos, nextPoint - currentPoint).normalized;
-                vertices[i] = currentPoint + vBase;
-                vertices[i + 1] = currentPoint - vBase;
-                vertices[i + 2] = vertices[i] + nextPoint - currentPoint;
-                vertices[i + 3] = vertices[i + 1] + nextPoint - currentPoint;
-                if (p < atomCount - 2)
-                    vertices[i + 4] = nextPoint;
-
-                currentAtom.ShouldUpdateVertices = false;
+                for (int i = 0; i < (p == AtomCount - 2 ? 4 : 5); i++) {
+                    float extra = 0;
+                    if (i == 0 || i == 2)
+                        extra = -radius;
+                    else if (i == 1 || i == 3)
+                        extra = radius;
+                    uvs.Add(new Vector4(v.x, v.y, v.z, extra));
+                }
             }
+            mesh.SetUVs(0, uvs);
 
-            mesh.vertices = vertices;
-
-            mesh.RecalculateBounds();
-
-            needsVerticesUpdate = false;
-            forceFullVerticesUpdate = false;
+            needsMeshUpdate = false;
+            needsTriangleUpdate = true;
+            needsColorUpdate = true;
         }
 
         private void UpdateColor() {
@@ -140,8 +125,6 @@ namespace Revivd {
 
         private void UpdateTriangles() {
             int totalAtoms = AtomsAsBase.Count;
-
-            CleanspecialRadii();
 
             List<int> trianglesL = new List<int>();
             int[] generator = { 0, 2, 1, 1, 2, 3, 2, 5, 4, 3, 4, 6 }; //vertices to create the triangles for a ribbon
@@ -194,22 +177,12 @@ namespace Revivd {
         public Path path;
         public int indexInPath;
 
-        private bool shouldUpdateVertices = false;
         private bool shouldDisplay = true;
         private bool shouldUpdateColor = false;
         private bool shouldHighlight = false;
 
         private Color32 baseColor = new Color32(255, 255, 255, 255);
         private Color32 highlightColor = new Color32(0, 255, 0, 255);
-
-        public bool ShouldUpdateVertices {
-            get => shouldUpdateVertices;
-            set {
-                shouldUpdateVertices = value;
-                if (shouldUpdateVertices)
-                    path.needsVerticesUpdate = true;
-            }
-        }
 
         public bool ShouldUpdateColor {
             get => shouldUpdateColor;
@@ -251,7 +224,6 @@ namespace Revivd {
                     path.needsTriangleUpdate = true;
                     shouldDisplay = value;
                     if (shouldDisplay) {
-                        path.needsVerticesUpdate = true;
                         path.needsColorUpdate = true;
                     }
                 }
