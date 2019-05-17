@@ -25,31 +25,32 @@ namespace Revivd {
         public bool debugMode = false;
         public int[] debugInts = { 0, 0, 0, 0 }; //Counters that reset every update, printed via getDebugData
         public bool getDebugData = false;
-        private readonly List<int[]>[] districtsToHighlight = new List<int[]>[] { new List<int[]>(), new List<int[]>(), new List<int[]>() };
+        public readonly HashSet<int[]>[] districtsToHighlight = { new HashSet<int[]>(new CoordsEqualityComparer()), new HashSet<int[]>(new CoordsEqualityComparer()), new HashSet<int[]>(new CoordsEqualityComparer()) };
 
         private void OnDrawGizmos() {
             if (debugMode) {
                 Gizmos.color = Color.green;
-                Vector3 sides = new Vector3(districtSize.x * districts.GetLength(0), districtSize.y * districts.GetLength(1), districtSize.z * districts.GetLength(2));
-                Gizmos.DrawWireCube(transform.TransformPoint(sides / 2 + lowerBoundary), sides);
-
                 foreach (int[] d in districtsToHighlight[0]) {
-                    Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + lowerBoundary + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
+                    Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
                 }
 
                 Gizmos.color = Color.red;
                 foreach (int[] d in districtsToHighlight[1]) {
-                    Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + lowerBoundary + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
+                    Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
                 }
 
                 Gizmos.color = Color.blue;
                 foreach (int[] d in districtsToHighlight[2]) {
-                    Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + lowerBoundary + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
+                    Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
                 }
             }
         }
 
         protected abstract bool LoadFromCSV();
+
+        protected bool badNumber(float f) {
+            return float.IsNaN(f) || float.IsNegativeInfinity(f) || float.IsPositiveInfinity(f);
+        }
 
         protected string[] CsvSplit(string row, char decimalChar = '.') { //En cas de CSV récalcitrant
             List<string> words = new List<string>();
@@ -135,66 +136,35 @@ namespace Revivd {
         }
 
         public struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
-            public Atom[] atoms_segment; //Tous les atomes dont le ruban fini traverse le district
-            public Vector3 center;
+            public List<Atom> atoms_segment; //Tous les atomes dont le ruban fini traverse le district
         }
 
-        private Vector3 lowerBoundary; //Coordonnées de l'atome de coordonnées minimales
-        private Vector3 upperBoundary; //Coordonnées de l'atome de coordonnées maximales
+        public Dictionary<int[], District> districts;
 
-        public District[,,] districts; //Array tridimensionnel de Districts
-
-        private void CalculateBoundaries() {
-            lowerBoundary = transform.InverseTransformPoint(PathsAsBase[0].transform.TransformPoint(PathsAsBase[0].AtomsAsBase[0].point));
-            upperBoundary = transform.InverseTransformPoint(PathsAsBase[0].transform.TransformPoint(PathsAsBase[0].AtomsAsBase[0].point));
-            foreach (Path p in PathsAsBase) {
-                foreach (Atom a in p.AtomsAsBase) {
-                    lowerBoundary = Vector3.Min(lowerBoundary, transform.InverseTransformPoint(p.transform.TransformPoint(a.point)));
-                    upperBoundary = Vector3.Max(upperBoundary, transform.InverseTransformPoint(p.transform.TransformPoint(a.point)));
-                }
-            }
+        //Renvoie les coordonnées du district auquel appartient un certain point (exprimé dans le repère de la visualisation); ce district peut être null (pas d'entrée dans le dictionnaire).
+        public int[] FindDistrictCoords(Vector3 point) {
+            return new int[] {
+            Mathf.FloorToInt(point.x / districtSize.x),
+            Mathf.FloorToInt(point.y / districtSize.y),
+            Mathf.FloorToInt(point.z / districtSize.z)
+            };
         }
 
-        //Donne le district dans lequel se trouve un point dans les coordonnées de la visualisation.
-        //L'option "crop" renvoie toujours un district réel (si le point est à l'extérieur de la visualisation, on prend le district le plus proche)
-        public int[] FindDistrict(Vector3 point, bool crop = false) {
-            int[] district;
-            if (crop) {
-                //On utilise Min et Max pour éviter les soucis avec les flottants
-                district = new int[] {
-                Math.Min(districts.GetLength(0) - 1, Math.Max(0, Mathf.FloorToInt((point.x - lowerBoundary.x) / districtSize.x))),
-                Math.Min(districts.GetLength(1) - 1, Math.Max(0, Mathf.FloorToInt((point.y - lowerBoundary.y) / districtSize.y))),
-                Math.Min(districts.GetLength(2) - 1, Math.Max(0, Mathf.FloorToInt((point.z - lowerBoundary.z) / districtSize.z)))
-            };
-            }
-            else {
-                district = new int[] {
-                Mathf.FloorToInt((point.x - lowerBoundary.x) / districtSize.x),
-                Mathf.FloorToInt((point.y - lowerBoundary.y) / districtSize.y),
-                Mathf.FloorToInt((point.z - lowerBoundary.z) / districtSize.z)
-            };
-            }
-            return district;
+        //Raccourci pour obtenir le district auquel appartient un point du repère de la visualisation
+        public District FindDistrict(Vector3 point) {
+            return districts[FindDistrictCoords(point)];
+        }
+
+        //Renvoie le centre d'un district, même si celui-ci est fictif
+        public Vector3 getDistrictCenter(int[] coords) {
+            return new Vector3(districtSize.x * coords[0], districtSize.y * coords[1], districtSize.z * coords[2]) + districtSize / 2;
         }
 
         private void CreateDistricts() { //Crée et remplit districts
-            CalculateBoundaries();
-            int[] numberOfDistricts = {
-            Mathf.FloorToInt((upperBoundary.x - lowerBoundary.x) / districtSize.x + 1),
-            Mathf.FloorToInt((upperBoundary.y - lowerBoundary.y) / districtSize.y + 1),
-            Mathf.FloorToInt((upperBoundary.z - lowerBoundary.z) / districtSize.z + 1) };
-            districts = new District[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
-
-            HashSet<Atom>[,,] atomRepartition_segment = new HashSet<Atom>[numberOfDistricts[0], numberOfDistricts[1], numberOfDistricts[2]];
-            for (int i = 0; i < numberOfDistricts[0]; i++) {
-                for (int j = 0; j < numberOfDistricts[1]; j++) {
-                    for (int k = 0; k < numberOfDistricts[2]; k++) {
-                        atomRepartition_segment[i, j, k] = new HashSet<Atom>();
-                    }
-                }
-            }
+            districts = new Dictionary<int[], District>(new CoordsEqualityComparer());
 
             foreach (Path p in PathsAsBase) {
+                //Rappel : les coordonnées issues du csv (donc celles de Atom.point) sont les coordonnées relatives au Path dans le repère du Path.
                 Vector3 point = transform.InverseTransformPoint(p.transform.TransformPoint(p.AtomsAsBase[0].point));
 
                 for (int i = 0; i < p.AtomsAsBase.Count - 1; i++) {
@@ -202,28 +172,22 @@ namespace Revivd {
                     Vector3 delta = (nextPoint - point).normalized;
 
                     //On obtient les districts des points
-                    int[] pointDistrict = FindDistrict(point, true);
-                    int[] nextPointDistrict = FindDistrict(nextPoint, true);
+                    int[] pointDistrict = FindDistrictCoords(point);
+                    int[] nextPointDistrict = FindDistrictCoords(nextPoint);
 
                     //Algorithme de Bresenham en 3D : on détermine tous les districts entre ces deux districts
                     List<int[]> districts_segment = Tools.Bresenham(pointDistrict, nextPointDistrict);
-                    foreach (int[] d in districts_segment) {
-                        atomRepartition_segment[d[0], d[1], d[2]].Add(p.AtomsAsBase[i]);
+                    foreach (int[] c in districts_segment) {
+                        if (!districts.TryGetValue(c, out District d)) {
+                            d = new District() {
+                                atoms_segment = new List<Atom>()
+                            };
+                            districts.Add(c, d);
+                        }
+                        d.atoms_segment.Add(p.AtomsAsBase[i]);
                     }
 
                     point = nextPoint;
-                }
-            }
-
-            for (int x = 0; x < numberOfDistricts[0]; x++) {
-                for (int y = 0; y < numberOfDistricts[1]; y++) {
-                    for (int z = 0; z < numberOfDistricts[2]; z++) {
-                        districts[x, y, z] = new District() {
-                            center = new Vector3(districtSize.x * x, districtSize.y * y, districtSize.z * z) + districtSize / 2 + lowerBoundary,
-                            atoms_segment = new Atom[atomRepartition_segment[x, y, z].Count]
-                        };
-                        atomRepartition_segment[x, y, z].CopyTo(districts[x, y, z].atoms_segment);
-                    }
                 }
             }
         }

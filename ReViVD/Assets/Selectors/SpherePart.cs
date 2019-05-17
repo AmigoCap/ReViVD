@@ -28,10 +28,8 @@ namespace Revivd {
             Visualization viz = Visualization.Instance;
             Vector3 sphereCenter_viz = viz.transform.InverseTransformPoint(sphereCenter);
 
-            int[] d0 = viz.FindDistrict(sphereCenter_viz);
-            int[] minDistrict = new int[] { 0, 0, 0 };
-            int[] maxDistrict = new int[] { viz.districts.GetLength(0), viz.districts.GetLength(1), viz.districts.GetLength(2) };
-
+            int[] d0 = viz.FindDistrictCoords(sphereCenter_viz);
+           
             districtsToCheck.Add(d0);
 
             bool foundMoreDistricts = false;
@@ -45,7 +43,7 @@ namespace Revivd {
                     for (int j = d0[1] - dist; j <= d0[1] + dist; j++) {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k += 2 * dist) {
                             int[] d2 = new int[] { i, j, k };
-                            if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
+                            if ((viz.getDistrictCenter(d2) - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
                                 districtsToCheck.Add(d2);
                                 foundMoreDistricts = true;
                             }
@@ -56,7 +54,7 @@ namespace Revivd {
                     for (int j = d0[1] - dist; j <= d0[1] + dist; j += 2 * dist) {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k++) {
                             int[] d2 = new int[] { i, j, k };
-                            if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
+                            if ((viz.getDistrictCenter(d2) - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
                                 districtsToCheck.Add(d2);
                                 foundMoreDistricts = true;
                             }
@@ -67,7 +65,7 @@ namespace Revivd {
                     for (int j = d0[1] - dist; j <= d0[1] + dist; j++) {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k++) {
                             int[] d2 = new int[] { i, j, k };
-                            if (Tools.IsWithin(d2, minDistrict, maxDistrict) && (viz.districts[i, j, k].center - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
+                            if ((viz.getDistrictCenter(d2) - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
                                 districtsToCheck.Add(d2);
                                 foundMoreDistricts = true;
                             }
