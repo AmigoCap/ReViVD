@@ -55,11 +55,9 @@ namespace Revivd {
                 if (p < AtomCount - 2)
                     vertices[i + 4] = nextPoint;
             }
-
-            Color32[] colors = new Color32[vertices.Length];
-
+            
             mesh.vertices = vertices;
-            mesh.colors32 = colors;
+            mesh.colors32 = new Color32[vertices.Length];
 
             CleanspecialRadii();
 
