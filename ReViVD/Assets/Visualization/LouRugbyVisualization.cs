@@ -28,6 +28,12 @@ namespace Revivd {
                 if (words.Length < 2)
                     continue;
 
+                float t = InterpretTime(words[4]);
+                float x = float.Parse(words[1]);
+                float z = float.Parse(words[2]);
+                if (badNumber(t) || badNumber(x) || badNumber(z))
+                    continue;
+
                 if (!pathsDict.TryGetValue(words[0], out LouRugbyPath p)) {
                     GameObject go = new GameObject(words[0]);
                     go.transform.parent = transform;
@@ -36,16 +42,15 @@ namespace Revivd {
                     pathsDict.Add(p.name, p);
                     colorsDict.Add(p.name, Random.ColorHSV());
                 }
-
-                float t = InterpretTime(words[4]);
+                
                 LouRugbyAtom a = new LouRugbyAtom {
                     time = t,
-                    point = new Vector3(float.Parse(words[1]), t / 20, float.Parse(words[2])),
+                    point = new Vector3(x, t / 20, z),
                     path = p,
-                    indexInPath = p.atoms.Count
+                    indexInPath = p.atoms.Count,
+                    BaseColor = colorsDict[p.name]
                 };
 
-                a.BaseColor = colorsDict[p.name];
                 p.atoms.Add(a);
             }
 

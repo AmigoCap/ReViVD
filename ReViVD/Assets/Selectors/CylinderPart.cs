@@ -30,18 +30,13 @@ namespace Revivd {
             Vector3 saberStart_viz = viz.transform.InverseTransformPoint(saberStart);
             Vector3 saberEnd_viz = viz.transform.InverseTransformPoint(saberEnd);
 
-            List<int[]> cutDistricts = Tools.Bresenham(viz.FindDistrict(saberStart_viz), viz.FindDistrict(saberEnd_viz));
+            List<int[]> cutDistricts = Tools.Bresenham(viz.FindDistrictCoords(saberStart_viz), viz.FindDistrictCoords(saberEnd_viz));
 
-            int[] minDistrict = new int[] { 0, 0, 0 };
-            int[] maxDistrict = new int[] { viz.districts.GetLength(0), viz.districts.GetLength(1), viz.districts.GetLength(2) };
             foreach (int[] d in cutDistricts) {
                 for (int i = d[0] - 1; i <= d[0] + 1; i++) {
                     for (int j = d[1] - 1; j <= d[1] + 1; j++) {
                         for (int k = d[2] - 1; k <= d[2] + 1; k++) {
-                            int[] d2 = new int[] { i, j, k };
-                            if (Tools.IsWithin(d2, minDistrict, maxDistrict)) {
-                                districtsToCheck.Add(d2);
-                            }
+                            districtsToCheck.Add(new int[] { i, j, k });
                         }
                     }
                 }

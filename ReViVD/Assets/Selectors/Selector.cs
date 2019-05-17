@@ -74,6 +74,7 @@ namespace Revivd {
         }
 
         private void Update() {
+            Visualization viz = Visualization.Instance;
             List<SelectorPart> parts = new List<SelectorPart>();
             GetComponents(parts);
             parts.RemoveAll(p => p.isActiveAndEnabled == false);
@@ -95,14 +96,15 @@ namespace Revivd {
             }
 
 
-            
             if (ShouldSelect) {
                 foreach (SelectorPart s in parts) {
                     s.ribbonsToCheck.Clear();
-                    foreach (int[] d in s.districtsToCheck) {
-                        foreach (Atom a in Visualization.Instance.districts[d[0], d[1], d[2]].atoms_segment) {
-                            if (a.ShouldDisplay)
-                                s.ribbonsToCheck.Add(a);
+                    foreach (int[] c in s.districtsToCheck) {
+                        if (viz.districts.TryGetValue(c, out Visualization.District d)) {
+                            foreach (Atom a in d.atoms_segment) {
+                                if (a.ShouldDisplay)
+                                    s.ribbonsToCheck.Add(a);
+                            }
                         }
                     }
                 }
@@ -120,7 +122,7 @@ namespace Revivd {
             }
 
             if (highlightSelected || old_highlightSelected) {
-                foreach (Atom a in Visualization.Instance.selectedRibbons) {
+                foreach (Atom a in viz.selectedRibbons) {
                     a.ShouldHighlight = false;
                 }
             }
@@ -146,35 +148,35 @@ namespace Revivd {
                 
                 if (inverse) { //Very inefficient code for now, needs an in-depth restructuration of the Viz/Path/Atom architecture
                     List<Atom> allRibbons = new List<Atom>();
-                    foreach (Path p in Visualization.Instance.PathsAsBase) {
+                    foreach (Path p in viz.PathsAsBase) {
                         allRibbons.AddRange(p.AtomsAsBase);
                     }
                     HashSet<Atom> inversed = new HashSet<Atom>(allRibbons);
                     inversed.ExceptWith(handledRibbons);
 
                     if (erase)
-                        Visualization.Instance.selectedRibbons.ExceptWith(inversed);
+                        viz.selectedRibbons.ExceptWith(inversed);
                     else
-                        Visualization.Instance.selectedRibbons.UnionWith(inversed);
+                        viz.selectedRibbons.UnionWith(inversed);
                 }
                 else {
                     if (erase)
-                        Visualization.Instance.selectedRibbons.ExceptWith(handledRibbons);
+                        viz.selectedRibbons.ExceptWith(handledRibbons);
                     else
-                        Visualization.Instance.selectedRibbons.UnionWith(handledRibbons);
+                        viz.selectedRibbons.UnionWith(handledRibbons);
                 }
             }
 
             if (highlightSelected) {
                 Color32 green = new Color32(0, 255, 0, 255);
-                foreach (Atom a in Visualization.Instance.selectedRibbons) {
+                foreach (Atom a in viz.selectedRibbons) {
                     a.ShouldHighlight = true;
                     a.HighlightColor = green;
                 }
             }
 
             if (highlightSelected != old_highlightSelected || highlightChecked != old_highightChecked) {
-                Visualization.Instance.needsFullVerticesUpdate = true;
+                viz.needsFullVerticesUpdate = true;
             }
 
             old_highightChecked = highlightChecked;
