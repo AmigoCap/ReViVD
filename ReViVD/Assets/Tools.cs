@@ -6,8 +6,8 @@ namespace Revivd {
     public static class Tools {
         public static List<int[]> Bresenham(int[] start, int[] end) {
             List<int[]> results = new List<int[]> {
-            (int[])start.Clone()
-        };
+                (int[])start.Clone()
+            };
 
             int Dx = Math.Abs(end[0] - start[0]), Dy = Math.Abs(end[1] - start[1]), Dz = Math.Abs(end[2] - start[2]);
             int xs = end[0] > start[0] ? 1 : -1, ys = end[1] > start[1] ? 1 : -1, zs = end[2] > start[2] ? 1 : -1;
@@ -79,11 +79,10 @@ namespace Revivd {
 
     class CoordsEqualityComparer : IEqualityComparer<int[]> {
         public bool Equals(int[] c1, int[] c2) {
-            int n = c1.Length;
-            if (n != c2.Length) {
+            if (c1.Length != c2.Length) {
                 return false;
             }
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < c1.Length; i++) {
                 if (c1[i] != c2[i])
                     return false;
             }
@@ -91,10 +90,13 @@ namespace Revivd {
         }
 
         public int GetHashCode(int[] c) {
-            int hCode = 0;
-            foreach (int i in c)
-                hCode ^= i;
-            return hCode.GetHashCode();
+            int result = 19;
+            foreach (int i in c) {
+                unchecked {
+                    result = result * 486187739 + i;
+                }
+            }
+            return result;
         }
     }
 
