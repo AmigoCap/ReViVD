@@ -833,7 +833,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1722164516
 Transform:
   m_ObjectHideFlags: 0
@@ -865,7 +865,7 @@ MonoBehaviour:
   dataFile: {fileID: 4900000, guid: 06a47f6ade34cb948bb355897f4f2647, type: 3}
   needsFullVerticesUpdate: 0
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
-  debugMode: 0
+  debugMode: 1
   debugInts: 00000000000000000000000000000000
   getDebugData: 0
   paths: []
@@ -1197,7 +1197,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2138234665
 Transform:
   m_ObjectHideFlags: 0

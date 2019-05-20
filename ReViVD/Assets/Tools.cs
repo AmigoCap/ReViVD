@@ -68,6 +68,153 @@ namespace Revivd {
             return results;
         }
 
+        public static int Mod(int x, int m) {
+            int r = x % m;
+            return r < 0 ? r + m : r;
+        }
+
+        public static float FMod(float x, float m) {
+            float r = x % m;
+            return r < 0 ? r + m : r;
+        }
+
+        public static List<int[]> Amanatides(Vector3 start, Vector3 end) {
+            List<int[]> L = new List<int[]>();
+            int[] startD = Visualization.Instance.FindDistrictCoords(start);
+            int[] endD = Visualization.Instance.FindDistrictCoords(end);
+            L.Add((int[])startD.Clone());
+
+            Vector3 v = (end - start).normalized;
+            ref Vector3 dSize = ref Visualization.Instance.districtSize;
+            Vector3 delta = new Vector3(Mathf.Abs(dSize.x / v.x), Mathf.Abs(dSize.y / v.y), Mathf.Abs(dSize.z / v.z));
+            int[] stepD = { v.x < 0 ? -1 : 1, v.y < 0 ? -1 : 1, v.z < 0 ? -1 : 1 };
+
+            Vector3 max = new Vector3(
+                Mathf.Abs(((v.x < 0 ? 0 : dSize.x) - FMod(start.x, dSize.x)) / v.x),
+                Mathf.Abs(((v.y < 0 ? 0 : dSize.y) - FMod(start.y, dSize.y)) / v.y),
+                Mathf.Abs(((v.z < 0 ? 0 : dSize.z) - FMod(start.z, dSize.z)) / v.z));
+
+            CoordsEqualityComparer comparer = new CoordsEqualityComparer();
+
+            while (!comparer.Equals(startD, endD) && L.Count < 50) {
+                if (Math.Abs(startD[0] - endD[0]) + Math.Abs(startD[1] - endD[1]) + Math.Abs(startD[2] - endD[2]) == 1) //Adjacent à la fin : utile pour contrer les imprécisions flottantes
+                    endD.CopyTo(startD, 0);
+                else if (max.x < max.y) {
+                    if (max.x < max.z) {
+                        startD[0] += stepD[0];
+                        max.x += delta.x;
+                    }
+                    else {
+                        startD[2] += stepD[2];
+                        max.z += delta.z;
+                    }
+                }
+                else {
+                    if (max.y < max.z) {
+                        startD[1] += stepD[1];
+                        max.y += delta.y;
+                    }
+                    else {
+                        startD[2] += stepD[2];
+                        max.z += delta.z;
+                    }
+                }
+
+                L.Add((int[])startD.Clone());
+            }
+
+            return L;
+        }
+
+        public static HashSet<int[]> Amanatides(Vector3 start, Vector3 end, float lineThickness) {
+            CoordsEqualityComparer comparer = new CoordsEqualityComparer();
+            HashSet<int[]> H = new HashSet<int[]>(comparer);
+            int[] startD = Visualization.Instance.FindDistrictCoords(start);
+            int[] endD = Visualization.Instance.FindDistrictCoords(end);
+            H.Add((int[])startD.Clone());
+
+            Vector3 v = (end - start).normalized;
+            Vector3 dSize = Visualization.Instance.districtSize;
+            Vector3 delta = new Vector3(Mathf.Abs(dSize.x / v.x), Mathf.Abs(dSize.y / v.y), Mathf.Abs(dSize.z / v.z));
+            int[] stepD = { v.x < 0 ? -1 : 1, v.y < 0 ? -1 : 1, v.z < 0 ? -1 : 1 };
+
+            Vector3 max = new Vector3(
+                Mathf.Abs(((v.x < 0 ? 0 : dSize.x) - FMod(start.x, dSize.x)) / v.x),
+                Mathf.Abs(((v.y < 0 ? 0 : dSize.y) - FMod(start.y, dSize.y)) / v.y),
+                Mathf.Abs(((v.z < 0 ? 0 : dSize.z) - FMod(start.z, dSize.z)) / v.z));
+
+            void addByThickness(int dir, ref Vector3 inter) {
+                if (dir == 0) {
+                    float interX = FMod(inter.x, dSize.x);
+                    if (interX < lineThickness) {
+                        H.Add(new int[] { startD[0] - 1, startD[1], startD[2] });
+                    }
+                    if (interX > dSize.x - lineThickness) {
+                        H.Add(new int[] { startD[0] + 1, startD[1], startD[2] });
+                    }
+                }
+                else if (dir == 1) {
+                    float interY = FMod(inter.y, dSize.y);
+                    if (interY < lineThickness) {
+                        H.Add(new int[] { startD[0], startD[1] - 1, startD[2] });
+                    }
+                    if (interY > dSize.y - lineThickness) {
+                        H.Add(new int[] { startD[0], startD[1] + 1, startD[2] });
+                    }
+                }
+                else if (dir == 2) {
+                    float interZ = FMod(inter.z, dSize.z);
+                    if (interZ < lineThickness) {
+                        H.Add(new int[] { startD[0], startD[1], startD[2] - 1 });
+                    }
+                    if (interZ > dSize.z - lineThickness) {
+                        H.Add(new int[] { startD[0], startD[1], startD[2] + 1 });
+                    }
+                }
+            }
+
+            while (!comparer.Equals(startD, endD)) {
+                if (Math.Abs(startD[0] - endD[0]) + Math.Abs(startD[1] - endD[1]) + Math.Abs(startD[2] - endD[2]) == 1) //Adjacent à la fin : utile pour contrer les imprécisions flottantes
+                    endD.CopyTo(startD, 0);
+                else if (max.x < max.y) {
+                    if (max.x < max.z) {
+                        Vector3 inter = start + v * max.x;
+                        addByThickness(1, ref inter);
+                        addByThickness(2, ref inter);
+                        startD[0] += stepD[0];
+                        max.x += delta.x;
+                    }
+                    else {
+                        Vector3 inter = start + v * max.z;
+                        addByThickness(0, ref inter);
+                        addByThickness(1, ref inter);
+                        startD[2] += stepD[2];
+                        max.z += delta.z;
+                    }
+                }
+                else {
+                    if (max.y < max.z) {
+                        Vector3 inter = start + v * max.y;
+                        addByThickness(0, ref inter);
+                        addByThickness(2, ref inter);
+                        startD[1] += stepD[1];
+                        max.y += delta.y;
+                    }
+                    else {
+                        Vector3 inter = start + v * max.z;
+                        addByThickness(0, ref inter);
+                        addByThickness(1, ref inter);
+                        startD[2] += stepD[2];
+                        max.z += delta.z;
+                    }
+                }
+
+                H.Add((int[])startD.Clone());
+            }
+
+            return H;
+        }
+
         public static bool IsWithin(int[] c, int[] cmin, int[] cmax) {
             int n = c.Length;
             for (int i = 0; i < n; i++) {
