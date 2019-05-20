@@ -41,6 +41,7 @@ namespace Revivd {
                     paths.Add(p);
                     pathsDict.Add(p.name, p);
                     colorsDict.Add(p.name, Random.ColorHSV());
+                    p.baseRadius = 0.2f;
                 }
                 
                 LouRugbyAtom a = new LouRugbyAtom {

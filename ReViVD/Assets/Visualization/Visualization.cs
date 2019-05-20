@@ -173,7 +173,9 @@ namespace Revivd {
 
 
                     //Algorithme d'Amanatides en 3D : on détermine tous les districts entre ces deux districts
-                    List<int[]> districts_segment = Tools.Amanatides(point, nextPoint);
+                    if (!p.specialRadii.TryGetValue(i, out float radius))
+                        radius = p.baseRadius;
+                    HashSet<int[]> districts_segment = Tools.Amanatides(point, nextPoint, radius);
                     foreach (int[] c in districts_segment) {
                         if (!districts.TryGetValue(c, out District d)) {
                             d = new District() {
