@@ -1,0 +1,76 @@
+﻿using UnityEngine;
+using System.Collections.Generic;
+
+namespace Revivd {
+
+    public class BasketVisualization : Visualization {
+        public List<BasketPath> paths;
+        public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
+
+        public float scaleFactor = 5;
+
+        public void Reset() {
+            districtSize = new Vector3(10, 10, 10);
+        }
+
+        protected override bool LoadFromCSV() {
+            if (dataFile == null)
+                return false;
+            paths = new List<BasketPath>();
+            Dictionary<string, BasketPath> pathsDict = new Dictionary<string, BasketPath>();
+
+            Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
+
+            string[] rawData = dataFile.text.Split(new char[] { '\n' });
+
+            for (int i = 0; i < rawData.Length; i++) {
+                string[] words = CsvSplit(rawData[i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
+
+                if (words.Length < 2)
+                    continue;
+
+                float x = scaleFactor * float.Parse(words[8]);
+                float y = scaleFactor * float.Parse(words[10]);
+                float z = scaleFactor * float.Parse(words[9]);
+                if (badNumber(y) || badNumber(x) || badNumber(z))
+                    continue;
+
+                if (!pathsDict.TryGetValue(words[0], out BasketPath p)) {
+                    GameObject go = new GameObject(words[0]);
+                    go.transform.parent = transform;
+                    p = go.AddComponent<BasketPath>();
+                    paths.Add(p);
+                    pathsDict.Add(p.name, p);
+                    colorsDict.Add(p.name, Random.ColorHSV());
+                    p.baseRadius = 0.2f;
+                }
+
+                BasketAtom a = new BasketAtom {
+                    point = new Vector3(x, y, z),
+                    path = p,
+                    indexInPath = p.atoms.Count,
+                    BaseColor = colorsDict[p.name]
+                };
+
+                p.atoms.Add(a);
+            }
+
+            return true;
+
+        }
+
+        private void Update() {
+            UpdateRendering();
+        }
+
+        public class BasketPath : Path {
+            public List<BasketAtom> atoms = new List<BasketAtom>();
+            public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }
+        }
+
+        public class BasketAtom : Atom {
+
+        }
+    }
+
+}
