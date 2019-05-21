@@ -35,14 +35,22 @@ namespace Revivd {
                 if (badNumber(y) || badNumber(x) || badNumber(z))
                     continue;
 
-                if (!pathsDict.TryGetValue(words[0], out BasketPath p)) {
+
+                if (!pathsDict.TryGetValue(words[0], out BasketPath p) ) {
                     GameObject go = new GameObject(words[0]);
                     go.transform.parent = transform;
                     p = go.AddComponent<BasketPath>();
                     paths.Add(p);
                     pathsDict.Add(p.name, p);
-                    colorsDict.Add(p.name, Random.ColorHSV());
-                    p.baseRadius = 0.2f;
+                    
+                    if (words[5] == "1") {
+                        colorsDict.Add(p.name, Random.ColorHSV(0, 0.5f, 0.8f, 1));
+                    }
+                    if (words[5] == "0") {
+                        colorsDict.Add(p.name, Random.ColorHSV(0.5f, 1, 0.4f, 0.8f));
+                    }
+                    //colorsDict.Add(p.name, Random.ColorHSV());
+                    p.baseRadius = 0.1f;
                 }
 
                 BasketAtom a = new BasketAtom {
