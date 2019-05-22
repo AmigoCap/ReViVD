@@ -97,12 +97,13 @@ namespace Revivd {
                 int i = 5 * p;
 
                 if (currentAtom.ShouldHighlight) {
-                    colors[i] = currentAtom.HighlightColor;
-                    colors[i + 1] = currentAtom.HighlightColor;
-                    colors[i + 2] = currentAtom.HighlightColor;
-                    colors[i + 3] = currentAtom.HighlightColor;
+                    Color32 color = currentAtom.HighlightColor;
+                    colors[i] = color;
+                    colors[i + 1] = color;
+                    colors[i + 2] = color;
+                    colors[i + 3] = color;
                     if (p < atomCount - 2)
-                        colors[i + 4] = currentAtom.HighlightColor;
+                        colors[i + 4] = color;
                 }
                 else {
                     Atom nextAtom = AtomsAsBase[p + 1];
@@ -175,9 +176,18 @@ namespace Revivd {
         public Path path;
         public int indexInPath;
 
+        bool BitArray_Or(BitArray a) {
+            foreach (bool b in a)
+                if (b)
+                    return true;
+            return false;
+        }
+
         private bool shouldDisplay = true;
         private bool shouldUpdateColor = false;
-        private bool shouldHighlight = false;
+        private BitArray shouldHighlight_checked = new BitArray(SelectorManager.colors.Length, false);
+        private BitArray shouldHighlight_selected = new BitArray(SelectorManager.colors.Length, false);
+        private bool shouldHighlight_debug = false;
 
         private Color32 baseColor = new Color32(255, 255, 255, 255);
         private Color32 highlightColor = new Color32(0, 255, 0, 255);
@@ -203,11 +213,22 @@ namespace Revivd {
         }
 
         public Color32 HighlightColor {
-            get => highlightColor;
+            get {
+                for (int i = 0; i < SelectorManager.colors.Length; i++) {
+                    if (shouldHighlight_selected[i])
+                        return SelectorManager.colors[i];
+                }
+                for (int i = 0; i < SelectorManager.colors.Length; i++) {
+                    if (shouldHighlight_checked[i])
+                        return SelectorManager.colors_dark[i];
+                }
+                return highlightColor;
+
+            }
             set {
                 if (!highlightColor.Equals(value)) {
                     highlightColor = value;
-                    if (shouldHighlight) {
+                    if (ShouldHighlight && !BitArray_Or(shouldHighlight_checked) && !BitArray_Or(shouldHighlight_selected)) {
                         shouldUpdateColor = true;
                         path.needsColorUpdate = true;
                     }
@@ -230,12 +251,34 @@ namespace Revivd {
 
         public bool ShouldHighlight {
             get {
-                return shouldHighlight;
+                return BitArray_Or(shouldHighlight_checked) || BitArray_Or(shouldHighlight_selected) || shouldHighlight_debug;
             }
+        }
 
+        public void ShouldHighlightBecauseChecked(SelectorManager.ColorGroup color, bool value = true) {
+            bool wasHighlighted = ShouldHighlight;
+            shouldHighlight_checked[(int)color] = value;
+            if (wasHighlighted != ShouldHighlight) {
+                shouldUpdateColor = true;
+                path.needsColorUpdate = true;
+            }
+        }
+
+        public void ShouldHighlightBecauseSelected(SelectorManager.ColorGroup color, bool value = true) {
+            bool wasHighlighted = ShouldHighlight;
+            shouldHighlight_selected[(int)color] = value;
+            if (wasHighlighted != ShouldHighlight) {
+                shouldUpdateColor = true;
+                path.needsColorUpdate = true;
+            }
+        }
+
+        public bool ShouldHighlightBecauseDebug {
+            get => shouldHighlight_debug;
             set {
-                if (shouldHighlight != value) {
-                    shouldHighlight = value;
+                bool wasHighlighted = ShouldHighlight;
+                shouldHighlight_debug = value;
+                if (wasHighlighted != ShouldHighlight) {
                     shouldUpdateColor = true;
                     path.needsColorUpdate = true;
                 }

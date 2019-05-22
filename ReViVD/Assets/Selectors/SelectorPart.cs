@@ -23,7 +23,17 @@ namespace Revivd {
 
         protected abstract void CreatePrimitive();
 
+        public abstract void Attach();
+
+        public void Detach() {
+            primitive.transform.parent = this.transform;
+        }
+
         public abstract void UpdatePrimitive();
+
+        public void UpdateColor() {
+            primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+        }
 
         public abstract void FindDistrictsToCheck();
 
@@ -31,6 +41,11 @@ namespace Revivd {
 
         protected virtual void OnEnable() {
             CreatePrimitive();
+            UpdateColor();
+            if (!GetComponent<Selector>().Persistent)
+                Attach();
+            else
+                Detach();
         }
 
         protected virtual void OnDisable() {

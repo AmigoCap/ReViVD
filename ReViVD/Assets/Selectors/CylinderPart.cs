@@ -14,15 +14,18 @@ namespace Revivd {
 
         protected override void CreatePrimitive() {
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
-            primitive.transform.localPosition = new Vector3(0, 0, saberLength / 2);
-            primitive.transform.localRotation = Quaternion.Euler(90, 0, 0);
             primitive.transform.localScale = new Vector3(saberThickness, saberLength / 2, saberThickness);
         }
 
+        public override void Attach() {
+            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
+            primitive.transform.localPosition = new Vector3(0, 0, saberLength / 2);
+            primitive.transform.localRotation = Quaternion.Euler(90, 0, 0);
+        }
+
         public override void UpdatePrimitive() {
-            saberStart = primitive.transform.position - primitive.transform.parent.forward * saberLength / 2;
-            saberEnd = primitive.transform.position + primitive.transform.parent.forward * saberLength / 2;
+            saberStart = primitive.transform.position - primitive.transform.up * saberLength / 2;
+            saberEnd = primitive.transform.position + primitive.transform.up * saberLength / 2;
         }
 
         public override void FindDistrictsToCheck() {
