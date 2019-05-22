@@ -17,7 +17,7 @@ namespace Revivd {
             primitive.transform.localScale = new Vector3(saberThickness, saberLength / 2, saberThickness);
         }
 
-        public override void Attach() {
+        protected override void AttachToHand() {
             primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
             primitive.transform.localPosition = new Vector3(0, 0, saberLength / 2);
             primitive.transform.localRotation = Quaternion.Euler(90, 0, 0);

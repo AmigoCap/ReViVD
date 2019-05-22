@@ -19,33 +19,57 @@ namespace Revivd {
             }
         }
 
+        [SerializeField]
         protected GameObject primitive;
 
         protected abstract void CreatePrimitive();
 
-        public abstract void Attach();
+        protected abstract void AttachToHand();
 
-        public void Detach() {
+        private void DetachFromHand() {
             primitive.transform.parent = this.transform;
         }
 
-        public abstract void UpdatePrimitive();
-
-        public void UpdateColor() {
-            primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+        private bool _shown = true;
+        public bool Shown {
+            get => _shown;
+            set {
+                _shown = value;
+                if (primitive != null) {
+                    if (_shown)
+                        Show();
+                    else
+                        Hide();
+                }
+            }
         }
 
+        private void Show() {
+            primitive.SetActive(true);
+            primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+            if (!GetComponent<Selector>().Persistent)
+                AttachToHand();
+            else
+                DetachFromHand();
+        }
+
+        private void Hide() {
+            primitive.SetActive(false);
+        }
+
+        public abstract void UpdatePrimitive();
+        
         public abstract void FindDistrictsToCheck();
 
         public abstract void FindTouchedRibbons();
 
         protected virtual void OnEnable() {
             CreatePrimitive();
-            UpdateColor();
-            if (!GetComponent<Selector>().Persistent)
-                Attach();
+            Destroy(primitive.GetComponent<Collider>());
+            if (Shown)
+                Show();
             else
-                Detach();
+                Hide();
         }
 
         protected virtual void OnDisable() {

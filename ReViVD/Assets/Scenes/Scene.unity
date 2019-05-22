@@ -149,6 +149,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b31effa308dcd194e869d823d23ac852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  highlightChecked: 0
+  highlightSelected: 1
   handSelectors:
   - {fileID: 0}
   - {fileID: 0}
@@ -156,6 +158,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  _currentColor: 1
+  colorAlgebraResult: 0
 --- !u!4 &28837753
 Transform:
   m_ObjectHideFlags: 0
@@ -402,8 +406,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7deb5a8e7f0c33408f40307de7425fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightChecked: 1
-  highlightSelected: 1
   inverse: 0
   erase: 0
   _persistent: 0
@@ -421,6 +423,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
+  primitive: {fileID: 0}
   saberLength: 5
   saberThickness: 0.3
 --- !u!114 &281215300
@@ -436,6 +439,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
+  primitive: {fileID: 0}
   distance: 20
   radius: 5
   upOffset: 0

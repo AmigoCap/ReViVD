@@ -255,18 +255,18 @@ namespace Revivd {
             }
         }
 
-        public void ShouldHighlightBecauseChecked(SelectorManager.ColorGroup color, bool value = true) {
+        public void ShouldHighlightBecauseChecked(int colorGroup, bool value = true) {
             bool wasHighlighted = ShouldHighlight;
-            shouldHighlight_checked[(int)color] = value;
+            shouldHighlight_checked[colorGroup] = value;
             if (wasHighlighted != ShouldHighlight) {
                 shouldUpdateColor = true;
                 path.needsColorUpdate = true;
             }
         }
 
-        public void ShouldHighlightBecauseSelected(SelectorManager.ColorGroup color, bool value = true) {
+        public void ShouldHighlightBecauseSelected(int colorGroup, bool value = true) {
             bool wasHighlighted = ShouldHighlight;
-            shouldHighlight_selected[(int)color] = value;
+            shouldHighlight_selected[colorGroup] = value;
             if (wasHighlighted != ShouldHighlight) {
                 shouldUpdateColor = true;
                 path.needsColorUpdate = true;

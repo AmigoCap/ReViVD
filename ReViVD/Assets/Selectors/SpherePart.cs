@@ -18,7 +18,7 @@ namespace Revivd {
             primitive.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
         }
 
-        public override void Attach() {
+        protected override void AttachToHand() {
             primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
             primitive.transform.localPosition = new Vector3(rightOffset, upOffset, distance);
         }
