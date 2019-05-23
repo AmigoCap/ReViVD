@@ -6,181 +6,193 @@ namespace Revivd {
 
     [DisallowMultipleComponent]
     public class Selector : MonoBehaviour {
-        public bool highlightChecked = false;
-        private bool old_highightChecked = false;
-        public bool highlightSelected = true;
-        private bool old_highlightSelected = true;
-
         public bool inverse = false;
         public bool erase = false;
 
-        private void DisplayOnlySelected(SteamVR_TrackedController sender) {
-            HashSet<Path> selectedPaths = new HashSet<Path>();
-            foreach (Atom a in Visualization.Instance.selectedRibbons) {
-                selectedPaths.Add(a.path);
+        private bool _shown = false;
+        public bool Shown {
+            get => _shown;
+            set {
+                _shown = value;
+                if (_shown) {
+                    foreach (SelectorPart p in GetComponents<SelectorPart>())
+                        p.Show();
+                }
+                else {
+                    foreach (SelectorPart p in GetComponents<SelectorPart>())
+                        p.Hide();
+                }
             }
+        }
 
-            foreach (Path p in Visualization.Instance.PathsAsBase) {
-                if (!selectedPaths.Contains(p)) {
-                    foreach (Atom a in p.AtomsAsBase) {
-                        a.ShouldDisplay = false;
+        private void SeparateFromManager() {
+            if (Persistent)
+                SelectorManager.Instance.persistentSelectors[(int)Color].Remove(this);
+            else if (SelectorManager.Instance.handSelectors[(int)Color] == this)
+                SelectorManager.Instance.handSelectors[(int)Color] = null;
+
+            Shown = false;
+        }
+
+        private void TryAttachingToManager() {
+            if (Persistent) {
+                SelectorManager.Instance.persistentSelectors[(int)Color].Add(this);
+                Shown = true;
+                wantsToAttach = false;
+            }
+            else {
+                ref Selector hand = ref SelectorManager.Instance.handSelectors[(int)Color];
+                if (hand == null || hand == this || !hand.isActiveAndEnabled) {
+                    hand = this;
+                    wantsToAttach = false;
+
+                    if (SelectorManager.Instance.CurrentColor == Color) {
+                        Shown = true;
                     }
                 }
             }
-            Visualization.Instance.needsFullVerticesUpdate = true;
         }
 
-        private void DisplayAll(SteamVR_TrackedController sender) {
-            foreach (Path p in Visualization.Instance.PathsAsBase) {
-                foreach (Atom a in p.AtomsAsBase) {
-                    a.ShouldDisplay = true;
-                }
+        private bool wantsToAttach = true;
+
+        private bool old_persistent;
+        [SerializeField]
+        private bool _persistent = false;
+        public bool Persistent {
+            get => _persistent;
+            set {
+                if (value == _persistent && _persistent == old_persistent) //On rafraîchit la valeur si elle a été changée dans l'éditeur
+                    return;
+
+                SeparateFromManager();
+
+                _persistent = value;
+                old_persistent = _persistent;
+
+                wantsToAttach = true;
             }
-
-            Visualization.Instance.needsFullVerticesUpdate = true;
         }
 
-        private void ClearSelected(SteamVR_TrackedController sender) {
-            if (Visualization.Instance.selectedRibbons.Count != 0) {
-                if (highlightSelected) {
-                    foreach (Atom a in Visualization.Instance.selectedRibbons) {
-                        a.ShouldHighlight = false;
-                    }
-                }
-                Visualization.Instance.selectedRibbons.Clear();
-                Visualization.Instance.needsFullVerticesUpdate = true;
+        private SelectorManager.ColorGroup old_color;
+        [SerializeField]
+        private SelectorManager.ColorGroup _color = 0;
+        public SelectorManager.ColorGroup Color {
+            get => _color;
+            set {
+                if (value == _color && _color == old_color)
+                    return;
+
+                SeparateFromManager();
+
+                _color = value;
+                old_color = _color;
+
+                wantsToAttach = true;
             }
         }
 
         private void OnEnable() {
-            SteamVR_ControllerManager.RightController.Gripped += DisplayOnlySelected;
-            SteamVR_ControllerManager.LeftController.Gripped += DisplayAll;
-            SteamVR_ControllerManager.LeftController.TriggerClicked += ClearSelected;
+            wantsToAttach = true;
         }
 
         private void OnDisable() {
-            if (SteamVR_ControllerManager.RightController != null)
-                SteamVR_ControllerManager.RightController.Gripped -= DisplayOnlySelected;
-            if (SteamVR_ControllerManager.LeftController != null) {
-                SteamVR_ControllerManager.LeftController.Gripped -= DisplayAll;
-                SteamVR_ControllerManager.LeftController.TriggerClicked -= ClearSelected;
-            }
+            Shown = false;
+            wantsToAttach = false;
         }
 
-        private bool ShouldSelect {
-            get {
-                return SteamVR_ControllerManager.RightController.triggerPressed;
-            }
-        }
+        private HashSet<Atom> handledRibbons = new HashSet<Atom>();
+        public bool needsCheckedHighlightCleanup = false;
 
-        private void Update() {
+        public void Select() {
+            if (!isActiveAndEnabled)
+                return;
+
             Visualization viz = Visualization.Instance;
-            List<SelectorPart> parts = new List<SelectorPart>();
-            GetComponents(parts);
-            parts.RemoveAll(p => p.isActiveAndEnabled == false);
+            HashSet<Atom> selectedRibbons = SelectorManager.Instance.selectedRibbons[(int)Color];
 
-            foreach (SelectorPart s in parts) {
-                s.UpdatePrimitive();
-                if (ShouldSelect) {
-                    s.districtsToCheck.Clear();
-                    s.FindDistrictsToCheck();
-                }
-            }
+            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
+                if (!p.enabled)
+                    continue;
+                p.districtsToCheck.Clear();
+                p.FindDistrictsToCheck();
 
-            if (highlightChecked || old_highightChecked) {
-                foreach (SelectorPart s in parts) {
-                    foreach (Atom a in s.ribbonsToCheck) {
-                        a.ShouldHighlight = false;
-                    }
-                }
-            }
+                foreach (Atom a in p.ribbonsToCheck)
+                    a.ShouldHighlightBecauseChecked((int)Color, false);
+                p.ribbonsToCheck.Clear();
 
-
-            if (ShouldSelect) {
-                foreach (SelectorPart s in parts) {
-                    s.ribbonsToCheck.Clear();
-                    foreach (int[] c in s.districtsToCheck) {
-                        if (viz.districts.TryGetValue(c, out Visualization.District d)) {
-                            foreach (Atom a in d.atoms_segment) {
-                                if (a.ShouldDisplay)
-                                    s.ribbonsToCheck.Add(a);
+                foreach (int[] c in p.districtsToCheck) {
+                    if (viz.districts.TryGetValue(c, out Visualization.District d)) {
+                        foreach (Atom a in d.atoms_segment) {
+                            if (a.ShouldDisplay) {
+                                p.ribbonsToCheck.Add(a);
+                                if (SelectorManager.Instance.HighlightChecked && !Persistent) {
+                                    a.ShouldHighlightBecauseChecked((int)Color, true);
+                                }
                             }
                         }
                     }
                 }
+
+                p.touchedRibbons.Clear();
+                p.FindTouchedRibbons();
             }
 
+            handledRibbons.Clear();
 
-            if (highlightChecked) {
-                Color32 yellow = new Color32(255, 240, 20, 255);
-                foreach (SelectorPart s in parts) {
-                    foreach (Atom a in s.ribbonsToCheck) {
-                        a.ShouldHighlight = true;
-                        a.HighlightColor = yellow;
-                    }
-                }
-            }
-
-            if (highlightSelected || old_highlightSelected) {
-                foreach (Atom a in viz.selectedRibbons) {
-                    a.ShouldHighlight = false;
-                }
-            }
-
-            HashSet<Atom> handledRibbons = new HashSet<Atom>();
-
-            if (ShouldSelect) {
-                foreach (SelectorPart s in parts) {
-                    s.touchedRibbons.Clear();
-                    s.FindTouchedRibbons();
-                    if (s.Positive) {
-                        foreach (Atom a in s.touchedRibbons) {
-                            handledRibbons.Add(a);
-                        }
-                    }
-                    else {
-                        foreach (Atom a in s.touchedRibbons) {
-                            handledRibbons.Remove(a);
-                        }
-                    }
-                }
-
-                
-                if (inverse) { //Very inefficient code for now, needs an in-depth restructuration of the Viz/Path/Atom architecture
-                    List<Atom> allRibbons = new List<Atom>();
-                    foreach (Path p in viz.PathsAsBase) {
-                        allRibbons.AddRange(p.AtomsAsBase);
-                    }
-                    HashSet<Atom> inversed = new HashSet<Atom>(allRibbons);
-                    inversed.ExceptWith(handledRibbons);
-
-                    if (erase)
-                        viz.selectedRibbons.ExceptWith(inversed);
-                    else
-                        viz.selectedRibbons.UnionWith(inversed);
+            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
+                if (!p.enabled)
+                    continue;
+                if (p.Positive) {
+                    foreach (Atom a in p.touchedRibbons)
+                        handledRibbons.Add(a);
                 }
                 else {
-                    if (erase)
-                        viz.selectedRibbons.ExceptWith(handledRibbons);
-                    else
-                        viz.selectedRibbons.UnionWith(handledRibbons);
+                    foreach (Atom a in p.touchedRibbons)
+                        handledRibbons.Remove(a);
                 }
             }
 
-            if (highlightSelected) {
-                Color32 green = new Color32(0, 255, 0, 255);
-                foreach (Atom a in viz.selectedRibbons) {
-                    a.ShouldHighlight = true;
-                    a.HighlightColor = green;
+            if (inverse) { //Very inefficient code for now, may need an in-depth restructuration of the Viz/Path/Atom architecture
+                List<Atom> allRibbons = new List<Atom>();
+                foreach (Path p in viz.PathsAsBase) {
+                    allRibbons.AddRange(p.AtomsAsBase);
+                }
+                HashSet<Atom> inversed = new HashSet<Atom>(allRibbons);
+                inversed.ExceptWith(handledRibbons);
+
+                if (erase)
+                    selectedRibbons.ExceptWith(inversed);
+                else
+                    selectedRibbons.UnionWith(inversed);
+            }
+            else {
+                if (erase)
+                    selectedRibbons.ExceptWith(handledRibbons);
+                else
+                    selectedRibbons.UnionWith(handledRibbons);
+            }
+
+            if (SelectorManager.Instance.HighlightSelected) {
+                foreach (Atom a in selectedRibbons) {
+                    a.ShouldHighlightBecauseSelected((int)Color, true);
                 }
             }
 
-            if (highlightSelected != old_highlightSelected || highlightChecked != old_highightChecked) {
-                viz.needsFullVerticesUpdate = true;
-            }
+            if (SelectorManager.Instance.HighlightChecked)
+                needsCheckedHighlightCleanup = true;
+        }
 
-            old_highightChecked = highlightChecked;
-            old_highlightSelected = highlightSelected;
+        private void Awake() {
+            old_color = Color;
+            old_persistent = Persistent;
+        }
+
+        private void Update() {
+            Color = _color; //Une update se fera si nécessaire (couleur changée dans l'éditeur)
+            Persistent = _persistent; //idem
+
+            if (wantsToAttach)
+                TryAttachingToManager();
         }
     }
 }

@@ -13,10 +13,6 @@ namespace Revivd {
 
         public TextAsset dataFile;
 
-        public bool needsFullVerticesUpdate = false;
-
-        public HashSet<Atom> selectedRibbons = new HashSet<Atom>();
-
         public Material material;
 
         public abstract IReadOnlyList<Path> PathsAsBase { get; }

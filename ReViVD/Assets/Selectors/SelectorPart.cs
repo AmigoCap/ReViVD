@@ -23,17 +23,57 @@ namespace Revivd {
 
         protected abstract void CreatePrimitive();
 
-        public abstract void UpdatePrimitive();
+        protected abstract void AttachToHand();
 
+        private void DetachFromHand() {
+            primitive.transform.parent = this.transform;
+        }
+
+        public void Show() {
+            if (!isActiveAndEnabled)
+                return;
+            primitive.SetActive(true);
+            primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+            if (!GetComponent<Selector>().Persistent)
+                AttachToHand();
+            else
+                DetachFromHand();
+        }
+
+        public void Hide() {
+            primitive.SetActive(false);
+        }
+
+        public abstract void UpdatePrimitive();
+        
         public abstract void FindDistrictsToCheck();
 
         public abstract void FindTouchedRibbons();
 
-        protected virtual void OnEnable() {
+        protected virtual void Awake() {
             CreatePrimitive();
+            Destroy(primitive.GetComponent<Collider>());
+        }
+
+        protected virtual void OnEnable() {
+            Selector s = GetComponent<Selector>();
+
+            if (!s.Persistent)
+                AttachToHand();
+            else
+                DetachFromHand();
+
+            if (s.Shown && s.isActiveAndEnabled)
+                Show();
+            else
+                Hide();
         }
 
         protected virtual void OnDisable() {
+            Hide();
+        }
+
+        protected virtual void OnDestroy() {
             Destroy(primitive);
         }
     }

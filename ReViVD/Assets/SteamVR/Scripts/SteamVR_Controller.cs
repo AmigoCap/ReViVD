@@ -54,20 +54,15 @@ public class SteamVR_Controller
 
 		VRControllerState_t state, prevState;
 		TrackedDevicePose_t pose;
-		int prevFrameCount = -1;
 		public void Update()
 		{
-			if (Time.frameCount != prevFrameCount)
-			{
-				prevFrameCount = Time.frameCount;
-				prevState = state;
+			prevState = state;
 
-				var system = OpenVR.System;
-				if (system != null)
-				{
-					valid = system.GetControllerStateWithPose(SteamVR_Render.instance.trackingSpace, index, ref state, (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(VRControllerState_t)), ref pose);
-					UpdateHairTrigger();
-				}
+			var system = OpenVR.System;
+			if (system != null)
+			{
+				valid = system.GetControllerStateWithPose(SteamVR_Render.instance.trackingSpace, index, ref state, (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(VRControllerState_t)), ref pose);
+				UpdateHairTrigger();
 			}
 		}
 

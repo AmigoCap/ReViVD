@@ -15,9 +15,12 @@ namespace Revivd {
 
         protected override void CreatePrimitive() {
             primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform; ;
-            primitive.transform.localPosition = new Vector3(rightOffset, upOffset, distance);
             primitive.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
+        }
+
+        protected override void AttachToHand() {
+            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
+            primitive.transform.localPosition = new Vector3(rightOffset, upOffset, distance);
         }
 
         public override void UpdatePrimitive() {
