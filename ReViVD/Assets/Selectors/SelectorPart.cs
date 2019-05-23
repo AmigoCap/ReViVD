@@ -19,7 +19,6 @@ namespace Revivd {
             }
         }
 
-        [SerializeField]
         protected GameObject primitive;
 
         protected abstract void CreatePrimitive();
@@ -30,21 +29,9 @@ namespace Revivd {
             primitive.transform.parent = this.transform;
         }
 
-        private bool _shown = true;
-        public bool Shown {
-            get => _shown;
-            set {
-                _shown = value;
-                if (primitive != null) {
-                    if (_shown)
-                        Show();
-                    else
-                        Hide();
-                }
-            }
-        }
-
-        private void Show() {
+        public void Show() {
+            if (!isActiveAndEnabled)
+                return;
             primitive.SetActive(true);
             primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
             if (!GetComponent<Selector>().Persistent)
@@ -53,7 +40,7 @@ namespace Revivd {
                 DetachFromHand();
         }
 
-        private void Hide() {
+        public void Hide() {
             primitive.SetActive(false);
         }
 
@@ -63,16 +50,30 @@ namespace Revivd {
 
         public abstract void FindTouchedRibbons();
 
-        protected virtual void OnEnable() {
+        protected virtual void Awake() {
             CreatePrimitive();
             Destroy(primitive.GetComponent<Collider>());
-            if (Shown)
+        }
+
+        protected virtual void OnEnable() {
+            Selector s = GetComponent<Selector>();
+
+            if (!s.Persistent)
+                AttachToHand();
+            else
+                DetachFromHand();
+
+            if (s.Shown && s.isActiveAndEnabled)
                 Show();
             else
                 Hide();
         }
 
         protected virtual void OnDisable() {
+            Hide();
+        }
+
+        protected virtual void OnDestroy() {
             Destroy(primitive);
         }
     }

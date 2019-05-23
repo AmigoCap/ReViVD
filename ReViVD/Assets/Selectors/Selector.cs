@@ -9,32 +9,51 @@ namespace Revivd {
         public bool inverse = false;
         public bool erase = false;
 
-        private void SeparateFromManager() {
-            if (Persistent) {
-                SelectorManager.Instance.persistentSelectors[(int)Color].Remove(this);
-            }
-            else if (SelectorManager.Instance.handSelectors[(int)Color] == this)
-                SelectorManager.Instance.handSelectors[(int)Color] = null;
-            foreach (SelectorPart p in GetComponents<SelectorPart>())
-                p.Shown = false;
-        }
-
-        private void AttachToManager() {
-            if (Persistent) {
-                SelectorManager.Instance.persistentSelectors[(int)Color].Add(this);
-                foreach (SelectorPart p in GetComponents<SelectorPart>())
-                    p.Shown = true;
-            }
-            else {
-                SelectorManager.Instance.handSelectors[(int)Color] = this;
-                if (SelectorManager.Instance.CurrentColor == Color)
+        private bool _shown = false;
+        public bool Shown {
+            get => _shown;
+            set {
+                _shown = value;
+                if (_shown) {
                     foreach (SelectorPart p in GetComponents<SelectorPart>())
-                        p.Shown = true;
+                        p.Show();
+                }
                 else {
-                    enabled = false;
+                    foreach (SelectorPart p in GetComponents<SelectorPart>())
+                        p.Hide();
                 }
             }
         }
+
+        private void SeparateFromManager() {
+            if (Persistent)
+                SelectorManager.Instance.persistentSelectors[(int)Color].Remove(this);
+            else if (SelectorManager.Instance.handSelectors[(int)Color] == this)
+                SelectorManager.Instance.handSelectors[(int)Color] = null;
+
+            Shown = false;
+        }
+
+        private void TryAttachingToManager() {
+            if (Persistent) {
+                SelectorManager.Instance.persistentSelectors[(int)Color].Add(this);
+                Shown = true;
+                wantsToAttach = false;
+            }
+            else {
+                ref Selector hand = ref SelectorManager.Instance.handSelectors[(int)Color];
+                if (hand == null || hand == this || !hand.isActiveAndEnabled) {
+                    hand = this;
+                    wantsToAttach = false;
+
+                    if (SelectorManager.Instance.CurrentColor == Color) {
+                        Shown = true;
+                    }
+                }
+            }
+        }
+
+        private bool wantsToAttach = true;
 
         private bool old_persistent;
         [SerializeField]
@@ -50,7 +69,7 @@ namespace Revivd {
                 _persistent = value;
                 old_persistent = _persistent;
 
-                AttachToManager();
+                wantsToAttach = true;
             }
         }
 
@@ -68,43 +87,32 @@ namespace Revivd {
                 _color = value;
                 old_color = _color;
 
-                AttachToManager();
+                wantsToAttach = true;
             }
         }
 
         private void OnEnable() {
-            SteamVR_ControllerManager.RightController.Gripped += Select;
-            SteamVR_ControllerManager.RightController.MenuButtonClicked += MakePersistentCopy;
-            AttachToManager();
+            wantsToAttach = true;
         }
 
         private void OnDisable() {
-            if (SteamVR_ControllerManager.RightController != null) {
-                SteamVR_ControllerManager.RightController.Gripped -= Select;
-                SteamVR_ControllerManager.RightController.MenuButtonClicked -= MakePersistentCopy;
-            }
-            foreach (SelectorPart p in GetComponents<SelectorPart>())
-                p.Shown = false;
+            Shown = false;
+            wantsToAttach = false;
         }
 
-        private bool ShouldSelect {
-            get {
-                return SteamVR_ControllerManager.RightController.triggerPressed;
-            }
-        }
-
-        private List<SelectorPart> parts = new List<SelectorPart>();
         private HashSet<Atom> handledRibbons = new HashSet<Atom>();
-        private bool needsCheckedHighlightCleanup = false;
+        public bool needsCheckedHighlightCleanup = false;
 
-        private void Select(SteamVR_TrackedController sender) {
-            if (!Persistent && sender != null) //Handheld selectors are only operated in the update loop (not as events)
+        public void Select() {
+            if (!isActiveAndEnabled)
                 return;
 
             Visualization viz = Visualization.Instance;
             HashSet<Atom> selectedRibbons = SelectorManager.Instance.selectedRibbons[(int)Color];
 
-            foreach (SelectorPart p in parts) {
+            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
+                if (!p.enabled)
+                    continue;
                 p.districtsToCheck.Clear();
                 p.FindDistrictsToCheck();
 
@@ -117,7 +125,7 @@ namespace Revivd {
                         foreach (Atom a in d.atoms_segment) {
                             if (a.ShouldDisplay) {
                                 p.ribbonsToCheck.Add(a);
-                                if (SelectorManager.Instance.highlightChecked && !Persistent) {
+                                if (SelectorManager.Instance.HighlightChecked && !Persistent) {
                                     a.ShouldHighlightBecauseChecked((int)Color, true);
                                 }
                             }
@@ -131,7 +139,9 @@ namespace Revivd {
 
             handledRibbons.Clear();
 
-            foreach (SelectorPart p in parts) {
+            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
+                if (!p.enabled)
+                    continue;
                 if (p.Positive) {
                     foreach (Atom a in p.touchedRibbons)
                         handledRibbons.Add(a);
@@ -162,24 +172,14 @@ namespace Revivd {
                     selectedRibbons.UnionWith(handledRibbons);
             }
 
-            if (SelectorManager.Instance.highlightSelected) {
+            if (SelectorManager.Instance.HighlightSelected) {
                 foreach (Atom a in selectedRibbons) {
                     a.ShouldHighlightBecauseSelected((int)Color, true);
                 }
             }
 
-            if (SelectorManager.Instance.highlightChecked)
+            if (SelectorManager.Instance.HighlightChecked)
                 needsCheckedHighlightCleanup = true;
-        }
-
-        private void MakePersistentCopy(SteamVR_TrackedController sender) {
-            if (Persistent)
-                return;
-            Persistent = true;
-            GameObject go = Instantiate(this.gameObject, SelectorManager.Instance.transform);
-            go.name = name;
-            name = "Persistent " + name;
-            go.GetComponent<Selector>().Persistent = false;
         }
 
         private void Awake() {
@@ -191,19 +191,8 @@ namespace Revivd {
             Color = _color; //Une update se fera si nécessaire (couleur changée dans l'éditeur)
             Persistent = _persistent; //idem
 
-            GetComponents(parts);
-            parts.RemoveAll(p => p.isActiveAndEnabled == false);
-
-            foreach (SelectorPart p in parts) {
-                p.UpdatePrimitive();
-                if (!ShouldSelect && needsCheckedHighlightCleanup) {
-                    foreach (Atom a in p.ribbonsToCheck)
-                        a.ShouldHighlightBecauseChecked((int)Color, false);
-                }
-            }
-
-            if (ShouldSelect && !Persistent)
-                Select(null);
+            if (wantsToAttach)
+                TryAttachingToManager();
         }
     }
 }
