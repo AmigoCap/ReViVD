@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Revivd {
 
-    public class RibbonSwipe : MonoBehaviour {
+    [DisallowMultipleComponent]
+    public class ColorPad : MonoBehaviour {
         float prevFingerX = 0;
         bool swiping = false;
 
@@ -13,7 +12,6 @@ namespace Revivd {
 
         int color;
 
-        // Update is called once per frame
         void Update() {
             RectTransform rt = GetComponent<RectTransform>();
 

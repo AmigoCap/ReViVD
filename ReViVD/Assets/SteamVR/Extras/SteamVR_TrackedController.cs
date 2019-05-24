@@ -49,7 +49,7 @@ public class SteamVR_TrackedController : MonoBehaviour {
     public Vector2 Pad {
         get {
             if (padNeedsUpdate) {
-                pad.Set(controllerState.rAxis0.x, controllerState.rAxis1.y);
+                pad.Set(controllerState.rAxis0.x, controllerState.rAxis0.y);
                 padNeedsUpdate = false;
             }
             return pad;

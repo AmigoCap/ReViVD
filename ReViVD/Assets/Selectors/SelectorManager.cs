@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Revivd {
@@ -72,9 +71,6 @@ namespace Revivd {
                 _currentColor = value;
                 oldCurrentColor = _currentColor;
 
-                if (!lockOperatingColors)
-                    operatingColors = new ColorGroup[] { _currentColor };
-
                 if (handSelectors[(int)_currentColor] != null)
                     handSelectors[(int)_currentColor].Shown = true;
             }
@@ -84,14 +80,21 @@ namespace Revivd {
             return exp == 0 ? 1 : num * Pow(num, exp - 1);
         }
 
-        public ColorGroup[] operatingColors;
-        public bool lockOperatingColors = false;
+        public HashSet<ColorGroup> operatingColors;
+
+        public bool InverseMode {
+            get => SteamVR_ControllerManager.LeftController.triggerPressed;
+        }
 
         private bool ShouldHandSelect {
             get => SteamVR_ControllerManager.RightController.triggerPressed;
         }
 
         private void SelectWithPersistents(SteamVR_TrackedController sender) {
+            if (InverseMode) {
+                ClearSelected(sender);
+                return;
+            }
             foreach (Selector s in persistentSelectors[(int)CurrentColor])
                 s.Select();
         }
@@ -121,12 +124,11 @@ namespace Revivd {
                         a.ShouldDisplay = true;
                 }
             }
-        }
 
-        private void DisplayAll(SteamVR_TrackedController sender) {
-            foreach (Path p in Visualization.Instance.PathsAsBase) {
-                foreach (Atom a in p.AtomsAsBase) {
-                    a.ShouldDisplay = true;
+            if (InverseMode) {
+                foreach (Path p in Visualization.Instance.PathsAsBase) {
+                    foreach (Atom a in p.AtomsAsBase)
+                        a.ShouldDisplay = !a.ShouldDisplay;
                 }
             }
         }
@@ -143,9 +145,6 @@ namespace Revivd {
             SteamVR_ControllerManager.RightController.PadClicked += DisplayOnlySelected;
             SteamVR_ControllerManager.RightController.Gripped += SelectWithPersistents;
             SteamVR_ControllerManager.RightController.MenuButtonClicked += MakePersistentCopyOfHand;
-
-            SteamVR_ControllerManager.LeftController.PadClicked += DisplayAll;
-            SteamVR_ControllerManager.LeftController.TriggerClicked += ClearSelected;
         }
 
         private void OnDisable() {
@@ -153,10 +152,6 @@ namespace Revivd {
                 SteamVR_ControllerManager.RightController.PadClicked -= DisplayOnlySelected;
                 SteamVR_ControllerManager.RightController.Gripped -= SelectWithPersistents;
                 SteamVR_ControllerManager.RightController.MenuButtonClicked -= MakePersistentCopyOfHand;
-            }
-            if (SteamVR_ControllerManager.LeftController != null) {
-                SteamVR_ControllerManager.LeftController.PadClicked -= DisplayAll;
-                SteamVR_ControllerManager.LeftController.TriggerClicked -= ClearSelected;
             }
         }
 
@@ -176,7 +171,7 @@ namespace Revivd {
             oldHighlightChecked = _highlightChecked;
             oldHighlightSelected = _highlightSelected;
 
-            operatingColors = new ColorGroup[] { _currentColor };
+            operatingColors = new HashSet<ColorGroup>();
         }
 
         private void Update() {
