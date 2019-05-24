@@ -12,6 +12,9 @@ namespace Revivd {
         public float height = 1f;
         public float upOffset = 0f;
         public float rightOffset = 0f;
+        public float rotx = 0f;
+        public float roty = 0f;
+        public float rotz = 0f;
 
         private Vector3 cuboidCenter = new Vector3();
         private Vector3 scale = new Vector3();
@@ -24,6 +27,7 @@ namespace Revivd {
         protected override void AttachToHand() {
             primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
             primitive.transform.localPosition = new Vector3(rightOffset, upOffset, distance);
+            primitive.transform.localRotation = Quaternion.Euler(rotx, roty, rotz);
         }
 
         public override void UpdatePrimitive() {
@@ -115,8 +119,8 @@ namespace Revivd {
             Vector3 b = a.path.transform.TransformPoint(a.point);  //Coordinates World Space
             Vector3 c = a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point); //Coordinates World Space
             //and then in the right hand space coordinates
-            Vector3 bc = SteamVR_ControllerManager.Instance.right.transform.InverseTransformPoint(b);
-            Vector3 cc = SteamVR_ControllerManager.Instance.right.transform.InverseTransformPoint(c);
+            Vector3 bc = primitive.transform.parent.InverseTransformPoint(b);
+            Vector3 cc = primitive.transform.parent.InverseTransformPoint(c);
 
             Vector3 mc = (bc + cc) / 2; //midpoint vector of the segment
             Vector3 l = bc - mc; 
@@ -124,6 +128,7 @@ namespace Revivd {
 
             mc = primitive.transform.localPosition - mc;
 
+            //Separating axis test
             if (Mathf.Abs(mc.x) >  scale.x + lext.x) return false;
             if (Mathf.Abs(mc.y) >  scale.y + lext.y) return false;
             if (Mathf.Abs(mc.z) >  scale.z + lext.z) return false;
