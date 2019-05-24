@@ -113,7 +113,7 @@ namespace Revivd {
             if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                 radius = a.path.baseRadius;
 
-            scale = primitive.transform.localScale / 2 ;
+            scale = primitive.transform.localScale / 2 + new Vector3(radius, radius, radius) ;
 
             //Segment in the world space coordinates
             Vector3 b = a.path.transform.TransformPoint(a.point);  //Coordinates World Space
