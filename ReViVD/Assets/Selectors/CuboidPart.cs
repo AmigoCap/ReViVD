@@ -115,8 +115,8 @@ namespace Revivd {
             Vector3 b = a.path.transform.TransformPoint(a.point);  //Coordinates World Space
             Vector3 c = a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point); //Coordinates World Space
             //and then in the right hand space coordinates
-            Vector3 bc = SteamVR_ControllerManager.Instance.right.transform.InverseTransformPoint(b); //Coordinates Cuboid Space
-            Vector3 cc = SteamVR_ControllerManager.Instance.right.transform.InverseTransformPoint(c); //Coordinates Cuboid Space
+            Vector3 bc = SteamVR_ControllerManager.Instance.right.transform.InverseTransformPoint(b);
+            Vector3 cc = SteamVR_ControllerManager.Instance.right.transform.InverseTransformPoint(c);
 
             Vector3 mc = (bc + cc) / 2; //midpoint vector of the segment
             Vector3 l = bc - mc; 
