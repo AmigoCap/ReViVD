@@ -18,9 +18,12 @@ namespace Revivd {
 
         protected override void CreatePrimitive() {
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform; ;
-            primitive.transform.localPosition = new Vector3(rightOffset, upOffset, distance);
             primitive.transform.localScale = new Vector3(width, length, height);
+        }
+
+        protected override void AttachToHand() {
+            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
+            primitive.transform.localPosition = new Vector3(rightOffset, upOffset, distance);
         }
 
         public override void UpdatePrimitive() {
@@ -102,22 +105,28 @@ namespace Revivd {
 
         private bool CollisionWithCuboid(Atom a) {
 
-            // still pending: solving problem with rotation
-            scale = primitive.transform.localScale / 2;
+            float radius;
+            if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
+                radius = a.path.baseRadius;
 
+            scale = primitive.transform.localScale / 2 ;
+
+            //Segment in the world space coordinates
             Vector3 b = a.path.transform.TransformPoint(a.point);  //Coordinates World Space
             Vector3 c = a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point); //Coordinates World Space
+            //and then in the right hand space coordinates
+            Vector3 bc = SteamVR_ControllerManager.Instance.right.transform.InverseTransformPoint(b); //Coordinates Cuboid Space
+            Vector3 cc = SteamVR_ControllerManager.Instance.right.transform.InverseTransformPoint(c); //Coordinates Cuboid Space
 
-            Vector3 bc = primitive.transform.InverseTransformPoint(b); //Coordinates Cuboid Space
-            Vector3 cc = primitive.transform.InverseTransformPoint(c); //Coordinates Cuboid Space
+            Vector3 mc = (bc + cc) / 2; //midpoint vector of the segment
+            Vector3 l = bc - mc; 
+            Vector3 lext = new Vector3(Mathf.Abs(l.x), Mathf.Abs(l.y), Mathf.Abs(l.z));//extent vector of the segment
 
-            Vector3 mc = (bc + cc) / 2;
-            Vector3 l = mc - bc;
-            Vector3 lext = new Vector3(Mathf.Abs(l.x), Mathf.Abs(l.y), Mathf.Abs(l.z));
+            mc = primitive.transform.localPosition - mc;
 
-            if (Mathf.Abs(mc.x) > scale.x + lext.x) return false;
-            if (Mathf.Abs(mc.y) > scale.y + lext.y) return false;
-            if (Mathf.Abs(mc.z) > scale.z + lext.z) return false;
+            if (Mathf.Abs(mc.x) >  scale.x + lext.x) return false;
+            if (Mathf.Abs(mc.y) >  scale.y + lext.y) return false;
+            if (Mathf.Abs(mc.z) >  scale.z + lext.z) return false;
 
             if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > (scale.y * lext.z + scale.z * lext.y)) return false;
             if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > (scale.x * lext.z + scale.z * lext.x)) return false;
