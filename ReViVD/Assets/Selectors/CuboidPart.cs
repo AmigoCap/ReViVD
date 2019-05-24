@@ -113,7 +113,7 @@ namespace Revivd {
             if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                 radius = a.path.baseRadius;
 
-            scale = primitive.transform.localScale / 2 + new Vector3(radius, radius, radius) ;
+            scale = primitive.transform.localScale / 2;// + new Vector3(radius, radius, radius) ;
 
             //Segment in the world space coordinates
             Vector3 b = a.path.transform.TransformPoint(a.point);  //Coordinates World Space
@@ -128,14 +128,32 @@ namespace Revivd {
 
             mc = primitive.transform.localPosition - mc;
 
-            //Separating axis test
-            if (Mathf.Abs(mc.x) >  scale.x + lext.x) return false;
-            if (Mathf.Abs(mc.y) >  scale.y + lext.y) return false;
-            if (Mathf.Abs(mc.z) >  scale.z + lext.z) return false;
+            //Separating axis test: axis = separating axis? 
+            if (Mathf.Abs(mc.x) >  scale.x + radius + lext.x) return false;
+            if (Mathf.Abs(mc.y) >  scale.y + radius + lext.y) return false;
+            if (Mathf.Abs(mc.z) >  scale.z + radius + lext.z) return false;
 
-            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > (scale.y * lext.z + scale.z * lext.y)) return false;
-            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > (scale.x * lext.z + scale.z * lext.x)) return false;
-            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > (scale.x * lext.y + scale.y * lext.x)) return false;
+            bool first = true;
+            bool second = true;
+
+            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > ((scale.y + radius) * lext.z + scale.z * lext.y)) first = false;
+            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > (scale.y * lext.z + (scale.z + radius) * lext.y)) second = false;
+
+            if (!first & !second) return false;
+            first = true;
+            second = true;
+
+            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > ((scale.x + radius) * lext.z + scale.z * lext.x)) first = false;
+            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > (scale.x * lext.z + (scale.z + radius) * lext.x)) second = false;
+
+            if (!first & !second) return false;
+            first = true;
+            second = true;
+
+            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > ((scale.x + radius) * lext.y + scale.y * lext.x)) first = false;
+            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > (scale.x * lext.y + (scale.y + radius) * lext.x)) second = false;
+
+            if (!first & !second) return false;
 
             return true;
         }
