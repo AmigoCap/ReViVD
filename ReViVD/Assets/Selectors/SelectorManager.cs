@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Revivd {
@@ -10,17 +9,17 @@ namespace Revivd {
         private static SelectorManager _instance;
         public static SelectorManager Instance { get { return _instance; } }
 
-        private bool oldHighlightChecked;
         [SerializeField]
-        private bool _highlightChecked = false;
+        private bool s_highlightChecked = false;
+        private bool _highlightChecked;
         public bool HighlightChecked {
             get => _highlightChecked;
             set {
-                if (_highlightChecked == value && _highlightChecked == oldHighlightChecked)
+                if (_highlightChecked == value)
                     return;
 
                 _highlightChecked = value;
-                oldHighlightChecked = value;
+                s_highlightChecked = _highlightChecked;
 
                 for (int i = 0; i < colors.Length; i++) {
                     if (handSelectors[i] != null)
@@ -31,17 +30,17 @@ namespace Revivd {
             }
         }
 
-        private bool oldHighlightSelected;
         [SerializeField]
-        private bool _highlightSelected = true;
+        private bool s_highlightSelected = true;
+        private bool _highlightSelected;
         public bool HighlightSelected {
             get => _highlightSelected;
             set {
-                if (_highlightSelected == value && _highlightSelected == oldHighlightSelected)
+                if (_highlightSelected == value)
                     return;
 
                 _highlightSelected = value;
-                oldHighlightSelected = value;
+                s_highlightSelected = _highlightSelected;
 
                 for (int i = 0; i < colors.Length; i++) {
                     foreach (Atom a in selectedRibbons[i])
@@ -57,23 +56,20 @@ namespace Revivd {
         public List<Selector>[] persistentSelectors = new List<Selector>[colors.Length];
         public HashSet<Atom>[] selectedRibbons = new HashSet<Atom>[colors.Length];
 
-        private ColorGroup oldCurrentColor;
         [SerializeField]
-        private ColorGroup _currentColor = ColorGroup.Red;
+        private ColorGroup s_currentColor = ColorGroup.Red;
+        private ColorGroup _currentColor;
         public ColorGroup CurrentColor {
             get => _currentColor;
             set {
-                if (_currentColor == value && _currentColor == oldCurrentColor)
+                if (_currentColor == value)
                     return;
 
-                if (handSelectors[(int)oldCurrentColor] != null)
-                    handSelectors[(int)oldCurrentColor].Shown = false;
+                if (handSelectors[(int)_currentColor] != null)
+                    handSelectors[(int)_currentColor].Shown = false;
 
                 _currentColor = value;
-                oldCurrentColor = _currentColor;
-
-                if (!lockOperatingColors)
-                    operatingColors = new ColorGroup[] { _currentColor };
+                s_currentColor = _currentColor;
 
                 if (handSelectors[(int)_currentColor] != null)
                     handSelectors[(int)_currentColor].Shown = true;
@@ -84,14 +80,25 @@ namespace Revivd {
             return exp == 0 ? 1 : num * Pow(num, exp - 1);
         }
 
-        public ColorGroup[] operatingColors;
-        public bool lockOperatingColors = false;
+        public HashSet<ColorGroup> operatingColors;
+
+        public bool InverseMode {
+            get => SteamVR_ControllerManager.LeftController.triggerPressed;
+        }
+
+        public enum LogicMode { AND, OR };
+
+        public LogicMode operationMode = LogicMode.OR;
 
         private bool ShouldHandSelect {
             get => SteamVR_ControllerManager.RightController.triggerPressed;
         }
 
         private void SelectWithPersistents(SteamVR_TrackedController sender) {
+            if (InverseMode) {
+                ClearSelected();
+                return;
+            }
             foreach (Selector s in persistentSelectors[(int)CurrentColor])
                 s.Select();
         }
@@ -105,33 +112,52 @@ namespace Revivd {
             }                
         }
 
-        private void DisplayOnlySelected(SteamVR_TrackedController sender) {
+        public void DoLogicOperation() {
+            if (InverseMode) {
+                foreach (Path p in Visualization.Instance.PathsAsBase) {
+                    foreach (Atom a in p.AtomsAsBase)
+                        a.ShouldDisplay = !a.ShouldDisplay;
+                }
+
+                return;
+            }
+
             foreach (Path p in Visualization.Instance.PathsAsBase) {
                 foreach (Atom a in p.AtomsAsBase)
                     a.ShouldDisplay = false;
             }
 
-            HashSet<Path> selectedPaths = new HashSet<Path>();
-            foreach (ColorGroup c in operatingColors) {
-                selectedPaths.Clear();
-                foreach (Atom a in selectedRibbons[(int)c])
-                    selectedPaths.Add(a.path);
-                foreach (Path p in selectedPaths) {
-                    foreach (Atom a in p.AtomsAsBase)
-                        a.ShouldDisplay = true;
+            HashSet<Path> pathsToKeep = new HashSet<Path>();
+            if (operationMode == LogicMode.AND) {
+                HashSet<Atom> ribbonsToKeep = new HashSet<Atom>();
+                bool firstPass = true;
+                foreach (ColorGroup c in operatingColors) {
+                    if (firstPass) {
+                        ribbonsToKeep = new HashSet<Atom>(selectedRibbons[(int)c]);
+                        firstPass = false;
+                    }
+                    else
+                        ribbonsToKeep.IntersectWith(selectedRibbons[(int)c]);
+                }
+
+                foreach (Atom a in ribbonsToKeep)
+                    pathsToKeep.Add(a.path);
+            }
+            else {
+                foreach (ColorGroup c in operatingColors) {
+                    foreach (Atom a in selectedRibbons[(int)c])
+                        pathsToKeep.Add(a.path);
                 }
             }
-        }
 
-        private void DisplayAll(SteamVR_TrackedController sender) {
-            foreach (Path p in Visualization.Instance.PathsAsBase) {
-                foreach (Atom a in p.AtomsAsBase) {
+            foreach (Path p in pathsToKeep) {
+                foreach (Atom a in p.AtomsAsBase)
                     a.ShouldDisplay = true;
-                }
             }
+
         }
 
-        private void ClearSelected(SteamVR_TrackedController sender) {
+        private void ClearSelected() {
             if (HighlightSelected) {
                 foreach (Atom a in selectedRibbons[(int)CurrentColor])
                     a.ShouldHighlightBecauseSelected((int)CurrentColor, false);
@@ -140,23 +166,14 @@ namespace Revivd {
         }
 
         private void OnEnable() {
-            SteamVR_ControllerManager.RightController.PadClicked += DisplayOnlySelected;
             SteamVR_ControllerManager.RightController.Gripped += SelectWithPersistents;
             SteamVR_ControllerManager.RightController.MenuButtonClicked += MakePersistentCopyOfHand;
-
-            SteamVR_ControllerManager.LeftController.PadClicked += DisplayAll;
-            SteamVR_ControllerManager.LeftController.TriggerClicked += ClearSelected;
         }
 
         private void OnDisable() {
             if (SteamVR_ControllerManager.RightController != null) {
-                SteamVR_ControllerManager.RightController.PadClicked -= DisplayOnlySelected;
                 SteamVR_ControllerManager.RightController.Gripped -= SelectWithPersistents;
                 SteamVR_ControllerManager.RightController.MenuButtonClicked -= MakePersistentCopyOfHand;
-            }
-            if (SteamVR_ControllerManager.LeftController != null) {
-                SteamVR_ControllerManager.LeftController.PadClicked -= DisplayAll;
-                SteamVR_ControllerManager.LeftController.TriggerClicked -= ClearSelected;
             }
         }
 
@@ -172,17 +189,17 @@ namespace Revivd {
                 selectedRibbons[i] = new HashSet<Atom>();
             }
 
-            oldCurrentColor = _currentColor;
-            oldHighlightChecked = _highlightChecked;
-            oldHighlightSelected = _highlightSelected;
+            _currentColor = s_currentColor;
+            _highlightChecked = s_highlightChecked;
+            _highlightSelected = s_highlightSelected;
 
-            operatingColors = new ColorGroup[] { _currentColor };
+            operatingColors = new HashSet<ColorGroup>();
         }
 
         private void Update() {
-            CurrentColor = _currentColor; //Triggers the property if _currentColor was changed in the editor
-            HighlightChecked = _highlightChecked;
-            HighlightSelected = _highlightSelected;
+            CurrentColor = s_currentColor; //Triggers the property if _currentColor was changed in the editor
+            HighlightChecked = s_highlightChecked;
+            HighlightSelected = s_highlightSelected;
 
             if (!ShouldHandSelect)
                 foreach (Selector s in handSelectors)
@@ -198,7 +215,7 @@ namespace Revivd {
                     if (p.enabled)
                         p.UpdatePrimitive();
                 if (ShouldHandSelect)
-                    hs.Select();
+                    hs.Select(InverseMode);
             }
 
             foreach (List<Selector> L in persistentSelectors)

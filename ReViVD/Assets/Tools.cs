@@ -78,6 +78,20 @@ namespace Revivd {
             return r < 0 ? r + m : r;
         }
 
+        public static float MaxAbs(float f, float max) {
+            return f > max ? max : (f < -max ? -max : f);
+        }
+
+        public static float MinAbs(float f, float min) {
+            if (f > 0)
+                return f < min ? min : f;
+            return f > -min ? -min : f;
+        }
+
+        public static float Limit(float f, float lower, float upper) {
+            return f < lower ? lower : (f > upper ? upper : f);
+        }
+
         public static List<int[]> Amanatides(Vector3 start, Vector3 end) {
             List<int[]> L = new List<int[]>();
             int[] startD = Visualization.Instance.FindDistrictCoords(start);
