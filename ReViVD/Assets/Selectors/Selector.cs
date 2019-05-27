@@ -6,9 +6,6 @@ namespace Revivd {
 
     [DisallowMultipleComponent]
     public class Selector : MonoBehaviour {
-        public bool inverse = false;
-        public bool erase = false;
-
         private bool _shown = false;
         public bool Shown {
             get => _shown;
@@ -55,37 +52,37 @@ namespace Revivd {
 
         private bool wantsToAttach = true;
 
-        private bool old_persistent;
         [SerializeField]
-        private bool _persistent = false;
+        private bool s_persistent = false;
+        private bool _persistent;
         public bool Persistent {
             get => _persistent;
             set {
-                if (value == _persistent && _persistent == old_persistent) //On rafraîchit la valeur si elle a été changée dans l'éditeur
+                if (value == _persistent)
                     return;
 
                 SeparateFromManager();
 
                 _persistent = value;
-                old_persistent = _persistent;
+                s_persistent = _persistent;
 
                 wantsToAttach = true;
             }
         }
 
-        private SelectorManager.ColorGroup old_color;
         [SerializeField]
-        private SelectorManager.ColorGroup _color = 0;
+        private SelectorManager.ColorGroup s_color = 0;
+        private SelectorManager.ColorGroup _color;
         public SelectorManager.ColorGroup Color {
             get => _color;
             set {
-                if (value == _color && _color == old_color)
+                if (value == _color)
                     return;
 
                 SeparateFromManager();
-
+                
                 _color = value;
-                old_color = _color;
+                s_color = _color;
 
                 wantsToAttach = true;
             }
@@ -103,7 +100,7 @@ namespace Revivd {
         private HashSet<Atom> handledRibbons = new HashSet<Atom>();
         public bool needsCheckedHighlightCleanup = false;
 
-        public void Select() {
+        public void Select(bool erase = false) {
             if (!isActiveAndEnabled)
                 return;
 
@@ -152,29 +149,20 @@ namespace Revivd {
                 }
             }
 
-            if (inverse) { //Very inefficient code for now, may need an in-depth restructuration of the Viz/Path/Atom architecture
-                List<Atom> allRibbons = new List<Atom>();
-                foreach (Path p in viz.PathsAsBase) {
-                    allRibbons.AddRange(p.AtomsAsBase);
-                }
-                HashSet<Atom> inversed = new HashSet<Atom>(allRibbons);
-                inversed.ExceptWith(handledRibbons);
+            if (erase) {
+                selectedRibbons.ExceptWith(handledRibbons);
 
-                if (erase)
-                    selectedRibbons.ExceptWith(inversed);
-                else
-                    selectedRibbons.UnionWith(inversed);
+                foreach (Atom a in handledRibbons) {
+                    a.ShouldHighlightBecauseSelected((int)Color, false);
+                }
             }
             else {
-                if (erase)
-                    selectedRibbons.ExceptWith(handledRibbons);
-                else
-                    selectedRibbons.UnionWith(handledRibbons);
-            }
+                selectedRibbons.UnionWith(handledRibbons);
 
-            if (SelectorManager.Instance.HighlightSelected) {
-                foreach (Atom a in selectedRibbons) {
-                    a.ShouldHighlightBecauseSelected((int)Color, true);
+                if (SelectorManager.Instance.HighlightSelected) {
+                    foreach (Atom a in handledRibbons) {
+                        a.ShouldHighlightBecauseSelected((int)Color, true);
+                    }
                 }
             }
 
@@ -183,13 +171,13 @@ namespace Revivd {
         }
 
         private void Awake() {
-            old_color = Color;
-            old_persistent = Persistent;
+            _color = s_color;
+            _persistent = s_persistent;
         }
 
         private void Update() {
-            Color = _color; //Une update se fera si nécessaire (couleur changée dans l'éditeur)
-            Persistent = _persistent; //idem
+            Color = s_color; //Une update se fera si nécessaire (couleur changée dans l'éditeur)
+            Persistent = s_persistent; //idem
 
             if (wantsToAttach)
                 TryAttachingToManager();

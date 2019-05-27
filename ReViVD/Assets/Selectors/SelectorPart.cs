@@ -41,7 +41,8 @@ namespace Revivd {
         }
 
         public void Hide() {
-            primitive.SetActive(false);
+            if (primitive != null)
+                primitive.SetActive(false);
         }
 
         public abstract void UpdatePrimitive();
