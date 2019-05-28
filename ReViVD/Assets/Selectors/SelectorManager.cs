@@ -9,6 +9,13 @@ namespace Revivd {
         private static SelectorManager _instance;
         public static SelectorManager Instance { get { return _instance; } }
 
+        public enum ControlMode { SelectMode, CreatorMode};
+        private ControlMode _currentControlMode = ControlMode.SelectMode;
+        public ControlMode CurrentControlMode {
+            get => _currentControlMode;
+            set => _currentControlMode = value;
+        }
+
         [SerializeField]
         private bool s_highlightChecked = false;
         private bool _highlightChecked;
@@ -93,8 +100,12 @@ namespace Revivd {
         private bool ShouldHandSelect {
             get => SteamVR_ControllerManager.RightController.triggerPressed;
         }
+    
 
         private void SelectWithPersistents(SteamVR_TrackedController sender) {
+            if (CurrentControlMode != ControlMode.SelectMode)
+                return;
+
             if (InverseMode) {
                 ClearSelected();
                 return;
@@ -104,12 +115,22 @@ namespace Revivd {
         }
 
         private void MakePersistentCopyOfHand(SteamVR_TrackedController sender) {
+            if (CurrentControlMode != ControlMode.SelectMode)
+                return;
+
             Selector s = handSelectors[(int)CurrentColor];
             if (s != null && s.isActiveAndEnabled) {
                 GameObject go = Instantiate(s.gameObject, this.transform);
                 go.name = "Persistent " + s.name;
                 go.GetComponent<Selector>().Persistent = true;
             }                
+        }
+
+        private void ModeModification(SteamVR_TrackedController sender) {
+            if (CurrentControlMode == ControlMode.SelectMode)
+                CurrentControlMode = ControlMode.CreatorMode;
+            else
+                CurrentControlMode = ControlMode.SelectMode;
         }
 
         public void DoLogicOperation() {
@@ -168,12 +189,14 @@ namespace Revivd {
         private void OnEnable() {
             SteamVR_ControllerManager.RightController.Gripped += SelectWithPersistents;
             SteamVR_ControllerManager.RightController.MenuButtonClicked += MakePersistentCopyOfHand;
+            SteamVR_ControllerManager.LeftController.Gripped += ModeModification;
         }
 
         private void OnDisable() {
             if (SteamVR_ControllerManager.RightController != null) {
                 SteamVR_ControllerManager.RightController.Gripped -= SelectWithPersistents;
                 SteamVR_ControllerManager.RightController.MenuButtonClicked -= MakePersistentCopyOfHand;
+                SteamVR_ControllerManager.LeftController.Gripped -= ModeModification;
             }
         }
 

@@ -16,8 +16,10 @@ namespace Revivd {
         public float trimSensitivity = 0.3f;
         public float maxTrimVelocity = 150;
         public float baseSpeed = 20;
+        public float speedExponent = 1.3f;
         public bool invertVerticalControl = false;
         public bool doJoystickControls = true;
+
 
         Transform camTrans;
         Vector2 oldTouchPos = Vector2.zero;
@@ -37,6 +39,31 @@ namespace Revivd {
 
         void PrintVect(Vector3 vect) {
             Debug.Log(vect.x.ToString() + ' ' + vect.y.ToString() + ' ' + vect.z.ToString());
+        }
+
+        private void SpeedDown(SteamVR_TrackedController sender) {
+            if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
+                return;
+
+            baseSpeed = baseSpeed / speedExponent;
+        }
+
+        private void SpeedUp(SteamVR_TrackedController sender) {
+            if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
+                return;
+
+            baseSpeed = baseSpeed * speedExponent;
+        }
+
+        private void OnEnable() {
+            SteamVR_ControllerManager.LeftController.JoystickClicked += SpeedDown;
+            SteamVR_ControllerManager.RightController.JoystickClicked += SpeedUp;
+        }
+
+        private void OnDisable() {
+            SteamVR_ControllerManager.LeftController.JoystickClicked -= SpeedDown;
+            SteamVR_ControllerManager.RightController.JoystickClicked -= SpeedUp;
+
         }
 
         // Update is called once per frame

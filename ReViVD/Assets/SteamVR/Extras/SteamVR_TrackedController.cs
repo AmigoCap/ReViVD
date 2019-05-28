@@ -18,7 +18,7 @@ public class SteamVR_TrackedController : MonoBehaviour {
     public event ClickedEventHandler MenuButtonUnclicked;
     public event ClickedEventHandler TriggerClicked;
     public event ClickedEventHandler TriggerUnclicked;
-    public event ClickedEventHandler SteamClicked;
+    public event ClickedEventHandler JoystickClicked;
     public event ClickedEventHandler PadClicked;
     public event ClickedEventHandler PadUnclicked;
     public event ClickedEventHandler PadTouched;
@@ -104,8 +104,8 @@ public class SteamVR_TrackedController : MonoBehaviour {
     }
 
     public virtual void OnSteamClicked() {
-        if (SteamClicked != null)
-            SteamClicked(this);
+        if (JoystickClicked != null)
+            JoystickClicked(this);
     }
 
     public virtual void OnPadClicked() {
