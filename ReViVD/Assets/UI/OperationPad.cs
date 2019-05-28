@@ -103,6 +103,9 @@ namespace Revivd {
         }
 
         void ToggleCurrentColorAsOperative(SteamVR_TrackedController sender) {
+            if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
+                return;
+
             SelectorManager sm = SelectorManager.Instance;
             if (sm.operatingColors.Contains(sm.CurrentColor)) {
                 sm.operatingColors.Remove(sm.CurrentColor);
