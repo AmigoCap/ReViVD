@@ -41,6 +41,9 @@ namespace Revivd {
         public GameObject invert;
 
         void DoPadClickAction(SteamVR_TrackedController sender) {
+            if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
+                return;
+
             if (GetComponent<RectTransform>().localPosition.y > pullThreshold)
                 ResetDisplayedPaths();
             else if (GetComponent<RectTransform>().localPosition.y < -pullThreshold)
@@ -72,6 +75,9 @@ namespace Revivd {
         }
 
         void SetFullOrEmptySprites(SteamVR_TrackedController sender) {
+            if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
+                return;
+
             SelectorManager sm = SelectorManager.Instance;
 
             if (sm.InverseMode) {
@@ -97,6 +103,9 @@ namespace Revivd {
         }
 
         void ToggleCurrentColorAsOperative(SteamVR_TrackedController sender) {
+            if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
+                return;
+
             SelectorManager sm = SelectorManager.Instance;
             if (sm.operatingColors.Contains(sm.CurrentColor)) {
                 sm.operatingColors.Remove(sm.CurrentColor);
