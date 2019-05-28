@@ -20,13 +20,6 @@ namespace Revivd {
 
                 _highlightChecked = value;
                 s_highlightChecked = _highlightChecked;
-
-                for (int i = 0; i < colors.Length; i++) {
-                    if (handSelectors[i] != null)
-                        foreach (SelectorPart p in handSelectors[i].GetComponents<SelectorPart>())
-                            foreach (Atom a in p.ribbonsToCheck)
-                                a.ShouldHighlightBecauseChecked(i, _highlightChecked);
-                }
             }
         }
 
@@ -104,6 +97,16 @@ namespace Revivd {
         }
 
         private void MakePersistentCopyOfHand(SteamVR_TrackedController sender) {
+            if (InverseMode) {
+                int len = persistentSelectors[(int)CurrentColor].Count;
+                if (len == 0)
+                    return;
+                Selector last = persistentSelectors[(int)CurrentColor][len - 1];
+                persistentSelectors[(int)CurrentColor].RemoveAt(len - 1);
+                Destroy(last.gameObject);
+                return;
+            }
+
             Selector s = handSelectors[(int)CurrentColor];
             if (s != null && s.isActiveAndEnabled) {
                 GameObject go = Instantiate(s.gameObject, this.transform);
@@ -203,10 +206,12 @@ namespace Revivd {
 
             if (!ShouldHandSelect)
                 foreach (Selector s in handSelectors)
-                    if (s != null && s.needsCheckedHighlightCleanup)
+                    if (s != null && s.needsCheckedHighlightCleanup) {
                         foreach (SelectorPart p in s.GetComponents<SelectorPart>())
                             foreach (Atom a in p.ribbonsToCheck)
                                 a.ShouldHighlightBecauseChecked((int)s.Color, false);
+                        s.needsCheckedHighlightCleanup = false;
+                    }
 
 
             Selector hs = handSelectors[(int)CurrentColor];
