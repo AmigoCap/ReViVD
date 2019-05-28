@@ -41,28 +41,24 @@ namespace Revivd {
             Debug.Log(vect.x.ToString() + ' ' + vect.y.ToString() + ' ' + vect.z.ToString());
         }
 
-        private void SpeedDown(SteamVR_TrackedController sender) {
+        private void AdjustSpeed(SteamVR_TrackedController sender) {
             if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
                 return;
 
-            baseSpeed = baseSpeed / speedExponent;
-        }
-
-        private void SpeedUp(SteamVR_TrackedController sender) {
-            if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
-                return;
-
-            baseSpeed = baseSpeed * speedExponent;
+            if (SelectorManager.Instance.InverseMode) {
+                baseSpeed /= speedExponent;
+            }
+            else {
+                baseSpeed *= speedExponent;
+            }
         }
 
         private void OnEnable() {
-            SteamVR_ControllerManager.LeftController.JoystickClicked += SpeedDown;
-            SteamVR_ControllerManager.RightController.JoystickClicked += SpeedUp;
+            SteamVR_ControllerManager.LeftController.Gripped += AdjustSpeed;
         }
 
         private void OnDisable() {
-            SteamVR_ControllerManager.LeftController.JoystickClicked -= SpeedDown;
-            SteamVR_ControllerManager.RightController.JoystickClicked -= SpeedUp;
+            SteamVR_ControllerManager.LeftController.Gripped -= AdjustSpeed;
 
         }
 

@@ -8,7 +8,7 @@ public class SteamVR_TrackedController : MonoBehaviour {
     public uint controllerIndex;
     public VRControllerState_t controllerState;
     public bool triggerPressed = false;
-    public bool steamPressed = false;
+    public bool joystickClicked = false;
     public bool menuPressed = false;
     public bool padPressed = false;
     public bool padTouched = false;
@@ -103,7 +103,7 @@ public class SteamVR_TrackedController : MonoBehaviour {
             MenuButtonUnclicked(this);
     }
 
-    public virtual void OnSteamClicked() {
+    public virtual void OnJoystickClicked() {
         if (JoystickClicked != null)
             JoystickClicked(this);
     }

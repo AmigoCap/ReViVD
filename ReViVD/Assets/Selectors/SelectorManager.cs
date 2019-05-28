@@ -189,14 +189,17 @@ namespace Revivd {
         private void OnEnable() {
             SteamVR_ControllerManager.RightController.Gripped += SelectWithPersistents;
             SteamVR_ControllerManager.RightController.MenuButtonClicked += MakePersistentCopyOfHand;
-            SteamVR_ControllerManager.LeftController.Gripped += ModeModification;
+            //SteamVR_ControllerManager.LeftController.MenuButtonClicked += ModeModification;
         }
 
         private void OnDisable() {
             if (SteamVR_ControllerManager.RightController != null) {
                 SteamVR_ControllerManager.RightController.Gripped -= SelectWithPersistents;
                 SteamVR_ControllerManager.RightController.MenuButtonClicked -= MakePersistentCopyOfHand;
-                SteamVR_ControllerManager.LeftController.Gripped -= ModeModification;
+            }
+
+            if (SteamVR_ControllerManager.LeftController != null) {
+                //SteamVR_ControllerManager.LeftController.MenuButtonClicked -= ModeModification;
             }
         }
 
@@ -232,13 +235,15 @@ namespace Revivd {
                                 a.ShouldHighlightBecauseChecked((int)s.Color, false);
 
 
-            Selector hs = handSelectors[(int)CurrentColor];
-            if (hs != null && hs.isActiveAndEnabled) {
-                foreach (SelectorPart p in hs.GetComponents<SelectorPart>())
-                    if (p.enabled)
-                        p.UpdatePrimitive();
-                if (ShouldHandSelect)
-                    hs.Select(InverseMode);
+            if (CurrentControlMode == ControlMode.SelectMode) {
+                Selector hs = handSelectors[(int)CurrentColor];
+                if (hs != null && hs.isActiveAndEnabled) {
+                    foreach (SelectorPart p in hs.GetComponents<SelectorPart>())
+                        if (p.enabled)
+                            p.UpdatePrimitive();
+                    if (ShouldHandSelect)
+                        hs.Select(InverseMode);
+                }
             }
 
             foreach (List<Selector> L in persistentSelectors)
