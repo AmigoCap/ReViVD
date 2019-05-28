@@ -1,6 +1,7 @@
 ﻿//======= Copyright (c) Valve Corporation, All rights reserved. ===============
 using UnityEngine;
 using Valve.VR;
+using System.Collections;
 
 public delegate void ClickedEventHandler(SteamVR_TrackedController sender);
 
@@ -60,6 +61,32 @@ public class SteamVR_TrackedController : MonoBehaviour {
         get {
             return controllerState.rAxis1.x;
         }
+    }
+
+    private readonly uint hapticAxisID = (uint)EVRButtonId.k_EButton_SteamVR_Touchpad - (uint)EVRButtonId.k_EButton_Axis0;
+
+    public void Vibrate() {
+        var system = OpenVR.System;
+        if (system != null) {
+            system.TriggerHapticPulse(controllerIndex, hapticAxisID, (char)500);
+        }
+    }
+
+    public IEnumerator LongVibration(float duration) {
+        for (float i = 0; i < duration; i += Time.deltaTime) {
+            Vibrate();
+            yield return null;
+        }
+    }
+
+    public IEnumerator VibrateAfter(float time, float duration = 0f) {
+        for (float i = 0; i < time; i += Time.deltaTime) {
+            yield return null;
+        }
+        if (duration == 0)
+            Vibrate();
+        else
+            yield return LongVibration(time);
     }
 
     // Use this for initialization

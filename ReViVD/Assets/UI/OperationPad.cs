@@ -109,10 +109,14 @@ namespace Revivd {
             SelectorManager sm = SelectorManager.Instance;
             if (sm.operatingColors.Contains(sm.CurrentColor)) {
                 sm.operatingColors.Remove(sm.CurrentColor);
+                SteamVR_ControllerManager.LeftController.Vibrate();
+                StartCoroutine(SteamVR_ControllerManager.LeftController.VibrateAfter(0.1f));
             }
             else {
                 sm.operatingColors.Add(sm.CurrentColor);
+                SteamVR_ControllerManager.LeftController.Vibrate();
             }
+
             SetFullOrEmptySprites(sender);
         }
 
@@ -132,6 +136,10 @@ namespace Revivd {
                         swiping_reset = true;
                     else if (SteamVR_ControllerManager.LeftController.Pad.y > pullMaxStartPos)
                         swiping_logic = true;
+                }
+                else {
+                    if (Mathf.Abs(GetComponent<RectTransform>().localPosition.y) > pullThreshold)
+                        SteamVR_ControllerManager.LeftController.Vibrate();
                 }
 
                 prevFingerY = SteamVR_ControllerManager.LeftController.Pad.y;
