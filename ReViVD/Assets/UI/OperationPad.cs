@@ -38,6 +38,10 @@ namespace Revivd {
         public Sprite andSign;
         public Sprite orSign;
 
+        public GameObject resetPullup;
+        public Sprite reset;
+        public Sprite hardReset;
+
         public GameObject invert;
 
         void DoPadClickAction(SteamVR_TrackedController sender) {
@@ -59,6 +63,11 @@ namespace Revivd {
                     a.ShouldDisplay = true;
                 }
             }
+            if (SelectorManager.Instance.InverseMode) { //Hard reset
+                for (int i = 0; i < SelectorManager.colors.Length; i++) {
+                    SelectorManager.Instance.ClearSelected((SelectorManager.ColorGroup)i);
+                }
+            }
         }
 
         void ToggleLogicOperation() {
@@ -66,11 +75,16 @@ namespace Revivd {
                 SelectorManager.Instance.operationMode = SelectorManager.LogicMode.AND;
                 logicPulldown.GetComponent<Image>().SetSprite(andPulldown);
                 centerpiece.GetComponent<Image>().SetSprite(andSign);
+
+                SteamVR_ControllerManager.LeftController.Vibrate();
             }
             else {
                 SelectorManager.Instance.operationMode = SelectorManager.LogicMode.OR;
                 logicPulldown.GetComponent<Image>().SetSprite(orPulldown);
                 centerpiece.GetComponent<Image>().SetSprite(orSign);
+
+                SteamVR_ControllerManager.LeftController.Vibrate();
+                StartCoroutine(SteamVR_ControllerManager.LeftController.VibrateAfter(0.1f));
             }
         }
 
@@ -82,10 +96,12 @@ namespace Revivd {
 
             if (sm.InverseMode) {
                 invert.SetActive(true);
+                resetPullup.GetComponent<Image>().SetSprite(hardReset);
                 return;
             }
             else {
                 invert.SetActive(false);
+                resetPullup.GetComponent<Image>().SetSprite(reset);
             }
 
             if (sm.operationMode == SelectorManager.LogicMode.OR)
@@ -126,6 +142,8 @@ namespace Revivd {
             if (SteamVR_ControllerManager.LeftController.padTouched) {
                 if (swiping_reset) {
                     rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -rt.localPosition.y, 0.9f - rt.localPosition.y) / dampener, 0);
+                    if (Mathf.Abs(GetComponent<RectTransform>().localPosition.y) > pullThreshold)
+                        SteamVR_ControllerManager.LeftController.Vibrate();
                 }
                 if (swiping_logic) {
                     rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -0.9f - rt.localPosition.y, -rt.localPosition.y) / dampener, 0);
@@ -136,10 +154,6 @@ namespace Revivd {
                         swiping_reset = true;
                     else if (SteamVR_ControllerManager.LeftController.Pad.y > pullMaxStartPos)
                         swiping_logic = true;
-                }
-                else {
-                    if (Mathf.Abs(GetComponent<RectTransform>().localPosition.y) > pullThreshold)
-                        SteamVR_ControllerManager.LeftController.Vibrate();
                 }
 
                 prevFingerY = SteamVR_ControllerManager.LeftController.Pad.y;
