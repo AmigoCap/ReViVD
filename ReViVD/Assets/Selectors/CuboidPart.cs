@@ -17,7 +17,7 @@ namespace Revivd {
         public float rotz = 0f;
 
         private Vector3 cuboidCenter = new Vector3();
-        private Vector3 scale = new Vector3();
+        private Vector3 extendedScale = new Vector3();
 
         protected override void CreatePrimitive() {
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -30,27 +30,27 @@ namespace Revivd {
             primitive.transform.localRotation = Quaternion.Euler(rotx, roty, rotz);
         }
 
-        public override void UpdatePrimitive() {
+        protected override void UpdatePrimitive() {
             cuboidCenter = primitive.transform.position;
         }
 
-        public override void FindDistrictsToCheck() {
+        protected override void FindDistrictsToCheck() {
             Visualization viz = Visualization.Instance;
             Vector3 cuboidCenter_viz = viz.transform.InverseTransformPoint(cuboidCenter);
 
-            scale = (primitive.transform.localScale + viz.districtSize) / 2;
+            extendedScale = (primitive.transform.localScale + viz.districtSize) / 2;
 
             int[] d0 = viz.FindDistrictCoords(cuboidCenter_viz);
 
-            districtsToCheck.Add(d0);
+            checkedDistricts.Add(d0);
 
             bool foundMoreDistricts = false;
             int dist = 1;
 
-            Vector3 P1 = cuboidCenter + Quaternion.Euler(primitive.transform.eulerAngles) * scale;
-            Vector3 P2 = cuboidCenter + Quaternion.Euler(primitive.transform.eulerAngles) * Vector3.Scale(scale, new Vector3(1, 1, -1));
-            Vector3 P3 = cuboidCenter + Quaternion.Euler(primitive.transform.eulerAngles) * Vector3.Scale(scale, new Vector3(1, -1, 1));
-            Vector3 P4 = cuboidCenter + Quaternion.Euler(primitive.transform.eulerAngles) * Vector3.Scale(scale, new Vector3(-1, 1, 1));
+            Vector3 P1 = cuboidCenter + Quaternion.Euler(primitive.transform.eulerAngles) * extendedScale;
+            Vector3 P2 = cuboidCenter + Quaternion.Euler(primitive.transform.eulerAngles) * Vector3.Scale(extendedScale, new Vector3(1, 1, -1));
+            Vector3 P3 = cuboidCenter + Quaternion.Euler(primitive.transform.eulerAngles) * Vector3.Scale(extendedScale, new Vector3(1, -1, 1));
+            Vector3 P4 = cuboidCenter + Quaternion.Euler(primitive.transform.eulerAngles) * Vector3.Scale(extendedScale, new Vector3(-1, 1, 1));
 
 
             do {
@@ -60,7 +60,7 @@ namespace Revivd {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k += 2 * dist) {
                             int[] d2 = new int[] { i, j, k };
                             if (IsInCuboid(viz.getDistrictCenter(d2), P1, P2, P3, P4)) {
-                                districtsToCheck.Add(d2);
+                                checkedDistricts.Add(d2);
                                 foundMoreDistricts = true;
                             }
                         }
@@ -71,7 +71,7 @@ namespace Revivd {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k++) {
                             int[] d2 = new int[] { i, j, k };
                             if (IsInCuboid(viz.getDistrictCenter(d2), P1, P2, P3, P4)) {
-                                districtsToCheck.Add(d2);
+                                checkedDistricts.Add(d2);
                                 foundMoreDistricts = true;
                             }
                         }
@@ -82,7 +82,7 @@ namespace Revivd {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k++) {
                             int[] d2 = new int[] { i, j, k };
                             if (IsInCuboid(viz.getDistrictCenter(d2), P1, P2, P3, P4)) {
-                                districtsToCheck.Add(d2);
+                                checkedDistricts.Add(d2);
                                 foundMoreDistricts = true;
                             }
                         }
@@ -99,8 +99,8 @@ namespace Revivd {
             return ((a >= 0) && (a <= Vector3.Dot(P2 - P1, P2 - P1)) && (b >= 0) && (b <= Vector3.Dot(P3 - P1, P3 - P1)) && (c >= 0) && (c <= Vector3.Dot(P4 - P1, P4 - P1)));
         }
 
-        public override void FindTouchedRibbons() {
-            foreach (Atom a in ribbonsToCheck) {
+        protected override void ParseRibbonsToCheck() {
+            foreach (Atom a in checkedRibbons) {
                 if (CollisionWithCuboid(a)) {
                     touchedRibbons.Add(a);
                 }
@@ -113,7 +113,7 @@ namespace Revivd {
             if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                 radius = a.path.baseRadius;
 
-            scale = primitive.transform.localScale / 2;// + new Vector3(radius, radius, radius) ;
+            extendedScale = primitive.transform.localScale / 2;// + new Vector3(radius, radius, radius) ;
 
             //Segment in the world space coordinates
             Vector3 b = a.path.transform.TransformPoint(a.point);  //Coordinates World Space
@@ -129,29 +129,29 @@ namespace Revivd {
             mc = primitive.transform.localPosition - mc;
 
             //Separating axis test: axis = separating axis? 
-            if (Mathf.Abs(mc.x) >  scale.x + radius + lext.x) return false;
-            if (Mathf.Abs(mc.y) >  scale.y + radius + lext.y) return false;
-            if (Mathf.Abs(mc.z) >  scale.z + radius + lext.z) return false;
+            if (Mathf.Abs(mc.x) >  extendedScale.x + radius + lext.x) return false;
+            if (Mathf.Abs(mc.y) >  extendedScale.y + radius + lext.y) return false;
+            if (Mathf.Abs(mc.z) >  extendedScale.z + radius + lext.z) return false;
 
             bool first = true;
             bool second = true;
 
-            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > ((scale.y + radius) * lext.z + scale.z * lext.y)) first = false;
-            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > (scale.y * lext.z + (scale.z + radius) * lext.y)) second = false;
+            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > ((extendedScale.y + radius) * lext.z + extendedScale.z * lext.y)) first = false;
+            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > (extendedScale.y * lext.z + (extendedScale.z + radius) * lext.y)) second = false;
 
             if (!first & !second) return false;
             first = true;
             second = true;
 
-            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > ((scale.x + radius) * lext.z + scale.z * lext.x)) first = false;
-            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > (scale.x * lext.z + (scale.z + radius) * lext.x)) second = false;
+            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > ((extendedScale.x + radius) * lext.z + extendedScale.z * lext.x)) first = false;
+            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > (extendedScale.x * lext.z + (extendedScale.z + radius) * lext.x)) second = false;
 
             if (!first & !second) return false;
             first = true;
             second = true;
 
-            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > ((scale.x + radius) * lext.y + scale.y * lext.x)) first = false;
-            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > (scale.x * lext.y + (scale.y + radius) * lext.x)) second = false;
+            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > ((extendedScale.x + radius) * lext.y + extendedScale.y * lext.x)) first = false;
+            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > (extendedScale.x * lext.y + (extendedScale.y + radius) * lext.x)) second = false;
 
             if (!first & !second) return false;
 

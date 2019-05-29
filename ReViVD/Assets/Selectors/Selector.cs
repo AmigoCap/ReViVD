@@ -24,19 +24,19 @@ namespace Revivd {
 
         public void ScaleUp() {
             foreach (SelectorPart p in GetComponents<SelectorPart>()) {
-                p.Scale(SelectorManager.Instance.sizeExponent);
+                p.PrimitiveTransform.localScale *= SelectorManager.Instance.sizeExponent;
             }
         }
 
         public void ScaleDown() {
             foreach (SelectorPart p in GetComponents<SelectorPart>()) {
-                p.Scale(1 / SelectorManager.Instance.sizeExponent);
+                p.PrimitiveTransform.localScale /= SelectorManager.Instance.sizeExponent;
             }
         }
 
         public void UpdatePosition() {
             foreach (SelectorPart p in GetComponents<SelectorPart>()) {
-                p.Translate(SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime * 100, 0, 0);
+                p.PrimitiveTransform.Translate(0, 0, SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime * 100);
             }
         }
 
@@ -115,7 +115,6 @@ namespace Revivd {
             wantsToAttach = false;
         }
 
-        private HashSet<Atom> handledRibbons = new HashSet<Atom>();
         public bool needsCheckedHighlightCleanup = false;
 
         public void Select(bool erase = false) {
@@ -128,41 +127,29 @@ namespace Revivd {
             foreach (SelectorPart p in GetComponents<SelectorPart>()) {
                 if (!p.enabled)
                     continue;
-                p.districtsToCheck.Clear();
-                p.FindDistrictsToCheck();
 
-                foreach (Atom a in p.ribbonsToCheck)
+                foreach (Atom a in p.CheckedRibbons)
                     a.ShouldHighlightBecauseChecked((int)Color, false);
-                p.ribbonsToCheck.Clear();
 
-                foreach (int[] c in p.districtsToCheck) {
-                    if (viz.districts.TryGetValue(c, out Visualization.District d)) {
-                        foreach (Atom a in d.atoms_segment) {
-                            if (a.ShouldDisplay) {
-                                p.ribbonsToCheck.Add(a);
-                                if (SelectorManager.Instance.HighlightChecked && !Persistent) {
-                                    a.ShouldHighlightBecauseChecked((int)Color, true);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                p.touchedRibbons.Clear();
                 p.FindTouchedRibbons();
+
+                if (SelectorManager.Instance.HighlightChecked && !Persistent) {
+                    foreach (Atom a in p.CheckedRibbons)
+                        a.ShouldHighlightBecauseChecked((int)Color, true);
+                }
             }
 
-            handledRibbons.Clear();
+            HashSet<Atom> handledRibbons = new HashSet<Atom>();
 
             foreach (SelectorPart p in GetComponents<SelectorPart>()) {
                 if (!p.enabled)
                     continue;
                 if (p.Positive) {
-                    foreach (Atom a in p.touchedRibbons)
+                    foreach (Atom a in p.TouchedRibbons)
                         handledRibbons.Add(a);
                 }
                 else {
-                    foreach (Atom a in p.touchedRibbons)
+                    foreach (Atom a in p.TouchedRibbons)
                         handledRibbons.Remove(a);
                 }
             }

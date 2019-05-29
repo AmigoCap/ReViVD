@@ -23,17 +23,21 @@ namespace Revivd {
             primitive.transform.localPosition = new Vector3(rightOffset, upOffset, distance);
         }
 
-        public override void UpdatePrimitive() {
+        protected override void UpdatePrimitive() {
+            throw new System.NotImplementedException();
+
             sphereCenter = primitive.transform.position;
         }
 
-        public override void FindDistrictsToCheck() {
+        protected override void FindDistrictsToCheck() {
+            throw new System.NotImplementedException();
+
             Visualization viz = Visualization.Instance;
             Vector3 sphereCenter_viz = viz.transform.InverseTransformPoint(sphereCenter);
 
             int[] d0 = viz.FindDistrictCoords(sphereCenter_viz);
            
-            districtsToCheck.Add(d0);
+            checkedDistricts.Add(d0);
 
             bool foundMoreDistricts = false;
             int dist = 1;
@@ -47,7 +51,7 @@ namespace Revivd {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k += 2 * dist) {
                             int[] d2 = new int[] { i, j, k };
                             if ((viz.getDistrictCenter(d2) - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
-                                districtsToCheck.Add(d2);
+                                checkedDistricts.Add(d2);
                                 foundMoreDistricts = true;
                             }
                         }
@@ -58,7 +62,7 @@ namespace Revivd {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k++) {
                             int[] d2 = new int[] { i, j, k };
                             if ((viz.getDistrictCenter(d2) - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
-                                districtsToCheck.Add(d2);
+                                checkedDistricts.Add(d2);
                                 foundMoreDistricts = true;
                             }
                         }
@@ -69,7 +73,7 @@ namespace Revivd {
                         for (int k = d0[2] - dist; k <= d0[2] + dist; k++) {
                             int[] d2 = new int[] { i, j, k };
                             if ((viz.getDistrictCenter(d2) - sphereCenter_viz).magnitude < radius + halfDiag + margin) {
-                                districtsToCheck.Add(d2);
+                                checkedDistricts.Add(d2);
                                 foundMoreDistricts = true;
                             }
                         }
@@ -90,8 +94,10 @@ namespace Revivd {
             return Vector3.Cross(b - a, point - a).magnitude / (b - a).magnitude;
         }
 
-        public override void FindTouchedRibbons() {
-            foreach (Atom a in ribbonsToCheck) {
+        protected override void ParseRibbonsToCheck() {
+            throw new System.NotImplementedException();
+
+            foreach (Atom a in checkedRibbons) {
                 float radius;
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out radius))
                     radius = a.path.baseRadius;

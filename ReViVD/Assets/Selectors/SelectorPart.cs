@@ -5,9 +5,12 @@ using UnityEngine;
 namespace Revivd { 
 
     public abstract class SelectorPart : MonoBehaviour {
-        public HashSet<int[]> districtsToCheck = new HashSet<int[]>(new CoordsEqualityComparer());
-        public HashSet<Atom> ribbonsToCheck = new HashSet<Atom>();
-        public HashSet<Atom> touchedRibbons = new HashSet<Atom>();
+        protected HashSet<int[]> checkedDistricts = new HashSet<int[]>(new CoordsEqualityComparer());
+        public HashSet<int[]> CheckedDistricts { get => checkedDistricts; }
+        protected HashSet<Atom> checkedRibbons = new HashSet<Atom>();
+        public HashSet<Atom> CheckedRibbons { get => checkedRibbons; }
+        protected HashSet<Atom> touchedRibbons = new HashSet<Atom>();
+        public HashSet<Atom> TouchedRibbons { get => touchedRibbons; }
 
         [SerializeField]
         private bool _positive = true;
@@ -17,6 +20,46 @@ namespace Revivd {
                 _positive = value;
                 primitive.GetComponent<MeshRenderer>().material.color = _positive ? Color.white : Color.red;
             }
+        }
+
+        public void Show() {
+            if (!isActiveAndEnabled)
+                return;
+            primitive.SetActive(true);
+            primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+            if (GetComponent<Selector>().Persistent)
+                DetachFromHand();
+            else
+                AttachToHand();
+        }
+
+        public void Hide() {
+            if (primitive != null)
+                primitive.SetActive(false);
+        }
+
+        public Transform PrimitiveTransform {
+            get => primitive?.transform;
+        }
+
+        public void FindTouchedRibbons() {
+            UpdatePrimitive();
+
+            checkedDistricts.Clear();
+            FindDistrictsToCheck();
+
+            checkedRibbons.Clear();
+            foreach (int[] c in checkedDistricts) {
+                if (Visualization.Instance.districts.TryGetValue(c, out Visualization.District d)) {
+                    foreach (Atom a in d.atoms_segment) {
+                        if (a.ShouldDisplay) {
+                            checkedRibbons.Add(a);
+                        }
+                    }
+                }
+            }
+
+            ParseRibbonsToCheck();
         }
 
         protected GameObject primitive;
@@ -29,37 +72,11 @@ namespace Revivd {
             primitive.transform.parent = this.transform;
         }
 
-        public void Show() {
-            if (!isActiveAndEnabled)
-                return;
-            primitive.SetActive(true);
-            primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
-            if (!GetComponent<Selector>().Persistent)
-                AttachToHand();
-            else
-                DetachFromHand();
-        }
-
-        public void Hide() {
-            if (primitive != null)
-                primitive.SetActive(false);
-        }
-
-        public void Scale(float sizeExponent) {
-            primitive.transform.localScale *= sizeExponent;
-            UpdatePrimitive();
-        }
-
-        public void Translate(float x, float y, float z) {
-            primitive.transform.Translate(x, y, z);
-            UpdatePrimitive();
-        }
-
-        public abstract void UpdatePrimitive();
+        protected abstract void UpdatePrimitive(); //Populates variables that define the geometry of the primitive used in collision detection
         
-        public abstract void FindDistrictsToCheck();
+        protected abstract void FindDistrictsToCheck();
 
-        public abstract void FindTouchedRibbons();
+        protected abstract void ParseRibbonsToCheck();
 
         protected virtual void Awake() {
             CreatePrimitive();

@@ -23,12 +23,16 @@ namespace Revivd {
             primitive.transform.localRotation = Quaternion.Euler(90, 0, 0);
         }
 
-        public override void UpdatePrimitive() {
+        protected override void UpdatePrimitive() {
+            throw new System.NotImplementedException();
+
             saberStart = primitive.transform.position - primitive.transform.up * saberLength / 2;
             saberEnd = primitive.transform.position + primitive.transform.up * saberLength / 2;
         }
 
-        public override void FindDistrictsToCheck() {
+        protected override void FindDistrictsToCheck() {
+            throw new System.NotImplementedException();
+
             Visualization viz = Visualization.Instance;
             Vector3 saberStart_viz = viz.transform.InverseTransformPoint(saberStart);
             Vector3 saberEnd_viz = viz.transform.InverseTransformPoint(saberEnd);
@@ -39,7 +43,7 @@ namespace Revivd {
                 for (int i = d[0] - 1; i <= d[0] + 1; i++) {
                     for (int j = d[1] - 1; j <= d[1] + 1; j++) {
                         for (int k = d[2] - 1; k <= d[2] + 1; k++) {
-                            districtsToCheck.Add(new int[] { i, j, k });
+                            checkedDistricts.Add(new int[] { i, j, k });
                         }
                     }
                 }
@@ -159,8 +163,10 @@ namespace Revivd {
             return distance;
         }
 
-        public override void FindTouchedRibbons() {
-            foreach (Atom a in ribbonsToCheck) {
+        protected override void ParseRibbonsToCheck() {
+            throw new System.NotImplementedException();
+
+            foreach (Atom a in checkedRibbons) {
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
                     radius = a.path.baseRadius;
                 if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < saberThickness / 2 + radius) {
