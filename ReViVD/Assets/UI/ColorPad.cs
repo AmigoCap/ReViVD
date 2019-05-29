@@ -32,8 +32,9 @@ namespace Revivd {
             }
 
             color = Mathf.FloorToInt(3f - rt.localPosition.x);
-            if (color != (int)SelectorManager.Instance.CurrentColor)
+            if (color != (int)SelectorManager.Instance.CurrentColor) {
                 SelectorManager.Instance.CurrentColor = (SelectorManager.ColorGroup)color;
+            }
         }
     }
 

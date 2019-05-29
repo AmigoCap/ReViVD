@@ -100,7 +100,7 @@ namespace Revivd {
                 return;
 
             if (InverseMode) {
-                ClearSelected();
+                ClearSelected(CurrentColor);
                 return;
             }
             foreach (Selector s in persistentSelectors[(int)CurrentColor])
@@ -153,19 +153,20 @@ namespace Revivd {
 
             HashSet<Path> pathsToKeep = new HashSet<Path>();
             if (operationMode == LogicMode.AND) {
-                HashSet<Atom> ribbonsToKeep = new HashSet<Atom>();
                 bool firstPass = true;
                 foreach (ColorGroup c in operatingColors) {
                     if (firstPass) {
-                        ribbonsToKeep = new HashSet<Atom>(selectedRibbons[(int)c]);
+                        foreach (Atom a in selectedRibbons[(int)c])
+                            pathsToKeep.Add(a.path);
                         firstPass = false;
                     }
-                    else
-                        ribbonsToKeep.IntersectWith(selectedRibbons[(int)c]);
+                    else {
+                        HashSet<Path> pathsToKeep2 = new HashSet<Path>();
+                        foreach (Atom a in selectedRibbons[(int)c])
+                            pathsToKeep2.Add(a.path);
+                        pathsToKeep.IntersectWith(pathsToKeep2);
+                    }
                 }
-
-                foreach (Atom a in ribbonsToKeep)
-                    pathsToKeep.Add(a.path);
             }
             else {
                 foreach (ColorGroup c in operatingColors) {
@@ -181,12 +182,12 @@ namespace Revivd {
 
         }
 
-        private void ClearSelected() {
+        public void ClearSelected(ColorGroup color) {
             if (HighlightSelected) {
-                foreach (Atom a in selectedRibbons[(int)CurrentColor])
-                    a.ShouldHighlightBecauseSelected((int)CurrentColor, false);
+                foreach (Atom a in selectedRibbons[(int)color])
+                    a.ShouldHighlightBecauseSelected((int)color, false);
             }
-            selectedRibbons[(int)CurrentColor].Clear();
+            selectedRibbons[(int)color].Clear();
         }
 
         private void OnEnable() {

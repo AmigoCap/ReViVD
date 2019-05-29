@@ -14,11 +14,11 @@ public class TestScript : MonoBehaviour {
     }
 
     private void OnEnable() {
-        SteamVR_ControllerManager.RightController.TriggerClicked += ChangeColor;
+        SteamVR_ControllerManager.LeftController.TriggerClicked += ChangeColor;
     }
 
     private void OnDisable() {
-        if (SteamVR_ControllerManager.RightController != null)
-            SteamVR_ControllerManager.RightController.TriggerClicked -= ChangeColor;
+        if (SteamVR_ControllerManager.LeftController != null)
+            SteamVR_ControllerManager.LeftController.TriggerClicked -= ChangeColor;
     }   
 }

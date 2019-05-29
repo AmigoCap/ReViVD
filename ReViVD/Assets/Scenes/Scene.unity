@@ -158,7 +158,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  s_currentColor: 0
+  s_currentColor: 1
   operationMode: 1
 --- !u!4 &28837753
 Transform:
@@ -942,7 +942,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &758616312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1331,7 +1331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controllerIndex: 0
   triggerPressed: 0
-  steamPressed: 0
+  joystickClicked: 0
   menuPressed: 0
   padPressed: 0
   padTouched: 0
@@ -1549,7 +1549,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controllerIndex: 0
   triggerPressed: 0
-  steamPressed: 0
+  joystickClicked: 0
   menuPressed: 0
   padPressed: 0
   padTouched: 0
@@ -1896,6 +1896,9 @@ MonoBehaviour:
   fullSquare: {fileID: 21300000, guid: 675dee19c41c5b345a14318c74541c6a, type: 3}
   andSign: {fileID: 21300000, guid: 2f5f3a88bb42fd54b84376af46419458, type: 3}
   orSign: {fileID: 21300000, guid: 4870c6acf4f77184cb71134e11c9c7f3, type: 3}
+  resetPullup: {fileID: 522378953}
+  reset: {fileID: 21300000, guid: 6bccbf70d4f56224a8c6095fe673a9dd, type: 3}
+  hardReset: {fileID: 21300000, guid: ad98b991495641d49a470a8abed95c5b, type: 3}
   invert: {fileID: 1336973816}
 --- !u!1001 &1565681948
 PrefabInstance:
@@ -3332,6 +3335,7 @@ MonoBehaviour:
   trimSensitivity: 0.3
   maxTrimVelocity: 150
   baseSpeed: 60
+  speedExponent: 1.3
   invertVerticalControl: 0
   doJoystickControls: 1
 --- !u!114 &2110390907
@@ -3458,7 +3462,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2138234665
 Transform:
   m_ObjectHideFlags: 0
