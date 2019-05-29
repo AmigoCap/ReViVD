@@ -45,6 +45,16 @@ namespace Revivd {
                 primitive.SetActive(false);
         }
 
+        public void Scale(float sizeExponent) {
+            primitive.transform.localScale *= sizeExponent;
+            UpdatePrimitive();
+        }
+
+        public void Translate(float x, float y, float z) {
+            primitive.transform.Translate(x, y, z);
+            UpdatePrimitive();
+        }
+
         public abstract void UpdatePrimitive();
         
         public abstract void FindDistrictsToCheck();

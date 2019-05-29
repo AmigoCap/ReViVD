@@ -22,6 +22,24 @@ namespace Revivd {
             }
         }
 
+        public void ScaleUp() {
+            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
+                p.Scale(SelectorManager.Instance.sizeExponent);
+            }
+        }
+
+        public void ScaleDown() {
+            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
+                p.Scale(1 / SelectorManager.Instance.sizeExponent);
+            }
+        }
+
+        public void UpdatePosition() {
+            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
+                p.Translate(SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime * 100, 0, 0);
+            }
+        }
+
         private void SeparateFromManager() {
             if (Persistent)
                 SelectorManager.Instance.persistentSelectors[(int)Color].Remove(this);

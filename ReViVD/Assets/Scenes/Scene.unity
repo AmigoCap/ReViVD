@@ -942,7 +942,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &758616312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1331,7 +1331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controllerIndex: 0
   triggerPressed: 0
-  steamPressed: 0
+  joystickClicked: 0
   menuPressed: 0
   padPressed: 0
   padTouched: 0
@@ -1549,7 +1549,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controllerIndex: 0
   triggerPressed: 0
-  steamPressed: 0
+  joystickClicked: 0
   menuPressed: 0
   padPressed: 0
   padTouched: 0
@@ -3332,6 +3332,7 @@ MonoBehaviour:
   trimSensitivity: 0.3
   maxTrimVelocity: 150
   baseSpeed: 60
+  speedExponent: 1.5
   invertVerticalControl: 0
   doJoystickControls: 1
 --- !u!114 &2110390907
@@ -3458,7 +3459,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2138234665
 Transform:
   m_ObjectHideFlags: 0
