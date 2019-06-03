@@ -42,7 +42,7 @@ namespace Revivd {
         }
 
         private void AdjustSpeed(SteamVR_TrackedController sender) {
-            if (SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
+            if (SelectorManager.Instance == null || SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
                 return;
 
             if (SelectorManager.Instance.InverseMode) {

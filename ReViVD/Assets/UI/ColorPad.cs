@@ -36,7 +36,6 @@ namespace Revivd {
                 if (color != (int)SelectorManager.Instance.CurrentColor)
                     SelectorManager.Instance.CurrentColor = (SelectorManager.ColorGroup)color;
             }
-            
         }
     }
 
