@@ -6,46 +6,30 @@ namespace Revivd {
 
     public class CylinderPart : SelectorPart {
 
-        public float saberLength = 5f;
-        public float saberThickness = 0.3f;
+        public float length = 5f;
+        public float radius = 0.3f;
+        public Vector3 handOffset = Vector3.zero;
 
-        private Vector3 saberStart = new Vector3();
-        private Vector3 saberEnd = new Vector3();
 
         protected override void CreatePrimitive() {
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            primitive.transform.localScale = new Vector3(saberThickness, saberLength / 2, saberThickness);
-        }
-
-        protected override void AttachToHand() {
-            primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
-            primitive.transform.localPosition = new Vector3(0, 0, saberLength / 2);
-            primitive.transform.localRotation = Quaternion.Euler(90, 0, 0);
         }
 
         protected override void UpdatePrimitive() {
-            throw new System.NotImplementedException();
-
-            saberStart = primitive.transform.position - primitive.transform.up * saberLength / 2;
-            saberEnd = primitive.transform.position + primitive.transform.up * saberLength / 2;
+            primitive.transform.localPosition = new Vector3(0, 0, length / 2) + handOffset;
+            primitive.transform.localRotation = Quaternion.Euler(90, 0, 0);
+            primitive.transform.localScale = new Vector3(radius, length / 2, radius);
         }
 
-        protected override void FindDistrictsToCheck() {
-            throw new System.NotImplementedException();
-
-            Visualization viz = Visualization.Instance;
-            Vector3 saberStart_viz = viz.transform.InverseTransformPoint(saberStart);
-            Vector3 saberEnd_viz = viz.transform.InverseTransformPoint(saberEnd);
-
-            List<int[]> cutDistricts = Tools.Bresenham(viz.FindDistrictCoords(saberStart_viz), viz.FindDistrictCoords(saberEnd_viz));
-
-            foreach (int[] d in cutDistricts) {
-                for (int i = d[0] - 1; i <= d[0] + 1; i++) {
-                    for (int j = d[1] - 1; j <= d[1] + 1; j++) {
-                        for (int k = d[2] - 1; k <= d[2] + 1; k++) {
-                            checkedDistricts.Add(new int[] { i, j, k });
-                        }
-                    }
+        protected override void ParseRibbonsToCheck() {
+            Vector3 saberStart = primitive.transform.position - primitive.transform.up * length / 2;
+            Vector3 saberEnd = primitive.transform.position + primitive.transform.up * length / 2;
+            
+            foreach (Atom a in checkedRibbons) {
+                if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
+                    radius = a.path.baseRadius;
+                if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < this.radius / 2 + radius) {
+                    touchedRibbons.Add(a);
                 }
             }
         }
@@ -163,17 +147,6 @@ namespace Revivd {
             return distance;
         }
 
-        protected override void ParseRibbonsToCheck() {
-            throw new System.NotImplementedException();
-
-            foreach (Atom a in checkedRibbons) {
-                if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
-                    radius = a.path.baseRadius;
-                if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < saberThickness / 2 + radius) {
-                    touchedRibbons.Add(a);
-                }
-            }
-        }
     }
 
 }

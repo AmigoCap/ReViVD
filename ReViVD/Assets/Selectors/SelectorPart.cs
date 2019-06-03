@@ -28,9 +28,9 @@ namespace Revivd {
             primitive.SetActive(true);
             primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
             if (GetComponent<Selector>().Persistent)
-                DetachFromHand();
+                primitive.transform.parent = this.transform;
             else
-                AttachToHand();
+                primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
         }
 
         public void Hide() {
@@ -43,8 +43,6 @@ namespace Revivd {
         }
 
         public void FindTouchedRibbons() {
-            UpdatePrimitive();
-
             checkedDistricts.Clear();
             FindDistrictsToCheck();
 
@@ -62,34 +60,82 @@ namespace Revivd {
             ParseRibbonsToCheck();
         }
 
+        protected abstract void ParseRibbonsToCheck();
+
         protected GameObject primitive;
 
         protected abstract void CreatePrimitive();
 
-        protected abstract void AttachToHand();
-
-        private void DetachFromHand() {
-            primitive.transform.parent = this.transform;
-        }
-
-        protected abstract void UpdatePrimitive(); //Populates variables that define the geometry of the primitive used in collision detection
+        protected abstract void UpdatePrimitive();
         
-        protected abstract void FindDistrictsToCheck();
+        private void FindDistrictsToCheck() {
+            Visualization viz = Visualization.Instance;
 
-        protected abstract void ParseRibbonsToCheck();
+            BoxCollider districtCollider = gameObject.AddComponent<BoxCollider>();
+            districtCollider.size = Vector3.Scale(viz.districtSize, viz.transform.lossyScale);
+            districtCollider.center = Vector3.zero;
+            Collider primitiveCollider = primitive.GetComponent<Collider>();
+
+            int[] seedDistrict = viz.FindDistrictCoords(viz.transform.InverseTransformPoint(primitive.transform.position));
+
+
+            Vector3 seedPos = viz.transform.TransformPoint(viz.getDistrictCenter(seedDistrict));
+            Vector3 districtUnitTranslation = viz.transform.TransformVector(viz.districtSize);
+            CoordsEqualityComparer comparer = new CoordsEqualityComparer();
+            HashSet<int[]> set1 = new HashSet<int[]>(comparer);
+            HashSet<int[]> set2 = new HashSet<int[]>(comparer);
+
+            set1.Add(new int[] { 0, 0, 0 });
+
+            bool foundAll = false;
+            while (!foundAll) {
+                foundAll = true;
+                
+                foreach (int[] c in set1) {
+                    if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(c[0], c[1], c[2])), viz.transform.rotation,
+                                                   primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out _)) {
+
+                        foundAll = false;
+                        checkedDistricts.Add(new int[] { seedDistrict[0] + c[0], seedDistrict[1] + c[1], seedDistrict[2] + c[2] });
+                        Visualization.Instance.districtsToHighlight[0] = checkedDistricts;
+
+                        for (int i = 0; i < 3; i++) {
+                            for (int j = -1; j < 2; j += 2) {
+                                if (c[i] == 0 || c[i] > 0 == j > 0) {
+                                    int[] d2 = (int[])c.Clone();
+                                    d2[i] += j;
+                                    set2.Add(d2);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                HashSet<int[]> temp = set1;
+                set1 = set2;
+                set2 = temp;
+                set2.Clear();
+            }
+
+            Destroy(districtCollider);
+        }
 
         protected virtual void Awake() {
             CreatePrimitive();
-            Destroy(primitive.GetComponent<Collider>());
+            UpdatePrimitive();
+        }
+
+        protected virtual void Update() {
+            UpdatePrimitive();
         }
 
         protected virtual void OnEnable() {
             Selector s = GetComponent<Selector>();
 
-            if (!s.Persistent)
-                AttachToHand();
+            if (s.Persistent)
+                primitive.transform.parent = this.transform;
             else
-                DetachFromHand();
+                primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
 
             if (s.Shown && s.isActiveAndEnabled)
                 Show();

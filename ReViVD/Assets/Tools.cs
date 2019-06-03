@@ -92,6 +92,11 @@ namespace Revivd {
             return f < lower ? lower : (f > upper ? upper : f);
         }
 
+        public static string CoordsToString(int[] c) {
+            string str = '['  + c[0].ToString() + ' ' + c[1].ToString() + ' ' + c[2].ToString() + ']';
+            return str;
+        }
+
         public static List<int[]> Amanatides(Vector3 start, Vector3 end) {
             List<int[]> L = new List<int[]>();
             int[] startD = Visualization.Instance.FindDistrictCoords(start);
