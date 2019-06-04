@@ -9,6 +9,7 @@ namespace Revivd {
         private static SelectorManager _instance;
         public static SelectorManager Instance { get { return _instance; } }
 
+        public float sizeExponent = 1.3f;
         public enum ControlMode { SelectMode, CreatorMode};
         private ControlMode _currentControlMode = ControlMode.SelectMode;
         public ControlMode CurrentControlMode {
@@ -90,7 +91,7 @@ namespace Revivd {
 
         public LogicMode operationMode = LogicMode.OR;
 
-        private bool ShouldHandSelect {
+        private bool ShouldSelect {
             get => SteamVR_ControllerManager.RightController.triggerPressed;
         }
     
@@ -111,7 +112,7 @@ namespace Revivd {
             if (CurrentControlMode != ControlMode.SelectMode)
                 return;
 
-            if (InverseMode) {
+            if (InverseMode) {//inverse mode
                 int len = persistentSelectors[(int)CurrentColor].Count;
                 if (len == 0)
                     return;
@@ -124,8 +125,17 @@ namespace Revivd {
             Selector s = handSelectors[(int)CurrentColor];
             if (s != null && s.isActiveAndEnabled) {
                 GameObject go = Instantiate(s.gameObject, this.transform);
+
                 go.name = "Persistent " + s.name;
                 go.GetComponent<Selector>().Persistent = true;
+
+                SelectorPart[] originalParts = s.GetComponents<SelectorPart>();
+                SelectorPart[] newParts = go.GetComponents<SelectorPart>();
+                for (int i = 0; i < originalParts.Length; i++) {
+                    newParts[i].PrimitiveTransform.localRotation = originalParts[i].PrimitiveTransform.localRotation;
+                    newParts[i].PrimitiveTransform.localPosition = originalParts[i].PrimitiveTransform.localPosition;
+                    newParts[i].PrimitiveTransform.localScale = originalParts[i].PrimitiveTransform.localScale;
+                }
             }                
         }
 
@@ -137,7 +147,7 @@ namespace Revivd {
         }
 
         public void DoLogicOperation() {
-            if (InverseMode) {
+            if (InverseMode) { // inverse mode
                 foreach (Path p in Visualization.Instance.PathsAsBase) {
                     foreach (Atom a in p.AtomsAsBase)
                         a.ShouldDisplay = !a.ShouldDisplay;
@@ -193,7 +203,7 @@ namespace Revivd {
         private void OnEnable() {
             SteamVR_ControllerManager.RightController.Gripped += SelectWithPersistents;
             SteamVR_ControllerManager.RightController.MenuButtonClicked += MakePersistentCopyOfHand;
-            //SteamVR_ControllerManager.LeftController.MenuButtonClicked += ModeModification;
+            SteamVR_ControllerManager.LeftController.MenuButtonClicked += ModeModification;
         }
 
         private void OnDisable() {
@@ -203,7 +213,7 @@ namespace Revivd {
             }
 
             if (SteamVR_ControllerManager.LeftController != null) {
-                //SteamVR_ControllerManager.LeftController.MenuButtonClicked -= ModeModification;
+                SteamVR_ControllerManager.LeftController.MenuButtonClicked -= ModeModification;
             }
         }
 
@@ -231,33 +241,37 @@ namespace Revivd {
             HighlightChecked = s_highlightChecked;
             HighlightSelected = s_highlightSelected;
 
-            if (!ShouldHandSelect)
+            if (!ShouldSelect) { //clean up highlights
                 foreach (Selector s in handSelectors)
                     if (s != null && s.needsCheckedHighlightCleanup) {
                         foreach (SelectorPart p in s.GetComponents<SelectorPart>())
-                            foreach (Atom a in p.ribbonsToCheck)
+                            foreach (Atom a in p.CheckedRibbons)
                                 a.ShouldHighlightBecauseChecked((int)s.Color, false);
                         s.needsCheckedHighlightCleanup = false;
                     }
+            }
+            
 
-
-            if (CurrentControlMode == ControlMode.SelectMode) {
+            if (CurrentControlMode == ControlMode.SelectMode) { // Selection
                 Selector hs = handSelectors[(int)CurrentColor];
                 if (hs != null && hs.isActiveAndEnabled) {
-                    foreach (SelectorPart p in hs.GetComponents<SelectorPart>())
-                        if (p.enabled)
-                            p.UpdatePrimitive();
-                    if (ShouldHandSelect)
+                    if (ShouldSelect) {
                         hs.Select(InverseMode);
+                    }
                 }
             }
-
-            foreach (List<Selector> L in persistentSelectors)
-                foreach (Selector ps in L)
-                    if (ps.isActiveAndEnabled)
-                        foreach (SelectorPart p in ps.GetComponents<SelectorPart>())
-                            if (p.enabled)
-                                p.UpdatePrimitive();
+            else { // creation
+                Selector hs = handSelectors[(int)CurrentColor];
+                if (hs != null && hs.isActiveAndEnabled) {
+                    if (SteamVR_ControllerManager.RightController.triggerPressed) {
+                        hs.ScaleUp();
+                    }
+                    if (SteamVR_ControllerManager.LeftController.triggerPressed) {
+                        hs.ScaleDown();
+                    }
+                    hs.UpdatePosition();
+                }
+            }
         }
     }
 

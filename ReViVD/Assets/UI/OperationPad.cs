@@ -137,35 +137,39 @@ namespace Revivd {
         }
 
         void Update() {
-            RectTransform rt = GetComponent<RectTransform>();
 
-            if (SteamVR_ControllerManager.LeftController.padTouched) {
-                if (swiping_reset) {
-                    rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -rt.localPosition.y, 0.9f - rt.localPosition.y) / dampener, 0);
-                    if (Mathf.Abs(GetComponent<RectTransform>().localPosition.y) > pullThreshold)
-                        SteamVR_ControllerManager.LeftController.Vibrate();
-                }
-                if (swiping_logic) {
-                    rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -0.9f - rt.localPosition.y, -rt.localPosition.y) / dampener, 0);
-                }
+            if (SelectorManager.Instance.CurrentControlMode == SelectorManager.ControlMode.SelectMode) {
+                RectTransform rt = GetComponent<RectTransform>();
 
-                if (!swiping_reset && !swiping_logic) {
-                    if (SteamVR_ControllerManager.LeftController.Pad.y < -pullMaxStartPos)
-                        swiping_reset = true;
-                    else if (SteamVR_ControllerManager.LeftController.Pad.y > pullMaxStartPos)
-                        swiping_logic = true;
-                }
+                if (SteamVR_ControllerManager.LeftController.padTouched) {
+                    if (swiping_reset) {
+                        rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -rt.localPosition.y, 0.9f - rt.localPosition.y) / dampener, 0);
+                        if (Mathf.Abs(GetComponent<RectTransform>().localPosition.y) > pullThreshold)
+                            SteamVR_ControllerManager.LeftController.Vibrate();
+                    }
+                    if (swiping_logic) {
+                        rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -0.9f - rt.localPosition.y, -rt.localPosition.y) / dampener, 0);
+                    }
 
-                prevFingerY = SteamVR_ControllerManager.LeftController.Pad.y;
+                    if (!swiping_reset && !swiping_logic) {
+                        if (SteamVR_ControllerManager.LeftController.Pad.y < -pullMaxStartPos)
+                            swiping_reset = true;
+                        else if (SteamVR_ControllerManager.LeftController.Pad.y > pullMaxStartPos)
+                            swiping_logic = true;
+                    }
+
+                    prevFingerY = SteamVR_ControllerManager.LeftController.Pad.y;
+                }
+                else {
+                    swiping_reset = false;
+                    swiping_logic = false;
+                    float pull = Tools.MaxAbs(-rt.localPosition.y, pullSpeed);
+                    if (Mathf.Abs(pull) < pullSpeed / 100)
+                        pull = 0;
+                    rt.Translate(0, pull * Time.deltaTime, 0);
+                }
             }
-            else {
-                swiping_reset = false;
-                swiping_logic = false;
-                float pull = Tools.MaxAbs(-rt.localPosition.y, pullSpeed);
-                if (Mathf.Abs(pull) < pullSpeed / 100)
-                    pull = 0;
-                rt.Translate(0, pull * Time.deltaTime, 0);
-            }
+            
         }
 
         private void OnEnable() {
