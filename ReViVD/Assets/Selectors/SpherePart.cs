@@ -18,15 +18,14 @@ namespace Revivd {
             primitive.transform.localRotation = Quaternion.identity;
             primitive.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
         }
-        
-        private float DistancePointSegment(Vector3 point, Vector3 a, Vector3 b) {
-            if (Vector3.Dot(point - a, b - a) <= 0) {
-                return (point - a).magnitude;
+
+        protected override void UpdateManualModifications() {
+            if (SteamVR_ControllerManager.RightController.triggerPressed) {
+                radius += radius * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
             }
-            if (Vector3.Dot(point - b, a - b) <= 0) {
-                return (point - b).magnitude;
+            if (SteamVR_ControllerManager.LeftController.triggerPressed) {
+                radius -= radius * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
             }
-            return Vector3.Cross(b - a, point - a).magnitude / (b - a).magnitude;
         }
 
         protected override void ParseRibbonsToCheck() {
@@ -39,6 +38,16 @@ namespace Revivd {
                     touchedRibbons.Add(a);
                 }
             }
+        }
+
+        private float DistancePointSegment(Vector3 point, Vector3 a, Vector3 b) {
+            if (Vector3.Dot(point - a, b - a) <= 0) {
+                return (point - a).magnitude;
+            }
+            if (Vector3.Dot(point - b, a - b) <= 0) {
+                return (point - b).magnitude;
+            }
+            return Vector3.Cross(b - a, point - a).magnitude / (b - a).magnitude;
         }
     }
 

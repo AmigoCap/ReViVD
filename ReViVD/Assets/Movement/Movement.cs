@@ -42,7 +42,7 @@ namespace Revivd {
         }
 
         private void AdjustSpeed(SteamVR_TrackedController sender) {
-            if (SelectorManager.Instance == null || SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectMode)
+            if (SelectorManager.Instance == null || SelectorManager.Instance.CurrentControlMode != SelectorManager.ControlMode.SelectionMode)
                 return;
 
             if (SelectorManager.Instance.InverseMode) {
@@ -64,7 +64,7 @@ namespace Revivd {
 
         // Update is called once per frame
         void Update() {
-            if (SelectorManager.Instance.CurrentControlMode == SelectorManager.ControlMode.SelectMode) {
+            if (SelectorManager.Instance.CurrentControlMode == SelectorManager.ControlMode.SelectionMode) {
                 Vector3 camRot;
                 Vector3 camStr;
 

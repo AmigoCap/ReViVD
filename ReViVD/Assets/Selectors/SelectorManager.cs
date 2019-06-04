@@ -17,11 +17,22 @@ namespace Revivd {
         public List<Selector>[] persistentSelectors = new List<Selector>[colors.Length];
         public HashSet<Atom>[] selectedRibbons = new HashSet<Atom>[colors.Length];
 
-        public enum ControlMode { SelectMode, CreatorMode};
-        private ControlMode _currentControlMode = ControlMode.SelectMode;
+        public enum ControlMode { SelectionMode, CreationMode};
+        public float creationGrowthCoefficient = 1f;
+        public float creationMovementCoefficient = 1f;
+
+        private ControlMode _currentControlMode = ControlMode.SelectionMode;
         public ControlMode CurrentControlMode {
             get => _currentControlMode;
-            set => _currentControlMode = value;
+            set {
+                _currentControlMode = value;
+                Selector hs = handSelectors[(int)CurrentColor];
+                if (hs != null && hs.isActiveAndEnabled) {
+                    foreach (SelectorPart p in hs.GetComponents<SelectorPart>()) {
+                        p.ShouldPollManualModifications = (_currentControlMode == ControlMode.CreationMode);
+                    }
+                }
+            }
         }
 
         public enum LogicMode { AND, OR };
@@ -90,14 +101,14 @@ namespace Revivd {
         }
 
         private void ChangeControlMode(SteamVR_TrackedController sender) {
-            if (CurrentControlMode == ControlMode.SelectMode)
-                CurrentControlMode = ControlMode.CreatorMode;
+            if (CurrentControlMode == ControlMode.SelectionMode)
+                CurrentControlMode = ControlMode.CreationMode;
             else
-                CurrentControlMode = ControlMode.SelectMode;
+                CurrentControlMode = ControlMode.SelectionMode;
         }
 
         private void SelectWithPersistents(SteamVR_TrackedController sender) {
-            if (CurrentControlMode != ControlMode.SelectMode)
+            if (CurrentControlMode != ControlMode.SelectionMode)
                 return;
 
             if (InverseMode) {
@@ -109,7 +120,7 @@ namespace Revivd {
         }
 
         private void MakePersistentCopyOfHand(SteamVR_TrackedController sender) {
-            if (CurrentControlMode != ControlMode.SelectMode)
+            if (CurrentControlMode != ControlMode.SelectionMode)
                 return;
 
             if (InverseMode) {//inverse mode
@@ -245,24 +256,12 @@ namespace Revivd {
             }
             
 
-            if (CurrentControlMode == ControlMode.SelectMode) { // Selection
+            if (CurrentControlMode == ControlMode.SelectionMode) { // Selection
                 Selector hs = handSelectors[(int)CurrentColor];
                 if (hs != null && hs.isActiveAndEnabled) {
                     if (ShouldSelect) {
                         hs.Select(InverseMode);
                     }
-                }
-            }
-            else { // creation
-                Selector hs = handSelectors[(int)CurrentColor];
-                if (hs != null && hs.isActiveAndEnabled) {
-                    if (SteamVR_ControllerManager.RightController.triggerPressed) {
-                        hs.ScaleUp();
-                    }
-                    if (SteamVR_ControllerManager.LeftController.triggerPressed) {
-                        hs.ScaleDown();
-                    }
-                    hs.UpdatePosition();
                 }
             }
         }

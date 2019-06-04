@@ -17,7 +17,16 @@ namespace Revivd {
             primitive.transform.localRotation = Quaternion.identity;
             primitive.transform.localScale = size;
         }
-        
+
+        protected override void UpdateManualModifications() {
+            if (SteamVR_ControllerManager.RightController.triggerPressed) {
+                size += size * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
+            if (SteamVR_ControllerManager.LeftController.triggerPressed) {
+                size -= size * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
+        }
+
         protected override void ParseRibbonsToCheck() {
             foreach (Atom a in checkedRibbons) {
                 if (CuboidTouchesRibbon(a)) {

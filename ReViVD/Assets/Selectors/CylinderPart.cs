@@ -21,6 +21,15 @@ namespace Revivd {
             primitive.transform.localScale = new Vector3(radius, length / 2, radius);
         }
 
+        protected override void UpdateManualModifications() {
+            if (SteamVR_ControllerManager.RightController.triggerPressed) {
+                radius += radius * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
+            if (SteamVR_ControllerManager.LeftController.triggerPressed) {
+                radius -= radius * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
+        }
+
         protected override void ParseRibbonsToCheck() {
             Vector3 saberStart = primitive.transform.position - primitive.transform.up * length / 2;
             Vector3 saberEnd = primitive.transform.position + primitive.transform.up * length / 2;

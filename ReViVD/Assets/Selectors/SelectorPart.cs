@@ -65,9 +65,12 @@ namespace Revivd {
             ParseRibbonsToCheck();
         }
 
-        protected abstract void ParseRibbonsToCheck();
-
         protected GameObject primitive;
+
+        public bool ShouldPollManualModifications = false;
+        protected abstract void UpdateManualModifications(); //Called every frame when the part is to be modified in creation mode
+
+        protected abstract void ParseRibbonsToCheck();
 
         protected abstract void CreatePrimitive();
 
@@ -131,6 +134,12 @@ namespace Revivd {
         }
 
         protected virtual void Update() {
+            if (primitive != null && !primitive.activeInHierarchy)
+                return;
+
+            if (ShouldPollManualModifications)
+                UpdateManualModifications();
+
             UpdatePrimitive();
         }
 

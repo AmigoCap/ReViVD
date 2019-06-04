@@ -22,54 +22,6 @@ namespace Revivd {
             }
         }
 
-        public void ScaleUp() {
-            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
-                p.PrimitiveTransform.localScale *= SelectorManager.Instance.sizeExponent;
-            }
-        }
-
-        public void ScaleDown() {
-            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
-                p.PrimitiveTransform.localScale /= SelectorManager.Instance.sizeExponent;
-            }
-        }
-
-        public void UpdatePosition() {
-            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
-                p.PrimitiveTransform.Translate(0, 0, SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime * 100);
-            }
-        }
-
-        private void SeparateFromManager() {
-            if (Persistent)
-                SelectorManager.Instance.persistentSelectors[(int)Color].Remove(this);
-            else if (SelectorManager.Instance.handSelectors[(int)Color] == this)
-                SelectorManager.Instance.handSelectors[(int)Color] = null;
-
-            Shown = false;
-        }
-
-        private void TryAttachingToManager() {
-            if (Persistent) {
-                SelectorManager.Instance.persistentSelectors[(int)Color].Add(this);
-                Shown = true;
-                wantsToAttach = false;
-            }
-            else {
-                ref Selector hand = ref SelectorManager.Instance.handSelectors[(int)Color];
-                if (hand == null || hand == this || !hand.isActiveAndEnabled) {
-                    hand = this;
-                    wantsToAttach = false;
-
-                    if (SelectorManager.Instance.CurrentColor == Color) {
-                        Shown = true;
-                    }
-                }
-            }
-        }
-
-        private bool wantsToAttach = true;
-
         [SerializeField]
         private bool s_persistent = false;
         private bool _persistent;
@@ -104,15 +56,6 @@ namespace Revivd {
 
                 wantsToAttach = true;
             }
-        }
-
-        private void OnEnable() {
-            wantsToAttach = true;
-        }
-
-        private void OnDisable() {
-            Shown = false;
-            wantsToAttach = false;
         }
 
         public bool needsCheckedHighlightCleanup = false;
@@ -173,6 +116,45 @@ namespace Revivd {
 
             if (SelectorManager.Instance.HighlightChecked)
                 needsCheckedHighlightCleanup = true;
+        }
+
+        private void SeparateFromManager() {
+            if (Persistent)
+                SelectorManager.Instance.persistentSelectors[(int)Color].Remove(this);
+            else if (SelectorManager.Instance.handSelectors[(int)Color] == this)
+                SelectorManager.Instance.handSelectors[(int)Color] = null;
+
+            Shown = false;
+        }
+
+        private void TryAttachingToManager() {
+            if (Persistent) {
+                SelectorManager.Instance.persistentSelectors[(int)Color].Add(this);
+                Shown = true;
+                wantsToAttach = false;
+            }
+            else {
+                ref Selector hand = ref SelectorManager.Instance.handSelectors[(int)Color];
+                if (hand == null || hand == this || !hand.isActiveAndEnabled) {
+                    hand = this;
+                    wantsToAttach = false;
+
+                    if (SelectorManager.Instance.CurrentColor == Color) {
+                        Shown = true;
+                    }
+                }
+            }
+        }
+
+        private bool wantsToAttach = true;
+
+        private void OnEnable() {
+            wantsToAttach = true;
+        }
+
+        private void OnDisable() {
+            Shown = false;
+            wantsToAttach = false;
         }
 
         private void Awake() {
