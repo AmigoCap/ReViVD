@@ -73,6 +73,10 @@ namespace Revivd {
             return r < 0 ? r + m : r;
         }
 
+        public static int Pow(int num, int exp) {
+            return exp == 0 ? 1 : num * Pow(num, exp - 1);
+        }
+
         public static float FMod(float x, float m) {
             float r = x % m;
             return r < 0 ? r + m : r;

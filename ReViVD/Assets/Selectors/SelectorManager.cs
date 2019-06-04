@@ -9,13 +9,24 @@ namespace Revivd {
         private static SelectorManager _instance;
         public static SelectorManager Instance { get { return _instance; } }
 
-        public float sizeExponent = 1.3f;
+        public enum ColorGroup { Red = 0, Green, Blue, Yellow, Cyan, Magenta };
+        public static readonly Color[] colors = { Color.red, Color.green, Color.blue, Color.yellow, Color.cyan, Color.magenta };
+        public static readonly Color[] colors_dark = new Color[colors.Length];
+
+        public Selector[] handSelectors = new Selector[colors.Length];
+        public List<Selector>[] persistentSelectors = new List<Selector>[colors.Length];
+        public HashSet<Atom>[] selectedRibbons = new HashSet<Atom>[colors.Length];
+
         public enum ControlMode { SelectMode, CreatorMode};
         private ControlMode _currentControlMode = ControlMode.SelectMode;
         public ControlMode CurrentControlMode {
             get => _currentControlMode;
             set => _currentControlMode = value;
         }
+
+        public enum LogicMode { AND, OR };
+        public LogicMode operationMode = LogicMode.OR;
+        public HashSet<ColorGroup> operatingColors;
 
         [SerializeField]
         private bool s_highlightChecked = false;
@@ -50,13 +61,6 @@ namespace Revivd {
             }
         }
 
-        public enum ColorGroup { Red = 0, Green, Blue, Yellow, Cyan, Magenta };
-        public static readonly Color[] colors = { Color.red, Color.green, Color.blue, Color.yellow, Color.cyan, Color.magenta };
-        public static readonly Color[] colors_dark = new Color[colors.Length];
-        public Selector[] handSelectors = new Selector[colors.Length];
-        public List<Selector>[] persistentSelectors = new List<Selector>[colors.Length];
-        public HashSet<Atom>[] selectedRibbons = new HashSet<Atom>[colors.Length];
-
         [SerializeField]
         private ColorGroup s_currentColor = ColorGroup.Red;
         private ColorGroup _currentColor;
@@ -77,24 +81,20 @@ namespace Revivd {
             }
         }
 
-        public int Pow(int num, int exp) {
-            return exp == 0 ? 1 : num * Pow(num, exp - 1);
-        }
-
-        public HashSet<ColorGroup> operatingColors;
-
         public bool InverseMode {
             get => SteamVR_ControllerManager.LeftController.triggerPressed;
         }
 
-        public enum LogicMode { AND, OR };
-
-        public LogicMode operationMode = LogicMode.OR;
-
         private bool ShouldSelect {
             get => SteamVR_ControllerManager.RightController.triggerPressed;
         }
-    
+
+        private void ChangeControlMode(SteamVR_TrackedController sender) {
+            if (CurrentControlMode == ControlMode.SelectMode)
+                CurrentControlMode = ControlMode.CreatorMode;
+            else
+                CurrentControlMode = ControlMode.SelectMode;
+        }
 
         private void SelectWithPersistents(SteamVR_TrackedController sender) {
             if (CurrentControlMode != ControlMode.SelectMode)
@@ -139,15 +139,8 @@ namespace Revivd {
             }                
         }
 
-        private void ModeModification(SteamVR_TrackedController sender) {
-            if (CurrentControlMode == ControlMode.SelectMode)
-                CurrentControlMode = ControlMode.CreatorMode;
-            else
-                CurrentControlMode = ControlMode.SelectMode;
-        }
-
         public void DoLogicOperation() {
-            if (InverseMode) { // inverse mode
+            if (InverseMode) { // Invert displayed ribbons
                 foreach (Path p in Visualization.Instance.PathsAsBase) {
                     foreach (Atom a in p.AtomsAsBase)
                         a.ShouldDisplay = !a.ShouldDisplay;
@@ -203,7 +196,7 @@ namespace Revivd {
         private void OnEnable() {
             SteamVR_ControllerManager.RightController.Gripped += SelectWithPersistents;
             SteamVR_ControllerManager.RightController.MenuButtonClicked += MakePersistentCopyOfHand;
-            SteamVR_ControllerManager.LeftController.MenuButtonClicked += ModeModification;
+            SteamVR_ControllerManager.LeftController.MenuButtonClicked += ChangeControlMode;
         }
 
         private void OnDisable() {
@@ -213,7 +206,7 @@ namespace Revivd {
             }
 
             if (SteamVR_ControllerManager.LeftController != null) {
-                SteamVR_ControllerManager.LeftController.MenuButtonClicked -= ModeModification;
+                SteamVR_ControllerManager.LeftController.MenuButtonClicked -= ChangeControlMode;
             }
         }
 
