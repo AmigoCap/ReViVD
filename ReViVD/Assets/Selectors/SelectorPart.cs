@@ -27,10 +27,14 @@ namespace Revivd {
                 return;
             primitive.SetActive(true);
             primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
-            if (GetComponent<Selector>().Persistent)
-                primitive.transform.parent = this.transform;
+            if (GetComponent<Selector>().Persistent) {
+                primitive.transform.SetParent(this.transform, false);
+                this.transform.position = SteamVR_ControllerManager.Instance.right.transform.position;
+                this.transform.rotation = SteamVR_ControllerManager.Instance.right.transform.rotation;
+            }
             else
-                primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
+                primitive.transform.SetParent(SteamVR_ControllerManager.Instance.right.transform, false);
+            UpdatePrimitive();
         }
 
         public void Hide() {
@@ -57,6 +61,7 @@ namespace Revivd {
                 }
             }
 
+            touchedRibbons.Clear();
             ParseRibbonsToCheck();
         }
 
@@ -132,10 +137,14 @@ namespace Revivd {
         protected virtual void OnEnable() {
             Selector s = GetComponent<Selector>();
 
-            if (s.Persistent)
-                primitive.transform.parent = this.transform;
+            if (s.Persistent) {
+                primitive.transform.SetParent(this.transform, false);
+                this.transform.position = SteamVR_ControllerManager.Instance.right.transform.position;
+                this.transform.rotation = SteamVR_ControllerManager.Instance.right.transform.rotation;
+            }
             else
-                primitive.transform.parent = SteamVR_ControllerManager.Instance.right.transform;
+                primitive.transform.SetParent(SteamVR_ControllerManager.Instance.right.transform, false);
+            UpdatePrimitive();
 
             if (s.Shown && s.isActiveAndEnabled)
                 Show();

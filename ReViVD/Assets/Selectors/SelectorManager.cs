@@ -255,8 +255,9 @@ namespace Revivd {
             if (CurrentControlMode == ControlMode.SelectMode) { // Selection
                 Selector hs = handSelectors[(int)CurrentColor];
                 if (hs != null && hs.isActiveAndEnabled) {
-                    if (ShouldSelect)
+                    if (ShouldSelect) {
                         hs.Select(InverseMode);
+                    }
                 }
             }
             else { // creation
