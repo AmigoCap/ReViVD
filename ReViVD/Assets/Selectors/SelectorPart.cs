@@ -86,7 +86,6 @@ namespace Revivd {
 
             int[] seedDistrict = viz.FindDistrictCoords(viz.transform.InverseTransformPoint(primitive.transform.position));
 
-
             Vector3 seedPos = viz.transform.TransformPoint(viz.getDistrictCenter(seedDistrict));
             Vector3 districtUnitTranslation = viz.transform.TransformVector(viz.districtSize);
             CoordsEqualityComparer comparer = new CoordsEqualityComparer();
@@ -105,7 +104,6 @@ namespace Revivd {
 
                         foundAll = false;
                         checkedDistricts.Add(new int[] { seedDistrict[0] + c[0], seedDistrict[1] + c[1], seedDistrict[2] + c[2] });
-                        Visualization.Instance.districtsToHighlight[0] = checkedDistricts;
 
                         for (int i = 0; i < 3; i++) {
                             for (int j = -1; j < 2; j += 2) {
