@@ -156,6 +156,42 @@ namespace Revivd {
             return new Vector3(districtSize.x * coords[0], districtSize.y * coords[1], districtSize.z * coords[2]) + districtSize / 2;
         }
 
+        private int[] _lowerDistrict = new int[] { 0, 0, 0 };
+        public int[] LowerDistrict { get => _lowerDistrict; }
+
+        private int[] _upperDistrict = new int[] { 0, 0, 0 };
+        public int[] UpperDistrict { get => _upperDistrict; }
+
+        public bool districtWithinBoundaries(int[] districtCoords) {
+            for (int i = 0; i < 3; i++) {
+                if (districtCoords[i] < LowerDistrict[i])
+                    return false;
+                if (districtCoords[i] > UpperDistrict[i])
+                    return false;
+            }
+            return true;
+        }
+
+        private void FindDistrictBoundaries() {
+            if (districts.Count == 0) {
+                _lowerDistrict = new int[] { 0, 0, 0 };
+                _upperDistrict = new int[] { 0, 0, 0 };
+                return;
+            }
+
+            var e = districts.GetEnumerator();
+            e.MoveNext();
+            _lowerDistrict = (int[])e.Current.Key.Clone();
+            _upperDistrict = (int[])e.Current.Key.Clone();
+
+            while (e.MoveNext()) {
+                for (int i = 0; i < 3; i++) {
+                    _lowerDistrict[i] = Math.Min(_lowerDistrict[i], e.Current.Key[i]);
+                    _upperDistrict[i] = Math.Max(_upperDistrict[i], e.Current.Key[i]);
+                }
+            }
+        }
+
         private void CreateDistricts() { //Crée et remplit districts
             districts = new Dictionary<int[], District>(new CoordsEqualityComparer());
 
@@ -186,6 +222,8 @@ namespace Revivd {
                     point = nextPoint;
                 }
             }
+
+            FindDistrictBoundaries();
         }
     }
 }
