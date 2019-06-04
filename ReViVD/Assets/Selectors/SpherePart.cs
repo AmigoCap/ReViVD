@@ -26,6 +26,30 @@ namespace Revivd {
             if (SteamVR_ControllerManager.LeftController.triggerPressed) {
                 radius -= radius * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
             }
+
+            handOffset.z += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime;
+            
+            if (SteamVR_ControllerManager.RightController.padPressed) {
+                if (SteamVR_ControllerManager.RightController.Pad.x >= 0) {
+                    if (Mathf.Abs(SteamVR_ControllerManager.RightController.Pad.y) < 0.7071) {
+                        handOffset.x += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Pad.x * Time.deltaTime;
+                    }
+                    else {
+                        handOffset.y += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Pad.y * Time.deltaTime;
+                    }
+                }
+                else {
+                    if (Mathf.Abs(SteamVR_ControllerManager.RightController.Pad.y) < 0.7071) {
+                        handOffset.x += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Pad.x * Time.deltaTime;
+                    }
+                    else {
+                        handOffset.y += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Pad.y * Time.deltaTime;
+                    }
+                }
+            }
+
+
+
         }
 
         protected override void ParseRibbonsToCheck() {
