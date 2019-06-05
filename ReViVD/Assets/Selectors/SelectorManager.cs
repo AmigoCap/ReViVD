@@ -19,7 +19,8 @@ namespace Revivd {
 
         public enum ControlMode { SelectionMode, CreationMode};
         public float creationGrowthCoefficient = 1f;
-        public float creationMovementCoefficient = 1f;
+        public float creationMovementCoefficient = 1.5f;
+        public float minCreationMovement = 2f;
 
         private ControlMode _currentControlMode = ControlMode.SelectionMode;
         public ControlMode CurrentControlMode {
