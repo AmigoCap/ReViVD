@@ -25,52 +25,68 @@ namespace Revivd {
             if (SteamVR_ControllerManager.LeftController.triggerPressed) {
                 size -= size * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
             }
-            handOffset.z += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime;
 
+            handOffset.z += Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime;
 
             if (SteamVR_ControllerManager.RightController.padPressed) {
                 if (SteamVR_ControllerManager.RightController.Pad.x >= 0) {
                     if (Mathf.Abs(SteamVR_ControllerManager.RightController.Pad.y) < 0.7071) {
-                        handOffset.x += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Pad.x * Time.deltaTime;
+                        handOffset.x += Mathf.Max(Mathf.Abs(handOffset.x), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
                     }
                     else {
-                        handOffset.y += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Pad.y * Time.deltaTime;
+                        if (SteamVR_ControllerManager.RightController.Pad.y >= 0) {
+                            handOffset.y += Mathf.Max(Mathf.Abs(handOffset.y), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+                        }
+                        else {
+                            handOffset.y -= Mathf.Max(Mathf.Abs(handOffset.y), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+                        }
                     }
                 }
                 else {
                     if (Mathf.Abs(SteamVR_ControllerManager.RightController.Pad.y) < 0.7071) {
-                        handOffset.x += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Pad.x * Time.deltaTime;
+                        handOffset.x -= Mathf.Max(Mathf.Abs(handOffset.x), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
                     }
                     else {
-                        handOffset.y += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Pad.y * Time.deltaTime;
+                        if (SteamVR_ControllerManager.RightController.Pad.y >= 0) {
+                            handOffset.y += Mathf.Max(Mathf.Abs(handOffset.y), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient  * Time.deltaTime;
+                        }
+                        else {
+                            handOffset.y -= Mathf.Max(Mathf.Abs(handOffset.y), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+                        }
                     }
                 }
             }
 
-
-            size.z += SelectorManager.Instance.creationGrowthCoefficient * SteamVR_ControllerManager.LeftController.Joystick.y * Time.deltaTime;
-
+            size.z += size.z * SelectorManager.Instance.creationGrowthCoefficient * SteamVR_ControllerManager.LeftController.Joystick.y * Time.deltaTime;
 
             if (SteamVR_ControllerManager.LeftController.padPressed) {
                 if (SteamVR_ControllerManager.LeftController.Pad.x >= 0) {
                     if (Mathf.Abs(SteamVR_ControllerManager.LeftController.Pad.y) < 0.7071) {
-                        size.x += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.LeftController.Pad.x * Time.deltaTime;
+                        size.x += size.x * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
                     }
                     else {
-                        size.y += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.LeftController.Pad.y * Time.deltaTime;
+                        if (SteamVR_ControllerManager.LeftController.Pad.y >= 0) {
+                            size.y += size.y * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+                        }
+                        else {
+                            size.y -= size.y * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+                        }
                     }
                 }
                 else {
                     if (Mathf.Abs(SteamVR_ControllerManager.LeftController.Pad.y) < 0.7071) {
-                        size.x += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.LeftController.Pad.x * Time.deltaTime;
+                        size.x -= size.x * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
                     }
                     else {
-                        size.y += SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.LeftController.Pad.y * Time.deltaTime;
+                        if (SteamVR_ControllerManager.LeftController.Pad.y >= 0) {
+                            size.y += size.y * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+                        }
+                        else {
+                            size.y -= size.y * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+                        }
                     }
                 }
             }
-
-
 
         }
 
