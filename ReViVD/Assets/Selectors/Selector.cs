@@ -71,13 +71,13 @@ namespace Revivd {
                 if (!p.enabled)
                     continue;
 
-                foreach (Atom a in p.CheckedRibbons)
+                foreach (Atom a in p.RibbonsToCheck)
                     a.ShouldHighlightBecauseChecked((int)Color, false);
 
                 p.FindTouchedRibbons();
 
                 if (SelectorManager.Instance.HighlightChecked && !Persistent) {
-                    foreach (Atom a in p.CheckedRibbons)
+                    foreach (Atom a in p.RibbonsToCheck)
                         a.ShouldHighlightBecauseChecked((int)Color, true);
                 }
             }

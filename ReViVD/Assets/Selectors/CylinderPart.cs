@@ -34,7 +34,7 @@ namespace Revivd {
             Vector3 saberStart = primitive.transform.position - primitive.transform.up * length / 2;
             Vector3 saberEnd = primitive.transform.position + primitive.transform.up * length / 2;
             
-            foreach (Atom a in checkedRibbons) {
+            foreach (Atom a in ribbonsToCheck) {
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
                     radius = a.path.baseRadius;
                 if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < this.radius / 2 + radius) {

@@ -5,10 +5,12 @@ using UnityEngine;
 namespace Revivd { 
 
     public abstract class SelectorPart : MonoBehaviour {
-        protected HashSet<int[]> checkedDistricts = new HashSet<int[]>(new CoordsEqualityComparer());
-        public HashSet<int[]> CheckedDistricts { get => checkedDistricts; }
-        protected HashSet<Atom> checkedRibbons = new HashSet<Atom>();
-        public HashSet<Atom> CheckedRibbons { get => checkedRibbons; }
+        protected HashSet<int[]> obviousDistricts = new HashSet<int[]>(new CoordsEqualityComparer());
+        public HashSet<int[]> ObviousDistricts { get => obviousDistricts; }
+        protected HashSet<int[]> districtsToCheck = new HashSet<int[]>(new CoordsEqualityComparer());
+        public HashSet<int[]> DistrictsToCheck { get => districtsToCheck; }
+        protected HashSet<Atom> ribbonsToCheck = new HashSet<Atom>();
+        public HashSet<Atom> RibbonsToCheck { get => ribbonsToCheck; }
         protected HashSet<Atom> touchedRibbons = new HashSet<Atom>();
         public HashSet<Atom> TouchedRibbons { get => touchedRibbons; }
 
@@ -47,21 +49,34 @@ namespace Revivd {
         }
 
         public void FindTouchedRibbons() {
-            checkedDistricts.Clear();
+            districtsToCheck.Clear();
+            obviousDistricts.Clear();
             FindDistrictsToCheck();
 
-            checkedRibbons.Clear();
-            foreach (int[] c in checkedDistricts) {
+            ribbonsToCheck.Clear();
+            foreach (int[] c in districtsToCheck) {
                 if (Visualization.Instance.districts.TryGetValue(c, out Visualization.District d)) {
                     foreach (Atom a in d.atoms_segment) {
                         if (a.ShouldDisplay) {
-                            checkedRibbons.Add(a);
+                            ribbonsToCheck.Add(a);
                         }
                     }
                 }
             }
+            
 
             touchedRibbons.Clear();
+            foreach (int[] c in obviousDistricts) {
+                if (Visualization.Instance.districts.TryGetValue(c, out Visualization.District d)) {
+                    foreach (Atom a in d.atoms_segment) {
+                        if (a.ShouldDisplay) {
+                            touchedRibbons.Add(a);
+                        }
+                    }
+                }
+            }
+            ribbonsToCheck.ExceptWith(touchedRibbons);
+
             ParseRibbonsToCheck();
         }
 
@@ -75,7 +90,7 @@ namespace Revivd {
         protected abstract void CreatePrimitive();
 
         protected abstract void UpdatePrimitive();
-        
+
         private void FindDistrictsToCheck() {
             Visualization viz = Visualization.Instance;
 
@@ -88,44 +103,48 @@ namespace Revivd {
 
             Vector3 seedPos = viz.transform.TransformPoint(viz.getDistrictCenter(seedDistrict));
             Vector3 districtUnitTranslation = viz.transform.TransformVector(viz.districtSize);
-            CoordsEqualityComparer comparer = new CoordsEqualityComparer();
-            HashSet<int[]> set1 = new HashSet<int[]>(comparer);
-            HashSet<int[]> set2 = new HashSet<int[]>(comparer);
 
-            set1.Add(new int[] { 0, 0, 0 });
+            Dictionary<int[], bool> explored = new Dictionary<int[], bool>(new CoordsEqualityComparer());
 
-            bool foundAll = false;
-            while (!foundAll) {
-                foundAll = true;
-                
-                foreach (int[] c in set1) {
-                    int[] trueC = new int[] { seedDistrict[0] + c[0], seedDistrict[1] + c[1], seedDistrict[2] + c[2] };
-                    if (!Visualization.Instance.districtWithinBoundaries(trueC))
-                        continue;
-
-                    if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(c[0], c[1], c[2])), viz.transform.rotation,
-                                                   primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out _)) {
-
-                        foundAll = false;
-                        checkedDistricts.Add(trueC);
-
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = -1; j < 2; j += 2) {
-                                if (c[i] == 0 || c[i] > 0 == j > 0) {
-                                    int[] d2 = (int[])c.Clone();
-                                    d2[i] += j;
-                                    set2.Add(d2);
-                                }
-                            }
-                        }
-                    }
+            bool floodFrom(int[] c) {
+                if (explored.TryGetValue(c, out bool inside)) {
+                    return inside;
                 }
 
-                HashSet<int[]> temp = set1;
-                set1 = set2;
-                set2 = temp;
-                set2.Clear();
+                if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(c[0], c[1], c[2])), viz.transform.rotation,
+                                                   primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out _)) {
+
+                    explored.Add(c, true);
+
+                    bool isObvious = true;
+
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = -1; j < 2; j += 2) {
+                            if (c[i] == 0 || c[i] > 0 == j > 0) {
+                                int[] next_c = (int[])c.Clone();
+                                next_c[i] += j;
+                                if (!floodFrom(next_c))
+                                    isObvious = false;
+                            }
+                        }
+
+                    }
+
+                    int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] };
+                    if (isObvious)
+                        obviousDistricts.Add(true_c);
+                    else
+                        districtsToCheck.Add(true_c);
+
+                    return true;
+                }
+                else {
+                    explored.Add(c, false);
+                    return false;
+                }
             }
+
+            floodFrom(new int[] { 0, 0, 0 });
 
             Destroy(districtCollider);
         }

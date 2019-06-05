@@ -31,7 +31,7 @@ namespace Revivd {
         protected override void ParseRibbonsToCheck() {
             Vector3 sphereCenter = primitive.transform.position;
 
-            foreach (Atom a in checkedRibbons) {
+            foreach (Atom a in ribbonsToCheck) {
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float ribbonRadius))
                     ribbonRadius = a.path.baseRadius;
                 if (DistancePointSegment(sphereCenter, a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point)) < radius + ribbonRadius) {

@@ -249,7 +249,7 @@ namespace Revivd {
                 foreach (Selector s in handSelectors)
                     if (s != null && s.needsCheckedHighlightCleanup) {
                         foreach (SelectorPart p in s.GetComponents<SelectorPart>())
-                            foreach (Atom a in p.CheckedRibbons)
+                            foreach (Atom a in p.RibbonsToCheck)
                                 a.ShouldHighlightBecauseChecked((int)s.Color, false);
                         s.needsCheckedHighlightCleanup = false;
                     }
