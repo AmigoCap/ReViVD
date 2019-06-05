@@ -141,8 +141,10 @@ namespace Revivd {
             if (SelectorManager.Instance.CurrentControlMode == SelectorManager.ControlMode.SelectionMode) {
                 RectTransform rt = GetComponent<RectTransform>();
 
-                if (SteamVR_ControllerManager.LeftController.padTouched) {
-                    if (swiping_reset) {
+                    if (SteamVR_ControllerManager.LeftController.padTouched) {
+
+
+                        if (swiping_reset) {
                         rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -rt.localPosition.y, 0.9f - rt.localPosition.y) / dampener, 0);
                         if (Mathf.Abs(GetComponent<RectTransform>().localPosition.y) > pullThreshold)
                             SteamVR_ControllerManager.LeftController.Vibrate();
@@ -169,7 +171,7 @@ namespace Revivd {
                     rt.Translate(0, pull * Time.deltaTime, 0);
                 }
             }
-            
+
         }
 
         private void OnEnable() {

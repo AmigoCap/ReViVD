@@ -22,11 +22,29 @@ namespace Revivd {
         public float creationMovementCoefficient = 1.5f;
         public float minCreationMovement = 2f;
 
+        public GameObject leftSelectionCircleMask;
+        public GameObject rightSelectionCircleMask;
+        public GameObject leftCreationCircleMask;
+        public GameObject rightCreationCircleMask;
+
+
         private ControlMode _currentControlMode = ControlMode.SelectionMode;
         public ControlMode CurrentControlMode {
             get => _currentControlMode;
             set {
                 _currentControlMode = value;
+                if (_currentControlMode == ControlMode.SelectionMode) {
+                    leftSelectionCircleMask.SetActive(true);
+                    rightSelectionCircleMask.SetActive(true);
+                    leftCreationCircleMask.SetActive(false);
+                    rightCreationCircleMask.SetActive(false);
+                }
+                else {
+                    leftSelectionCircleMask.SetActive(false);
+                    rightSelectionCircleMask.SetActive(false);
+                    leftCreationCircleMask.SetActive(true);
+                    rightCreationCircleMask.SetActive(true);
+                }
                 Selector hs = handSelectors[(int)CurrentColor];
                 if (hs != null && hs.isActiveAndEnabled) {
                     foreach (SelectorPart p in hs.GetComponents<SelectorPart>()) {

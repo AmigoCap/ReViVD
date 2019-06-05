@@ -13,9 +13,9 @@ namespace Revivd {
         int color;
 
         void Update() {
+
             if (SelectorManager.Instance.CurrentControlMode == SelectorManager.ControlMode.SelectionMode) {
                 RectTransform rt = GetComponent<RectTransform>();
-
                 if (SteamVR_ControllerManager.RightController.padTouched) {
                     if (!swiping)
                         swiping = true;
@@ -36,6 +36,7 @@ namespace Revivd {
                 if (color != (int)SelectorManager.Instance.CurrentColor)
                     SelectorManager.Instance.CurrentColor = (SelectorManager.ColorGroup)color;
             }
+
         }
     }
 
