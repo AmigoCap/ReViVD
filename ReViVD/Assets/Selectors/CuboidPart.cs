@@ -19,12 +19,9 @@ namespace Revivd {
         }
 
         protected override void UpdateManualModifications() {
-            if (SteamVR_ControllerManager.RightController.triggerPressed) {
-                size += size * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
-            }
-            if (SteamVR_ControllerManager.LeftController.triggerPressed) {
-                size -= size * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
-            }
+
+            size += size * SteamVR_ControllerManager.RightController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            size -= size * SteamVR_ControllerManager.LeftController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
 
             handOffset.z += Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime;
 
