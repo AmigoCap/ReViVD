@@ -3341,7 +3341,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e43fe2b7c047a4f852d28ff6aa024e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 5, y: 5, z: 5}
+  districtSize: {x: 15, y: 15, z: 15}
   dataFile: {fileID: 4900000, guid: 5fd28a27ea65b9b46be2ed7f7bf8c63f, type: 3}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
