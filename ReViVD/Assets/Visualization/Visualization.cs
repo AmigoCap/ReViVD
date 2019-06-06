@@ -214,7 +214,6 @@ namespace Revivd {
                                 atoms_segment = new List<Atom>()
                             };
                             districts.Add(c, d);
-                            districtsToHighlight[0].Add(c);
                         }
                         d.atoms_segment.Add(p.AtomsAsBase[i]);
                     }
