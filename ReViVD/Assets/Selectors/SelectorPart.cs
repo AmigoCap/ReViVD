@@ -1,18 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Jobs;
+using Unity.Collections;
 
 namespace Revivd { 
 
     public abstract class SelectorPart : MonoBehaviour {
-        protected HashSet<int[]> obviousDistricts = new HashSet<int[]>(new CoordsEqualityComparer());
-        public HashSet<int[]> ObviousDistricts { get => obviousDistricts; }
-        protected HashSet<int[]> districtsToCheck = new HashSet<int[]>(new CoordsEqualityComparer());
-        public HashSet<int[]> DistrictsToCheck { get => districtsToCheck; }
         protected HashSet<Atom> ribbonsToCheck = new HashSet<Atom>();
         public HashSet<Atom> RibbonsToCheck { get => ribbonsToCheck; }
-        protected HashSet<Atom> touchedRibbons = new HashSet<Atom>();
-        public HashSet<Atom> TouchedRibbons { get => touchedRibbons; }
+        protected List<Atom> touchedRibbons = new List<Atom>();
+        public List<Atom> TouchedRibbons { get => touchedRibbons; }
 
         [SerializeField]
         private bool _positive = true;
@@ -49,33 +47,10 @@ namespace Revivd {
         }
 
         public void FindTouchedRibbons() {
-            districtsToCheck.Clear();
-            obviousDistricts.Clear();
-            FindDistrictsToCheck();
-
-            ribbonsToCheck.Clear();
-            foreach (int[] c in districtsToCheck) {
-                if (Visualization.Instance.districts.TryGetValue(c, out Visualization.District d)) {
-                    foreach (Atom a in d.atoms_segment) {
-                        if (a.ShouldDisplay) {
-                            ribbonsToCheck.Add(a);
-                        }
-                    }
-                }
-            }
-            
-
             touchedRibbons.Clear();
-            foreach (int[] c in obviousDistricts) {
-                if (Visualization.Instance.districts.TryGetValue(c, out Visualization.District d)) {
-                    foreach (Atom a in d.atoms_segment) {
-                        if (a.ShouldDisplay) {
-                            touchedRibbons.Add(a);
-                        }
-                    }
-                }
-            }
-            ribbonsToCheck.ExceptWith(touchedRibbons);
+            ribbonsToCheck.Clear();
+
+            FindRibbonsToCheck();
 
             ParseRibbonsToCheck();
         }
@@ -85,13 +60,7 @@ namespace Revivd {
         public bool ShouldPollManualModifications = false;
         protected abstract void UpdateManualModifications(); //Called every frame when the part is to be modified in creation mode
 
-        protected abstract void ParseRibbonsToCheck();
-
-        protected abstract void CreatePrimitive();
-
-        protected abstract void UpdatePrimitive();
-
-        private void FindDistrictsToCheck() {
+        private void FindRibbonsToCheck() {
             Visualization viz = Visualization.Instance;
 
             BoxCollider districtCollider = gameObject.AddComponent<BoxCollider>();
@@ -131,10 +100,22 @@ namespace Revivd {
                     }
 
                     int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] };
-                    if (isObvious)
-                        obviousDistricts.Add(true_c);
-                    else
-                        districtsToCheck.Add(true_c);
+                    if (Visualization.Instance.districts.TryGetValue(true_c, out Visualization.District d)) {
+                        if (isObvious) {
+                            foreach (Atom a in d.atoms_segment) {
+                                if (a.ShouldDisplay) {
+                                    touchedRibbons.Add(a);
+                                }
+                            }
+                        }
+                        else {
+                            foreach (Atom a in d.atoms_segment) {
+                                if (a.ShouldDisplay) {
+                                    ribbonsToCheck.Add(a);
+                                }
+                            }
+                        }
+                    }
 
                     return true;
                 }
@@ -146,8 +127,26 @@ namespace Revivd {
 
             floodFrom(new int[] { 0, 0, 0 });
 
+            ribbonsToCheck.ExceptWith(touchedRibbons);
+
             Destroy(districtCollider);
         }
+
+
+        protected struct IParseRibbonsJob : IJobParallelFor {
+            [ReadOnly, NativeDisableParallelForRestriction]
+            public NativeArray<Vector3> points;
+
+            public void Execute(int i) {
+
+            }
+        }
+
+        protected abstract void ParseRibbonsToCheck();
+
+        protected abstract void CreatePrimitive();
+
+        protected abstract void UpdatePrimitive();
 
         protected virtual void Awake() {
             CreatePrimitive();
