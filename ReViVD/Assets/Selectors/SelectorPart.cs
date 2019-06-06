@@ -132,7 +132,7 @@ namespace Revivd {
 
                             foreach (Atom a in d.atoms_segment) {
                                 if (a.ShouldDisplay) {
-                                    TouchedRibbons.Add(a);
+                                    touchedRibbons.Add(a);
                                 }
                             }
                         }

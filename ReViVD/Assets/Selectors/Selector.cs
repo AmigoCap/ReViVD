@@ -64,15 +64,21 @@ namespace Revivd {
             if (!isActiveAndEnabled)
                 return;
 
+            List<SelectorPart> parts = new List<SelectorPart>(GetComponents<SelectorPart>());
+            parts.RemoveAll(p => !p.enabled);
+
+            if (parts.Count == 0)
+                return;
+
             Visualization viz = Visualization.Instance;
             HashSet<Atom> selectedRibbons = SelectorManager.Instance.selectedRibbons[(int)Color];
 
-            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
-                if (!p.enabled)
-                    continue;
-
-                foreach (Atom a in p.RibbonsToCheck)
-                    a.ShouldHighlightBecauseChecked((int)Color, false);
+            foreach (SelectorPart p in parts) {
+                if (needsCheckedHighlightCleanup) {
+                    needsCheckedHighlightCleanup = false;
+                    foreach (Atom a in p.RibbonsToCheck)
+                        a.ShouldHighlightBecauseChecked((int)Color, false);
+                }
 
                 p.FindTouchedRibbons();
 
@@ -82,19 +88,26 @@ namespace Revivd {
                 }
             }
 
-            HashSet<Atom> handledRibbons = new HashSet<Atom>();
+            IEnumerable<Atom> handledRibbons;
 
-            foreach (SelectorPart p in GetComponents<SelectorPart>()) {
-                if (!p.enabled)
-                    continue;
-                if (p.Positive) {
-                    foreach (Atom a in p.TouchedRibbons)
-                        handledRibbons.Add(a);
+            if (parts.Count > 1) {
+                HashSet<Atom> handledRibbonsSet = new HashSet<Atom>();
+
+                foreach (SelectorPart p in GetComponents<SelectorPart>()) {
+                    if (!p.enabled)
+                        continue;
+                    if (p.Positive) {
+                        handledRibbonsSet.UnionWith(p.TouchedRibbons);
+                    }
+                    else {
+                        handledRibbonsSet.ExceptWith(p.TouchedRibbons);
+                    }
                 }
-                else {
-                    foreach (Atom a in p.TouchedRibbons)
-                        handledRibbons.Remove(a);
-                }
+
+                handledRibbons = handledRibbonsSet;
+            }
+            else {
+                handledRibbons = parts[0].TouchedRibbons;
             }
 
             if (erase) {
