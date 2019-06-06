@@ -88,8 +88,8 @@ namespace Revivd {
                 return dist;
             }
 
-            CoordsEqualityComparer c = new CoordsEqualityComparer();
-            Dictionary<int[], bool> explored = new Dictionary<int[], bool>(c);
+            CoordsEqualityComparer comparer = new CoordsEqualityComparer();
+            Dictionary<int[], bool> explored = new Dictionary<int[], bool>(comparer);
 
             //PHASE 1: starting from the center, find a "border" district
             int[] start = new int[] { 0, 0, 0 };
@@ -99,15 +99,11 @@ namespace Revivd {
             }
             start[0] -= 1;
 
-            int N = 0;
-
-            //PHASE 2: starting from the border district found, recursively create a "shell" of border districts around the (convex) primitive
-            bool floodShell(int[] c) {
-                if (explored.TryGetValue(c, out bool intersects)) {
-                    return intersects;
+            //PHASE 2: starting from the border district found, create a "shell" of border districts around the (convex) primitive
+            bool addToShell(int[] c) {
+                if (explored.ContainsKey(c)) {
+                    return false;
                 }
-
-                N++;
 
                 //Check whether or not the district touches the primitive
                 if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(c[0], c[1], c[2])), viz.transform.rotation,
@@ -119,7 +115,7 @@ namespace Revivd {
 
                     if (get1DProjDistance_dc(exitDir) > exitDist) { //Border district: add ribbons to ribbonsToCheck and keep spreading
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
-                            viz.districtsToHighlight[1].Add(true_c);
+                            viz.districtsToHighlight[1].Add(true_c); //DEBUG
 
                             foreach (Atom a in d.atoms_segment) {
                                 if (a.ShouldDisplay) {
@@ -128,26 +124,20 @@ namespace Revivd {
                             }
                         }
 
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = -1; j <= 1; j+=2) {
-                                int[] next_c = (int[])c.Clone();
-                                next_c[i] += j;
-                                floodShell(next_c);
-                            }
-                        }
+                        return true;
                     }
                     else { //Inside district: add ribbons to touchedRibbons and stop the spreading there
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
-                            
+
                             foreach (Atom a in d.atoms_segment) {
                                 if (a.ShouldDisplay) {
                                     TouchedRibbons.Add(a);
                                 }
                             }
                         }
-                    }
 
-                    return true;
+                        return false;
+                    }
                 }
                 else {
                     explored.Add(c, false);
@@ -155,14 +145,32 @@ namespace Revivd {
                 }
             }
 
-            floodShell(start);
+            HashSet<int[]> set1 = new HashSet<int[]>(comparer);
+            HashSet<int[]> set2 = new HashSet<int[]>(comparer);
+            set1.Add(start);
+            while (set1.Count != 0) {
+                foreach (int[] c in set1) {
+                    if (addToShell(c)) {
+                        for (int i = 0; i < 3; i++) {
+                            for (int j = -1; j <= 1; j += 2) {
+                                int[] next_c = (int[])c.Clone();
+                                next_c[i] += j;
+                                set2.Add(next_c);
+                            }
+                        }
+                    }
+                }
 
-            Debug.Log(N);
+                HashSet<int[]> temp = set1;
+                set1.Clear();
+                set1 = set2;
+                set2 = temp;
+            }
 
-            //PHASE 3: starting from the center, flood the created shell recursively
-            bool floodInside(int[] c) {
+            //PHASE 3: starting from the center, flood the created shell
+            bool addToInside(int[] c) {
                 if (explored.TryGetValue(c, out bool intersects)) {
-                    return intersects;
+                    return false;
                 }
 
                 explored.Add(c, true);
@@ -170,6 +178,7 @@ namespace Revivd {
                 int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
 
                 if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
+                    viz.districtsToHighlight[2].Add(true_c); //DEBUG
                     foreach (Atom a in d.atoms_segment) {
                         if (a.ShouldDisplay) {
                             TouchedRibbons.Add(a);
@@ -177,21 +186,32 @@ namespace Revivd {
                     }
                 }
 
-                for (int i = 0; i < 3; i++) {
-                    for (int j = -1; j <= 1; j+=2) {
-                        if (c[i] == 0 || c[i] > 0 == j > 0) { //Only flood towards the exterior
-                            int[] next_c = (int[])c.Clone();
-                            next_c[i] += j;
-                            if (!floodInside(next_c))
-                                Debug.LogWarning("Flooding algorithm from inside of primitive managed to contact its exterior, this should not happen");
+                return true;
+            }
+
+            set1.Clear();
+            set2.Clear();
+            set1.Add(new int[] { 0, 0, 0 });
+            while (set1.Count != 0) {
+                foreach (int[] c in set1) {
+                    if (addToInside(c)) {
+                        for (int i = 0; i < 3; i++) {
+                            for (int j = -1; j <= 1; j += 2) {
+                                if (c[i] == 0 || c[i] > 0 == j > 0) { //Only flood towards the exterior
+                                    int[] next_c = (int[])c.Clone();
+                                    next_c[i] += j;
+                                    set2.Add(next_c);
+                                }
+                            }
                         }
                     }
                 }
 
-                return true;
+                HashSet<int[]> temp = set1;
+                set1.Clear();
+                set1 = set2;
+                set2 = temp;
             }
-
-            floodInside(new int[] { 0, 0, 0 });
 
             ribbonsToCheck.ExceptWith(touchedRibbons);
 

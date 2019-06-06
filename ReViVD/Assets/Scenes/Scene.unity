@@ -1323,7 +1323,7 @@ GameObject:
   - component: {fileID: 1260925162}
   - component: {fileID: 1260925161}
   m_Layer: 0
-  m_Name: Neon Genesis Cylinder
+  m_Name: Cylinder of the Apocalypse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
