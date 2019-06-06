@@ -19,9 +19,8 @@ namespace Revivd {
 
         //DEBUG
         public bool debugMode = false;
-        public int[] debugInts = { 0, 0, 0, 0 }; //Counters that reset every update, printed via getDebugData
-        public bool getDebugData = false;
         public readonly HashSet<int[]>[] districtsToHighlight = { new HashSet<int[]>(new CoordsEqualityComparer()), new HashSet<int[]>(new CoordsEqualityComparer()), new HashSet<int[]>(new CoordsEqualityComparer()) };
+        public bool clearDistrictsToHighlight = false;
 
         private void OnDrawGizmos() {
             if (debugMode) {
@@ -108,17 +107,13 @@ namespace Revivd {
                 p.UpdatePath();
             }
 
-            if (getDebugData) { //DEBUG
-                getDebugData = false;
-                string s = "Debug ints: ";
-                foreach (int i in debugInts)
-                    s += i.ToString() + '\t';
-                Debug.Log(s);
-            }
-
             if (debugMode) {
-                for (int i = 0; i < 4; i++)
-                    debugInts[i] = 0;
+                if (clearDistrictsToHighlight) {
+                    clearDistrictsToHighlight = false;
+                    foreach (HashSet<int[]> dth in districtsToHighlight) {
+                        dth.Clear();
+                    }
+                }
             }
         }
 

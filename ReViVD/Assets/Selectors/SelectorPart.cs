@@ -100,7 +100,7 @@ namespace Revivd {
             start[0] -= 1;
 
             //PHASE 2: starting from the border district found, create a "shell" of border districts around the (convex) primitive
-            bool addToShell(int[] c) {
+            bool addToShell(int[] c) { //Checks if c is part of the shell and wasn't explored before and returns true if it is
                 if (explored.ContainsKey(c)) {
                     return false;
                 }
@@ -115,7 +115,8 @@ namespace Revivd {
 
                     if (get1DProjDistance_dc(exitDir) > exitDist) { //Border district: add ribbons to ribbonsToCheck and keep spreading
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
-                            viz.districtsToHighlight[1].Add(true_c); //DEBUG
+                            if (viz.debugMode)
+                                viz.districtsToHighlight[1].Add(true_c); //DEBUG
 
                             foreach (Atom a in d.atoms_segment) {
                                 if (a.ShouldDisplay) {
@@ -168,7 +169,7 @@ namespace Revivd {
             }
 
             //PHASE 3: starting from the center, flood the created shell
-            bool addToInside(int[] c) {
+            bool addToInside(int[] c) { //Checks if c was explored before and returns true if it wasn't
                 if (explored.TryGetValue(c, out bool intersects)) {
                     return false;
                 }
@@ -178,7 +179,9 @@ namespace Revivd {
                 int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
 
                 if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
-                    viz.districtsToHighlight[2].Add(true_c); //DEBUG
+                    if (viz.debugMode)
+                        viz.districtsToHighlight[2].Add(true_c); //DEBUG
+
                     foreach (Atom a in d.atoms_segment) {
                         if (a.ShouldDisplay) {
                             TouchedRibbons.Add(a);
