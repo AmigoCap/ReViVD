@@ -1571,7 +1571,7 @@ MonoBehaviour:
   ShouldPollManualModifications: 0
   length: 1800
   radius: 600
-  handOffset: {x: 300, y: -250, z: 0}
+  handOffset: {x: 400, y: -50, z: 0}
 --- !u!114 &1308856143
 MonoBehaviour:
   m_ObjectHideFlags: 0

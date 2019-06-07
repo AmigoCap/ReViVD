@@ -45,13 +45,7 @@ namespace Revivd {
         public Transform PrimitiveTransform {
             get => primitive?.transform;
         }
-
-        public bool usesJob = false;
-
-        protected virtual void StartCheckingRibbons() { }
-
-        protected virtual void FinishCheckingRibbons() { }
-
+        
         public void FindTouchedRibbons() {
             touchedRibbons.Clear();
             ribbonsToCheck.Clear();
@@ -62,13 +56,7 @@ namespace Revivd {
 
             Tools.AddClockStop("Found ribbons to check");
 
-            if (usesJob) {
-                StartCheckingRibbons();
-                FinishCheckingRibbons();
-            }
-            else {
-                ParseRibbonsToCheck();
-            }
+            ParseRibbonsToCheck();
         }
 
         protected GameObject primitive;
@@ -169,6 +157,7 @@ namespace Revivd {
             HashSet<int[]> set1 = new HashSet<int[]>(comparer);
             HashSet<int[]> set2 = new HashSet<int[]>(comparer);
             set1.Add(start);
+            int cycle = 0;
             while (set1.Count != 0) {
                 foreach (int[] c in set1) {
                     if (addToShell(c)) {
@@ -186,6 +175,9 @@ namespace Revivd {
                 set1.Clear();
                 set1 = set2;
                 set2 = temp;
+
+                Tools.AddSubClockStop("End of cycle 2." + cycle.ToString());
+                cycle++;
             }
 
             Tools.AddClockStop("End phase 2");
@@ -217,6 +209,7 @@ namespace Revivd {
             set1.Clear();
             set2.Clear();
             set1.Add(new int[] { 0, 0, 0 });
+            cycle = 0;
             while (set1.Count != 0) {
                 foreach (int[] c in set1) {
                     if (addToInside(c)) {
@@ -236,6 +229,9 @@ namespace Revivd {
                 set1.Clear();
                 set1 = set2;
                 set2 = temp;
+
+                Tools.AddSubClockStop("End of cycle 3." + cycle.ToString());
+                cycle++;
             }
 
             Tools.AddClockStop("End phase 3");
