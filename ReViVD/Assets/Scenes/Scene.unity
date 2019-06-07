@@ -491,7 +491,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  usesJob: 0
   ShouldPollManualModifications: 0
   length: 5
   radius: 0.3
@@ -810,7 +809,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  usesJob: 0
   ShouldPollManualModifications: 0
   handOffset: {x: 0, y: 0, z: 4}
   size: {x: 1, y: 1, z: 1}
@@ -1620,7 +1618,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1260925160
 Transform:
   m_ObjectHideFlags: 0
@@ -1648,7 +1646,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  usesJob: 0
   ShouldPollManualModifications: 0
   length: 1800
   radius: 600
@@ -1931,7 +1928,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  usesJob: 0
   ShouldPollManualModifications: 0
   length: 1800
   radius: 600
@@ -1949,7 +1945,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   s_persistent: 1
-  s_color: 1
+  s_color: 0
   needsCheckedHighlightCleanup: 0
 --- !u!1 &1332672008
 GameObject:
@@ -3743,7 +3739,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  usesJob: 0
   ShouldPollManualModifications: 0
   radius: 0.5
   handOffset: {x: 0, y: 0, z: 2.5}
@@ -4136,7 +4131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e43fe2b7c047a4f852d28ff6aa024e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 15, y: 15, z: 15}
+  districtSize: {x: 20, y: 20, z: 20}
   dataFile: {fileID: 4900000, guid: 5fd28a27ea65b9b46be2ed7f7bf8c63f, type: 3}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 1

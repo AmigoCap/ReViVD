@@ -127,7 +127,7 @@ namespace Revivd {
         }
 
         public struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
-            public List<Atom> atoms_segment; //Tous les atomes dont le ruban fini traverse le district
+            public List<Atom> atoms; //Tous les atomes dont le ruban fini traverse le district
         }
 
         public Dictionary<int[], District> districts;
@@ -206,11 +206,11 @@ namespace Revivd {
                     foreach (int[] c in districts_segment) {
                         if (!districts.TryGetValue(c, out District d)) {
                             d = new District() {
-                                atoms_segment = new List<Atom>()
+                                atoms = new List<Atom>()
                             };
                             districts.Add(c, d);
                         }
-                        d.atoms_segment.Add(p.AtomsAsBase[i]);
+                        d.atoms.Add(p.AtomsAsBase[i]);
                     }
 
                     point = nextPoint;

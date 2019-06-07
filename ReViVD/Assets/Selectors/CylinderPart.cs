@@ -27,6 +27,7 @@ namespace Revivd {
             primitive.transform.localPosition = new Vector3(0, 0, length / 2) + handOffset;
             primitive.transform.localRotation = Quaternion.Euler(90, 0, 0);
             primitive.transform.localScale = new Vector3(radius, length / 2, radius);
+            primitive.GetComponent<CapsuleCollider>().height = 2 + radius / length * 2;
         }
 
 

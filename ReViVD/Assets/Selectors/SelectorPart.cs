@@ -65,6 +65,7 @@ namespace Revivd {
         protected abstract void UpdateManualModifications(); //Called every frame when the part is to be modified in creation mode
 
         private void FindRibbonsToCheck() {
+            
             Visualization viz = Visualization.Instance;
 
             BoxCollider districtCollider = gameObject.AddComponent<BoxCollider>();
@@ -93,10 +94,10 @@ namespace Revivd {
             }
 
             CoordsEqualityComparer comparer = new CoordsEqualityComparer();
-            Dictionary<int[], bool> explored = new Dictionary<int[], bool>(comparer);
+            HashSet<int[]> explored = new HashSet<int[]>(comparer);
 
             Tools.AddClockStop("Initialization of district checking 1");
-
+            
             //PHASE 1: starting from the center, find a "border" district
             int[] start = new int[] { 0, 0, 0 };
             while (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(start[0], start[1], start[2])), viz.transform.rotation,
@@ -106,18 +107,16 @@ namespace Revivd {
             start[0] -= 1;
 
             Tools.AddClockStop("End phase 1");
-
+            
             //PHASE 2: starting from the border district found, create a "shell" of border districts around the (convex) primitive
             bool addToShell(int[] c) { //Checks if c is part of the shell and wasn't explored before and returns true if it is
-                if (explored.ContainsKey(c)) {
+                if (!explored.Add(c)) {
                     return false;
                 }
 
                 //Check whether or not the district touches the primitive
                 if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(c[0], c[1], c[2])), viz.transform.rotation,
                                                    primitiveCollider, primitive.transform.position, primitive.transform.rotation, out Vector3 exitDir, out float exitDist)) {
-
-                    explored.Add(c, true);
 
                     int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
 
@@ -126,7 +125,7 @@ namespace Revivd {
                             if (viz.debugMode)
                                 viz.districtsToHighlight[1].Add(true_c); //DEBUG
 
-                            foreach (Atom a in d.atoms_segment) {
+                            foreach (Atom a in d.atoms) {
                                 if (a.ShouldDisplay) {
                                     ribbonsToCheck.Add(a);
                                 }
@@ -138,7 +137,7 @@ namespace Revivd {
                     else { //Inside district: add ribbons to touchedRibbons and stop the spreading there
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
 
-                            foreach (Atom a in d.atoms_segment) {
+                            foreach (Atom a in d.atoms) {
                                 if (a.ShouldDisplay) {
                                     touchedRibbons.Add(a);
                                 }
@@ -149,7 +148,6 @@ namespace Revivd {
                     }
                 }
                 else {
-                    explored.Add(c, false);
                     return false;
                 }
             }
@@ -171,12 +169,13 @@ namespace Revivd {
                     }
                 }
 
+                Tools.AddSubClockStop("End of cycle 2." + cycle.ToString() + "; " + set1.Count.ToString() + " districts treated");
+
                 HashSet<int[]> temp = set1;
                 set1.Clear();
                 set1 = set2;
                 set2 = temp;
 
-                Tools.AddSubClockStop("End of cycle 2." + cycle.ToString());
                 cycle++;
             }
 
@@ -184,11 +183,9 @@ namespace Revivd {
 
             //PHASE 3: starting from the center, flood the created shell
             bool addToInside(int[] c) { //Checks if c was explored before and returns true if it wasn't
-                if (explored.TryGetValue(c, out bool intersects)) {
+                if (!explored.Add(c)) {
                     return false;
                 }
-
-                explored.Add(c, true);
 
                 int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
 
@@ -196,7 +193,7 @@ namespace Revivd {
                     if (viz.debugMode)
                         viz.districtsToHighlight[2].Add(true_c); //DEBUG
 
-                    foreach (Atom a in d.atoms_segment) {
+                    foreach (Atom a in d.atoms) {
                         if (a.ShouldDisplay) {
                             TouchedRibbons.Add(a);
                         }
@@ -225,12 +222,13 @@ namespace Revivd {
                     }
                 }
 
+                Tools.AddSubClockStop("End of cycle 3." + cycle.ToString() + "; " + set1.Count.ToString() + " districts treated");
+
                 HashSet<int[]> temp = set1;
                 set1.Clear();
                 set1 = set2;
                 set2 = temp;
 
-                Tools.AddSubClockStop("End of cycle 3." + cycle.ToString());
                 cycle++;
             }
 
