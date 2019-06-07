@@ -490,9 +490,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _positive: 1
   ShouldPollManualModifications: 0
-  initialLength: 5
-  initialRadius: 0.3
-  initialHandOffset: {x: 0, y: 0, z: 0}
+  length: 5
+  radius: 0.3
+  handOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &199338846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -808,8 +808,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _positive: 1
   ShouldPollManualModifications: 0
-  initialHandOffset: {x: 0, y: 0, z: 4}
-  initialSize: {x: 1, y: 1, z: 1}
+  handOffset: {x: 0, y: 0, z: 4}
+  size: {x: 1, y: 1, z: 1}
 --- !u!114 &490082326
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3612,8 +3612,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _positive: 1
   ShouldPollManualModifications: 0
-  initialRadius: 0.5
-  initialHandOffset: {x: 0, y: 0, z: 2.5}
+  radius: 0.5
+  handOffset: {x: 0, y: 0, z: 2.5}
 --- !u!114 &2022752032
 MonoBehaviour:
   m_ObjectHideFlags: 0

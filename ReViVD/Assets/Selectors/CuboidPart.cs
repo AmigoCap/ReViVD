@@ -5,14 +5,15 @@ using UnityEngine;
 namespace Revivd {
 
     public class CuboidPart : SelectorPart {
-        public Vector3 initialHandOffset = new Vector3(0f, 0f, 4f);
-        public Vector3 initialSize = new Vector3(1f, 1f, 1f);
-        private Vector3 handOffset;
-        private Vector3 size;
+        private Vector3 initialHandOffset;
+        private Vector3 initialSize;
+
+        public Vector3 handOffset = new Vector3(0f, 0f, 4f);
+        public Vector3 size = new Vector3(1f, 1f, 1f);
 
         protected override void CreatePrimitive() {
-            handOffset = initialHandOffset;
-            size = initialSize;
+            initialSize = size;
+            initialHandOffset = handOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cube);
         }
         

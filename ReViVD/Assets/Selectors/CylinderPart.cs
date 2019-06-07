@@ -5,20 +5,19 @@ using UnityEngine;
 namespace Revivd {
 
     public class CylinderPart : SelectorPart {
+        private float initialLength;
+        private float initialRadius;
+        private Vector3 initialHandOffset;
 
-        public float initialLength = 5f;
-        public float initialRadius = 0.3f;
-        public Vector3 initialHandOffset = Vector3.zero;
-
-        private float length;
-        private float radius;
-        private Vector3 handOffset;
+        public float length = 5f;
+        public float radius = 0.3f;
+        public Vector3 handOffset = Vector3.zero;
 
 
         protected override void CreatePrimitive() {
-            length = initialLength;
-            radius = initialRadius;
-            handOffset = initialHandOffset;
+            initialLength = length;
+            initialRadius = radius;
+            initialHandOffset = handOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         }
 

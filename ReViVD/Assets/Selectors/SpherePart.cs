@@ -6,16 +6,16 @@ namespace Revivd {
 
     public class SpherePart : SelectorPart {
 
-        public float initialRadius = 0.5f;
-        public Vector3 initialHandOffset = new Vector3(0f, 0f, 2.5f);
+        private float initialRadius;
+        private Vector3 initialHandOffset;
 
-        private float radius;
-        private Vector3 handOffset;
+        public float radius = 0.3f;
+        public Vector3 handOffset = Vector3.zero;
 
 
         protected override void CreatePrimitive() {
-            radius = initialRadius;
-            handOffset = initialHandOffset;
+            initialRadius = radius;
+            initialHandOffset = handOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         }
 
