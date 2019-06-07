@@ -22,11 +22,6 @@ namespace Revivd {
             primitive.transform.localScale = size;
         }
 
-        public override void ResetScale() {
-            size = initialSize;
-            UpdatePrimitive();
-        }
-
         protected override void UpdateManualModifications() {
 
             if (SelectorManager.Instance.InverseMode) {
@@ -37,6 +32,10 @@ namespace Revivd {
             }
 
             handOffset.z += Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime;
+
+            if (SelectorManager.Instance.InverseMode && SteamVR_ControllerManager.RightController.padPressed) {
+                size = initialSize;
+            }
 
             if (SelectorManager.Instance.InverseMode && SteamVR_ControllerManager.RightController.padPressed) {
                 handOffset = initialHandOffset;

@@ -76,8 +76,6 @@ namespace Revivd {
 
         protected abstract void UpdatePrimitive();
 
-        public abstract void ResetScale();
-
         private void FindDistrictsToCheck() {
             Visualization viz = Visualization.Instance;
 

@@ -25,11 +25,6 @@ namespace Revivd {
             primitive.transform.localScale = new Vector3(radius * 2, radius * 2, radius * 2);
         }
 
-        public override void ResetScale() {
-            radius = initialRadius;
-            UpdatePrimitive();
-        }
-
         protected override void UpdateManualModifications() {
             if (SelectorManager.Instance.InverseMode) {
                 radius -= radius * SteamVR_ControllerManager.RightController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
@@ -39,6 +34,10 @@ namespace Revivd {
             }
 
             handOffset.z += Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime;
+
+            if (SelectorManager.Instance.InverseMode && SteamVR_ControllerManager.RightController.padPressed) {
+                radius = initialRadius;
+            }
 
             if (SelectorManager.Instance.InverseMode && SteamVR_ControllerManager.RightController.padPressed) {
                 handOffset = initialHandOffset;
