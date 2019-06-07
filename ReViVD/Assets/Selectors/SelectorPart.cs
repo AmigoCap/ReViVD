@@ -9,8 +9,8 @@ namespace Revivd {
     public abstract class SelectorPart : MonoBehaviour {
         protected HashSet<Atom> ribbonsToCheck = new HashSet<Atom>();
         public HashSet<Atom> RibbonsToCheck { get => ribbonsToCheck; }
-        protected List<Atom> touchedRibbons = new List<Atom>();
-        public List<Atom> TouchedRibbons { get => touchedRibbons; }
+        protected HashSet<Atom> touchedRibbons = new HashSet<Atom>();
+        public HashSet<Atom> TouchedRibbons { get => touchedRibbons; }
 
         [SerializeField]
         private bool _positive = true;
@@ -46,13 +46,29 @@ namespace Revivd {
             get => primitive?.transform;
         }
 
+        public bool usesJob = false;
+
+        protected virtual void StartCheckingRibbons() { }
+
+        protected virtual void FinishCheckingRibbons() { }
+
         public void FindTouchedRibbons() {
             touchedRibbons.Clear();
             ribbonsToCheck.Clear();
 
+            Tools.AddClockStop("Cleared old ribbons");
+
             FindRibbonsToCheck();
 
-            ParseRibbonsToCheck();
+            Tools.AddClockStop("Found ribbons to check");
+
+            if (usesJob) {
+                StartCheckingRibbons();
+                FinishCheckingRibbons();
+            }
+            else {
+                ParseRibbonsToCheck();
+            }
         }
 
         protected GameObject primitive;
@@ -91,6 +107,8 @@ namespace Revivd {
             CoordsEqualityComparer comparer = new CoordsEqualityComparer();
             Dictionary<int[], bool> explored = new Dictionary<int[], bool>(comparer);
 
+            Tools.AddClockStop("Initialization of district checking 1");
+
             //PHASE 1: starting from the center, find a "border" district
             int[] start = new int[] { 0, 0, 0 };
             while (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(start[0], start[1], start[2])), viz.transform.rotation,
@@ -98,6 +116,8 @@ namespace Revivd {
                 start[0] += 1;
             }
             start[0] -= 1;
+
+            Tools.AddClockStop("End phase 1");
 
             //PHASE 2: starting from the border district found, create a "shell" of border districts around the (convex) primitive
             bool addToShell(int[] c) { //Checks if c is part of the shell and wasn't explored before and returns true if it is
@@ -168,6 +188,8 @@ namespace Revivd {
                 set2 = temp;
             }
 
+            Tools.AddClockStop("End phase 2");
+
             //PHASE 3: starting from the center, flood the created shell
             bool addToInside(int[] c) { //Checks if c was explored before and returns true if it wasn't
                 if (explored.TryGetValue(c, out bool intersects)) {
@@ -216,19 +238,13 @@ namespace Revivd {
                 set2 = temp;
             }
 
+            Tools.AddClockStop("End phase 3");
+
             ribbonsToCheck.ExceptWith(touchedRibbons);
 
+            Tools.AddClockStop("Removed obvious from toCheck");
+
             Destroy(districtCollider);
-        }
-
-
-        protected struct IParseRibbonsJob : IJobParallelFor {
-            [ReadOnly, NativeDisableParallelForRestriction]
-            public NativeArray<Vector3> points;
-
-            public void Execute(int i) {
-
-            }
         }
 
         protected abstract void ParseRibbonsToCheck();

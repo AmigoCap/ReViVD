@@ -64,6 +64,8 @@ namespace Revivd {
             if (!isActiveAndEnabled)
                 return;
 
+            Tools.StartClock();
+
             List<SelectorPart> parts = new List<SelectorPart>(GetComponents<SelectorPart>());
             parts.RemoveAll(p => !p.enabled);
 
@@ -80,12 +82,19 @@ namespace Revivd {
                         a.ShouldHighlightBecauseChecked((int)Color, false);
                 }
 
+                Tools.AddClockStop("Removed old c_highlights");
+
                 p.FindTouchedRibbons();
+
+                Tools.AddClockStop("Found touched ribbons");
 
                 if (SelectorManager.Instance.HighlightChecked && !Persistent) {
                     foreach (Atom a in p.RibbonsToCheck)
                         a.ShouldHighlightBecauseChecked((int)Color, true);
                 }
+
+                Tools.AddClockStop("Added new c_highlights");
+                Tools.EndClock();
             }
 
             IEnumerable<Atom> handledRibbons;
@@ -126,6 +135,8 @@ namespace Revivd {
                     }
                 }
             }
+
+            Tools.AddClockStop("Added new s_highlights");
 
             if (SelectorManager.Instance.HighlightChecked)
                 needsCheckedHighlightCleanup = true;

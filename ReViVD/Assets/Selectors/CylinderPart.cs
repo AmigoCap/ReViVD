@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Jobs;
 using UnityEngine;
+using Unity.Collections;
 
 namespace Revivd {
 
@@ -60,6 +62,52 @@ namespace Revivd {
 
         }
 
+        DistanceToSaberJob job;
+        JobHandle handle;
+
+        protected override void StartCheckingRibbons() {
+            NativeArray<Vector3> APoints = new NativeArray<Vector3>(ribbonsToCheck.Count, Allocator.TempJob);
+            NativeArray<Vector3> BPoints = new NativeArray<Vector3>(ribbonsToCheck.Count, Allocator.TempJob);
+            var it = ribbonsToCheck.GetEnumerator();
+            for (int i = 0; i < APoints.Length; i++) {
+                it.MoveNext();
+                APoints[i] = it.Current.path.transform.TransformPoint(it.Current.point);
+                BPoints[i] = it.Current.path.transform.TransformPoint(it.Current.path.AtomsAsBase[it.Current.indexInPath].point);
+            }
+
+            Vector3 saberStart = primitive.transform.position - primitive.transform.up * length / 2;
+            Vector3 saberEnd = primitive.transform.position + primitive.transform.up * length / 2;
+
+            job = new DistanceToSaberJob() {
+                APoints = APoints,
+                BPoints = BPoints,
+                distances = new NativeArray<float>(APoints.Length, Allocator.TempJob),
+                saberStart = saberStart,
+                saberEnd = saberEnd,
+                saberDiffMagnitude = (saberStart - saberEnd).magnitude,
+                saberDiffNormalized = (saberStart - saberEnd).normalized
+            };
+
+            handle = job.Schedule(APoints.Length, 32);
+
+            return;
+        }
+
+        protected override void FinishCheckingRibbons() {
+            handle.Complete();
+            job.APoints.Dispose();
+            job.BPoints.Dispose();
+            var it = job.distances.GetEnumerator();
+            foreach (Atom a in ribbonsToCheck) {
+                it.MoveNext();
+                if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
+                    radius = a.path.baseRadius;
+                if (it.Current < this.radius / 2 + radius)
+                    touchedRibbons.Add(a);
+            }
+            job.distances.Dispose();
+        }
+
         protected override void ParseRibbonsToCheck() {
             Vector3 saberStart = primitive.transform.position - primitive.transform.up * length / 2;
             Vector3 saberEnd = primitive.transform.position + primitive.transform.up * length / 2;
@@ -70,6 +118,108 @@ namespace Revivd {
                 if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < this.radius / 2 + radius) {
                     touchedRibbons.Add(a);
                 }
+            }
+        }
+
+        private struct DistanceToSaberJob : IJobParallelFor {
+            [ReadOnly] public NativeArray<Vector3> APoints;
+            [ReadOnly] public NativeArray<Vector3> BPoints;
+
+            public NativeArray<float> distances;
+
+            [ReadOnly] public Vector3 saberStart;
+            [ReadOnly] public Vector3 saberEnd;
+            [ReadOnly] public float saberDiffMagnitude;
+            [ReadOnly] public Vector3 saberDiffNormalized;
+
+            public void Execute(int i) {
+                //Adapted from https://stackoverflow.com/questions/2824478/shortest-distance-between-two-line-segments
+
+                float Determinant(Vector3 a, Vector3 b, Vector3 c) {
+                    return a.x * b.y * c.z + a.y * b.z * c.x + a.z * b.x * c.y - c.x * b.y * a.z - c.y * b.z * a.x - c.z * b.x * a.y;
+                }
+
+                var pointsDiff = BPoints[i] - APoints[i];
+                float pointsDiffMagnitude = pointsDiff.magnitude;
+                var pointsDiffNormalized = pointsDiff / pointsDiffMagnitude;
+
+                var cross = Vector3.Cross(saberDiffNormalized, pointsDiffNormalized);
+                var denom = cross.magnitude * cross.magnitude;
+
+                if (denom == 0) {
+                    var d0 = Vector3.Dot(saberDiffNormalized, (APoints[i] - saberStart));
+
+                    var d1 = Vector3.Dot(saberDiffNormalized, (BPoints[i] - saberStart));
+
+                    if (d0 <= 0 && 0 >= d1) {
+                        if (Mathf.Abs(d0) < Mathf.Abs(d1)) {
+                            distances[i] = (saberStart - APoints[i]).magnitude;
+                            return;
+                        }
+
+                        distances[i] = (saberStart - BPoints[i]).magnitude;
+                        return;
+                    }
+
+                    else if (d0 >= saberDiffMagnitude && saberDiffMagnitude <= d1) {
+                        if (Mathf.Abs(d0) < Mathf.Abs(d1)) {
+                            distances[i] = (saberEnd - APoints[i]).magnitude;
+                            return;
+                        }
+
+                        distances[i] = (saberEnd - BPoints[i]).magnitude;
+                        return;
+                    }
+
+                    distances[i] = (((d0 * saberDiffNormalized) + saberStart) - APoints[i]).magnitude;
+                    return;
+                }
+
+
+                // Lines criss-cross: Calculate the projected closest points
+                var t = (APoints[i] - saberStart);
+                var detA = Determinant(t, pointsDiffNormalized, cross);
+                var detB = Determinant(t, saberDiffNormalized, cross);
+
+                var t0 = detA / denom;
+                var t1 = detB / denom;
+
+                var pA = saberStart + (saberDiffNormalized * t0); // Projected closest point on segment A
+                var pB = APoints[i] + (pointsDiffNormalized * t1); // Projected closest point on segment B
+
+
+                // Clamp projections
+                if (t0 < 0)
+                    pA = saberStart;
+                else if (t0 > saberDiffMagnitude)
+                    pA = saberEnd;
+
+                if (t1 < 0)
+                    pB = APoints[i];
+                else if (t1 > pointsDiffMagnitude)
+                    pB = BPoints[i];
+
+                float dot;
+                // Clamp projection A
+                if (t0 < 0 || t0 > saberDiffMagnitude) {
+                    dot = Vector3.Dot(pointsDiffNormalized, (pA - APoints[i]));
+                    if (dot < 0)
+                        dot = 0;
+                    else if (dot > pointsDiffMagnitude)
+                        dot = pointsDiffMagnitude;
+                    pB = APoints[i] + (pointsDiffNormalized * dot);
+                }
+                // Clamp projection B
+                if (t1 < 0 || t1 > pointsDiffMagnitude) {
+                    dot = Vector3.Dot(saberDiffNormalized, (pB - saberStart));
+                    if (dot < 0)
+                        dot = 0;
+                    else if (dot > saberDiffMagnitude)
+                        dot = saberDiffMagnitude;
+                    pA = saberStart + (saberDiffNormalized * dot);
+                }
+
+                distances[i] = (pA - pB).magnitude;
             }
         }
 
