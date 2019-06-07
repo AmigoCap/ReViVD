@@ -6,12 +6,19 @@ namespace Revivd {
 
     public class CylinderPart : SelectorPart {
 
-        public float length = 5f;
-        public float radius = 0.3f;
-        public Vector3 handOffset = Vector3.zero;
+        public float initialLength = 5f;
+        public float initialRadius = 0.3f;
+        public Vector3 initialHandOffset = Vector3.zero;
+
+        private float length;
+        private float radius;
+        private Vector3 handOffset;
 
 
         protected override void CreatePrimitive() {
+            length = initialLength;
+            radius = initialRadius;
+            handOffset = initialHandOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         }
 
@@ -21,11 +28,25 @@ namespace Revivd {
             primitive.transform.localScale = new Vector3(radius, length / 2, radius);
         }
 
+        public override void ResetScale() {
+            radius = initialRadius;
+            length = initialLength;
+            UpdatePrimitive();
+        }
+
         protected override void UpdateManualModifications() {
-            radius += radius * SteamVR_ControllerManager.RightController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
-            radius -= radius * SteamVR_ControllerManager.LeftController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            if (SelectorManager.Instance.InverseMode) {
+                radius -= radius * SteamVR_ControllerManager.RightController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
+            else {
+                radius += radius * SteamVR_ControllerManager.RightController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
 
             handOffset.z += Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime;
+
+            if (SelectorManager.Instance.InverseMode && SteamVR_ControllerManager.RightController.padPressed) {
+                handOffset = initialHandOffset;
+            }
 
             if (SteamVR_ControllerManager.RightController.padPressed) {
                 if (SteamVR_ControllerManager.RightController.Pad.x >= 0) {

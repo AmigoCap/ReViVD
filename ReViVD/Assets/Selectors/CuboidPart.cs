@@ -5,10 +5,14 @@ using UnityEngine;
 namespace Revivd {
 
     public class CuboidPart : SelectorPart {
-        public Vector3 handOffset = new Vector3(0f, 0f, 4f);
-        public Vector3 size = new Vector3(1f, 1f, 1f);
+        public Vector3 initialHandOffset = new Vector3(0f, 0f, 4f);
+        public Vector3 initialSize = new Vector3(1f, 1f, 1f);
+        private Vector3 handOffset;
+        private Vector3 size;
 
         protected override void CreatePrimitive() {
+            handOffset = initialHandOffset;
+            size = initialSize;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cube);
         }
         
@@ -18,12 +22,25 @@ namespace Revivd {
             primitive.transform.localScale = size;
         }
 
+        public override void ResetScale() {
+            size = initialSize;
+            UpdatePrimitive();
+        }
+
         protected override void UpdateManualModifications() {
 
-            size += size * SteamVR_ControllerManager.RightController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
-            size -= size * SteamVR_ControllerManager.LeftController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            if (SelectorManager.Instance.InverseMode) {
+                size -= size * SteamVR_ControllerManager.RightController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
+            else {
+                size += size * SteamVR_ControllerManager.RightController.Shoulder * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
 
             handOffset.z += Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * SteamVR_ControllerManager.RightController.Joystick.y * Time.deltaTime;
+
+            if (SelectorManager.Instance.InverseMode && SteamVR_ControllerManager.RightController.padPressed) {
+                handOffset = initialHandOffset;
+            }
 
             if (SteamVR_ControllerManager.RightController.padPressed) {
                 if (SteamVR_ControllerManager.RightController.Pad.x >= 0) {
