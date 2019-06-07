@@ -42,7 +42,7 @@ namespace Revivd {
                 else {
                     leftSelectionCircleMask.SetActive(false);
                     rightSelectionCircleMask.SetActive(false);
-                    leftCreationCircleMask.SetActive(true);
+                    leftCreationCircleMask.SetActive(true); 
                     rightCreationCircleMask.SetActive(true);
                 }
                 Selector hs = handSelectors[(int)CurrentColor];
