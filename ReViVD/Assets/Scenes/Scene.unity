@@ -181,6 +181,8 @@ Transform:
   - {fileID: 199338844}
   - {fileID: 2022752030}
   - {fileID: 490082324}
+  - {fileID: 1260925160}
+  - {fileID: 1308856141}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -489,6 +491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
+  usesJob: 0
   ShouldPollManualModifications: 0
   length: 5
   radius: 0.3
@@ -807,6 +810,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
+  usesJob: 0
   ShouldPollManualModifications: 0
   handOffset: {x: 0, y: 0, z: 4}
   size: {x: 1, y: 1, z: 1}
@@ -1117,8 +1121,7 @@ MonoBehaviour:
   dataFile: {fileID: 4900000, guid: 97d80f9a28855a647b97ed7043a16fdf, type: 3}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
-  debugInts: 00000000000000000000000000000000
-  getDebugData: 0
+  clearDistrictsToHighlight: 0
   paths: []
   scaleFactor: 5
 --- !u!4 &758616313
@@ -1437,7 +1440,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.05
-  far clip plane: 1000
+  far clip plane: 3000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -1600,6 +1603,71 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1178558918}
   m_CullTransparentMesh: 0
+--- !u!1 &1260925159
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1260925160}
+  - component: {fileID: 1260925162}
+  - component: {fileID: 1260925161}
+  m_Layer: 0
+  m_Name: Cylinder of the Apocalypse
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1260925160
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260925159}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 28837753}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1260925161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260925159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c2fa16cafc6cf4d8879344a433eb47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _positive: 1
+  usesJob: 0
+  ShouldPollManualModifications: 0
+  length: 1800
+  radius: 600
+  handOffset: {x: 300, y: -250, z: 0}
+--- !u!114 &1260925162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260925159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7deb5a8e7f0c33408f40307de7425fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  s_persistent: 0
+  s_color: 3
+  needsCheckedHighlightCleanup: 0
 --- !u!1 &1264973259
 GameObject:
   m_ObjectHideFlags: 0
@@ -1818,6 +1886,71 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   index: -1
   origin: {fileID: 0}
+--- !u!1 &1308856140
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1308856141}
+  - component: {fileID: 1308856143}
+  - component: {fileID: 1308856142}
+  m_Layer: 0
+  m_Name: Persistent Cylinder of the Apocalypse
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1308856141
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308856140}
+  m_LocalRotation: {x: -0.030756876, y: 0.07022811, z: 0.19432674, w: 0.9779362}
+  m_LocalPosition: {x: 109.85947, y: 550.74585, z: -870.323}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 28837753}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1308856142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308856140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c2fa16cafc6cf4d8879344a433eb47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _positive: 1
+  usesJob: 0
+  ShouldPollManualModifications: 0
+  length: 1800
+  radius: 600
+  handOffset: {x: 400, y: -50, z: 0}
+--- !u!114 &1308856143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308856140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7deb5a8e7f0c33408f40307de7425fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  s_persistent: 1
+  s_color: 1
+  needsCheckedHighlightCleanup: 0
 --- !u!1 &1332672008
 GameObject:
   m_ObjectHideFlags: 0
@@ -2683,8 +2816,7 @@ MonoBehaviour:
   dataFile: {fileID: 4900000, guid: 06a47f6ade34cb948bb355897f4f2647, type: 3}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 1
-  debugInts: 00000000000000000000000000000000
-  getDebugData: 0
+  clearDistrictsToHighlight: 0
   paths: []
 --- !u!4 &1731387382 stripped
 Transform:
@@ -3611,6 +3743,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
+  usesJob: 0
   ShouldPollManualModifications: 0
   radius: 0.5
   handOffset: {x: 0, y: 0, z: 2.5}
@@ -3876,7 +4009,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2110390904}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -200, y: 200, z: -750}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1284480675}
@@ -4003,10 +4136,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e43fe2b7c047a4f852d28ff6aa024e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 5, y: 5, z: 5}
+  districtSize: {x: 15, y: 15, z: 15}
   dataFile: {fileID: 4900000, guid: 5fd28a27ea65b9b46be2ed7f7bf8c63f, type: 3}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
-  debugMode: 0
-  debugInts: 00000000000000000000000000000000
-  getDebugData: 0
+  debugMode: 1
+  clearDistrictsToHighlight: 0
   paths: []

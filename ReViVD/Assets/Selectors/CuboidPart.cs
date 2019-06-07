@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace Revivd {
@@ -105,7 +106,7 @@ namespace Revivd {
         }
 
         protected override void ParseRibbonsToCheck() {
-            foreach (Atom a in checkedRibbons) {
+            foreach (Atom a in ribbonsToCheck) {
                 if (CuboidTouchesRibbon(a)) {
                     touchedRibbons.Add(a);
                 }

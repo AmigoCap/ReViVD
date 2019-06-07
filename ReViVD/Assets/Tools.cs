@@ -5,6 +5,36 @@ using UnityEngine;
 namespace Revivd {
 
     public static class Tools {
+        private static float startTime = 0;
+        private static float time = 0;
+        private static float subTime = 0;
+        private static string clockString = "";
+        public static void StartClock() {
+            clockString = "Started Clock\n";
+            time = Time.realtimeSinceStartup;
+            startTime = time;
+            subTime = time;
+        }
+        public static void AddClockStop(string message) {
+            float delta = Time.realtimeSinceStartup - time;
+            clockString += delta.ToString("F4") + " - " + message + '\n';
+
+            time = Time.realtimeSinceStartup;
+            subTime = time;
+        }
+        public static void AddSubClockStop(string message) {
+            float delta = Time.realtimeSinceStartup - subTime;
+            clockString += "    " + delta.ToString("F4") + " - " + message + '\n';
+
+            subTime = Time.realtimeSinceStartup;
+        }
+        public static void EndClock(string message = "End") {
+            AddClockStop(message);
+            float totalDelta = Time.realtimeSinceStartup - startTime;
+            clockString += totalDelta.ToString("F4") + " - " + "Total";
+            Debug.Log(clockString);
+        }
+
         public static List<int[]> Bresenham(int[] start, int[] end) {
             List<int[]> results = new List<int[]> {
                 (int[])start.Clone()

@@ -258,7 +258,7 @@ namespace Revivd {
         public void ShouldHighlightBecauseChecked(int colorGroup, bool value = true) {
             bool wasHighlighted = ShouldHighlight;
             shouldHighlight_checked[colorGroup] = value;
-            if (wasHighlighted != ShouldHighlight) {
+            if ((!wasHighlighted && value) || (wasHighlighted && !ShouldHighlight)) {
                 shouldUpdateColor = true;
                 path.needsColorUpdate = true;
             }
@@ -267,7 +267,7 @@ namespace Revivd {
         public void ShouldHighlightBecauseSelected(int colorGroup, bool value = true) {
             bool wasHighlighted = ShouldHighlight;
             shouldHighlight_selected[colorGroup] = value;
-            if (wasHighlighted != ShouldHighlight) {
+            if ((!wasHighlighted && value) || (wasHighlighted && !ShouldHighlight)) {
                 shouldUpdateColor = true;
                 path.needsColorUpdate = true;
             }
@@ -278,7 +278,7 @@ namespace Revivd {
             set {
                 bool wasHighlighted = ShouldHighlight;
                 shouldHighlight_debug = value;
-                if (wasHighlighted != ShouldHighlight) {
+                if ((!wasHighlighted && value) || (wasHighlighted && !ShouldHighlight)) {
                     shouldUpdateColor = true;
                     path.needsColorUpdate = true;
                 }

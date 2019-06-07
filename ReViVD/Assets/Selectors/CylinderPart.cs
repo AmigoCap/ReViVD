@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Jobs;
 using UnityEngine;
+using Unity.Collections;
 
 namespace Revivd {
 
@@ -84,7 +86,7 @@ namespace Revivd {
             Vector3 saberStart = primitive.transform.position - primitive.transform.up * length / 2;
             Vector3 saberEnd = primitive.transform.position + primitive.transform.up * length / 2;
             
-            foreach (Atom a in checkedRibbons) {
+            foreach (Atom a in ribbonsToCheck) {
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
                     radius = a.path.baseRadius;
                 if (ClosestDistanceBetweenSegments(a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point), saberStart, saberEnd) < this.radius / 2 + radius) {
@@ -92,17 +94,13 @@ namespace Revivd {
                 }
             }
         }
-
-        private float Determinant(Vector3 a, Vector3 b, Vector3 c) {
-            return a.x * b.y * c.z + a.y * b.z * c.x + a.z * b.x * c.y - c.x * b.y * a.z - c.y * b.z * a.x - c.z * b.x * a.y;
-        }
-
+        
         private float ClosestDistanceBetweenSegments(Vector3 a0, Vector3 a1, Vector3 b0, Vector3 b1) {
             //Issu de https://stackoverflow.com/questions/2824478/shortest-distance-between-two-line-segments
 
-            Vector3 line1Closest;
-            Vector3 line2Closest;
-            float distance;
+            float Determinant(Vector3 a, Vector3 b, Vector3 c) {
+                return a.x * b.y * c.z + a.y * b.z * c.x + a.z * b.x * c.y - c.x * b.y * a.z - c.y * b.z * a.x - c.z * b.x * a.y;
+            }
 
             var A = a1 - a0;
             var B = b1 - b0;
@@ -122,38 +120,21 @@ namespace Revivd {
 
                 if (d0 <= 0 && 0 >= d1) {
                     if (Mathf.Abs(d0) < Mathf.Abs(d1)) {
-                        line1Closest = a0;
-                        line2Closest = b0;
-                        distance = (a0 - b0).magnitude;
-
-                        return distance;
+                        return (a0 - b0).magnitude;
                     }
-                    line1Closest = a0;
-                    line2Closest = b1;
-                    distance = (a0 - b1).magnitude;
 
-                    return distance;
+                    return (a0 - b1).magnitude;
                 }
 
                 else if (d0 >= magA && magA <= d1) {
                     if (Mathf.Abs(d0) < Mathf.Abs(d1)) {
-                        line1Closest = a1;
-                        line2Closest = b0;
-                        distance = (a1 - b0).magnitude;
-
-                        return distance;
+                        return (a1 - b0).magnitude;
                     }
-                    line1Closest = a1;
-                    line2Closest = b1;
-                    distance = (a1 - b1).magnitude;
-
-                    return distance;
+                    
+                    return (a1 - b1).magnitude;
                 }
 
-                line1Closest = Vector3.zero;
-                line2Closest = Vector3.zero;
-                distance = (((d0 * _A) + a0) - b0).magnitude;
-                return distance;
+                return (((d0 * _A) + a0) - b0).magnitude;
             }
 
 
@@ -200,10 +181,7 @@ namespace Revivd {
                 pA = a0 + (_A * dot);
             }
 
-            line1Closest = pA;
-            line2Closest = pB;
-            distance = (pA - pB).magnitude;
-            return distance;
+            return (pA - pB).magnitude;
         }
 
     }
