@@ -10,12 +10,18 @@ namespace Revivd {
         private static float subTime = 0;
         private static string clockString = "";
         public static void StartClock() {
+            if (!Visualization.Instance.debugMode)
+                return;
+
             clockString = "Started Clock\n";
             time = Time.realtimeSinceStartup;
             startTime = time;
             subTime = time;
         }
         public static void AddClockStop(string message) {
+            if (!Visualization.Instance.debugMode)
+                return;
+
             float delta = Time.realtimeSinceStartup - time;
             clockString += delta.ToString("F4") + " - " + message + '\n';
 
@@ -23,12 +29,18 @@ namespace Revivd {
             subTime = time;
         }
         public static void AddSubClockStop(string message) {
+            if (!Visualization.Instance.debugMode)
+                return;
+
             float delta = Time.realtimeSinceStartup - subTime;
             clockString += "    " + delta.ToString("F4") + " - " + message + '\n';
 
             subTime = Time.realtimeSinceStartup;
         }
         public static void EndClock(string message = "End") {
+            if (!Visualization.Instance.debugMode)
+                return;
+
             AddClockStop(message);
             float totalDelta = Time.realtimeSinceStartup - startTime;
             clockString += totalDelta.ToString("F4") + " - " + "Total";

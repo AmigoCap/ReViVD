@@ -29,8 +29,6 @@ namespace Revivd {
             primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
             if (GetComponent<Selector>().Persistent) {
                 primitive.transform.SetParent(this.transform, false);
-                this.transform.position = SteamVR_ControllerManager.Instance.right.transform.position;
-                this.transform.rotation = SteamVR_ControllerManager.Instance.right.transform.rotation;
             }
             else
                 primitive.transform.SetParent(SteamVR_ControllerManager.Instance.right.transform, false);
@@ -267,8 +265,6 @@ namespace Revivd {
 
             if (s.Persistent) {
                 primitive.transform.SetParent(this.transform, false);
-                this.transform.position = SteamVR_ControllerManager.Instance.right.transform.position;
-                this.transform.rotation = SteamVR_ControllerManager.Instance.right.transform.rotation;
             }
             else
                 primitive.transform.SetParent(SteamVR_ControllerManager.Instance.right.transform, false);

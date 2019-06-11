@@ -36,6 +36,11 @@ namespace Revivd {
                 _persistent = value;
                 s_persistent = _persistent;
 
+                if (_persistent) { //If the selector becomes persistent, it will host its parts' primitives (this should not be done at initialization to avoid resetting persistents set in the scene)
+                    this.transform.position = SteamVR_ControllerManager.Instance.right.transform.position;
+                    this.transform.rotation = SteamVR_ControllerManager.Instance.right.transform.rotation;
+                }
+
                 wantsToAttach = true;
             }
         }

@@ -181,8 +181,7 @@ Transform:
   - {fileID: 199338844}
   - {fileID: 2022752030}
   - {fileID: 490082324}
-  - {fileID: 1260925160}
-  - {fileID: 1308856141}
+  - {fileID: 1219430416}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1601,7 +1600,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1178558918}
   m_CullTransparentMesh: 0
---- !u!1 &1260925159
+--- !u!1 &1219430415
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1609,37 +1608,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1260925160}
-  - component: {fileID: 1260925162}
-  - component: {fileID: 1260925161}
+  - component: {fileID: 1219430416}
+  - component: {fileID: 1219430418}
+  - component: {fileID: 1219430417}
   m_Layer: 0
-  m_Name: Cylinder of the Apocalypse
+  m_Name: Persistent Cylinder of the Apocalypse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1260925160
+  m_IsActive: 1
+--- !u!4 &1219430416
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1260925159}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_GameObject: {fileID: 1219430415}
+  m_LocalRotation: {x: 0.012051005, y: 0.04218267, z: 0.35164854, w: 0.9351036}
+  m_LocalPosition: {x: 110.040085, y: 550.7429, z: -870.437}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 28837753}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1260925161
+--- !u!114 &1219430417
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1260925159}
+  m_GameObject: {fileID: 1219430415}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07c2fa16cafc6cf4d8879344a433eb47, type: 3}
@@ -1650,21 +1649,21 @@ MonoBehaviour:
   length: 1800
   radius: 600
   handOffset: {x: 300, y: -250, z: 0}
---- !u!114 &1260925162
+--- !u!114 &1219430418
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1260925159}
+  m_GameObject: {fileID: 1219430415}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7deb5a8e7f0c33408f40307de7425fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  s_persistent: 0
+  s_persistent: 1
   s_color: 3
-  needsCheckedHighlightCleanup: 0
+  needsCheckedHighlightCleanup: 1
 --- !u!1 &1264973259
 GameObject:
   m_ObjectHideFlags: 0
@@ -1883,70 +1882,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   index: -1
   origin: {fileID: 0}
---- !u!1 &1308856140
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1308856141}
-  - component: {fileID: 1308856143}
-  - component: {fileID: 1308856142}
-  m_Layer: 0
-  m_Name: Persistent Cylinder of the Apocalypse
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1308856141
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1308856140}
-  m_LocalRotation: {x: -0.030756876, y: 0.07022811, z: 0.19432674, w: 0.9779362}
-  m_LocalPosition: {x: 109.85947, y: 550.74585, z: -870.323}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 28837753}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1308856142
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1308856140}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c2fa16cafc6cf4d8879344a433eb47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _positive: 1
-  ShouldPollManualModifications: 0
-  length: 1800
-  radius: 600
-  handOffset: {x: 400, y: -50, z: 0}
---- !u!114 &1308856143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1308856140}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7deb5a8e7f0c33408f40307de7425fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  s_persistent: 1
-  s_color: 0
-  needsCheckedHighlightCleanup: 0
 --- !u!1 &1332672008
 GameObject:
   m_ObjectHideFlags: 0
@@ -4131,7 +4066,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e43fe2b7c047a4f852d28ff6aa024e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 20, y: 20, z: 20}
+  districtSize: {x: 100, y: 50, z: 100}
   dataFile: {fileID: 4900000, guid: 5fd28a27ea65b9b46be2ed7f7bf8c63f, type: 3}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 1
