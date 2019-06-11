@@ -41,6 +41,7 @@ namespace Revivd {
             mesh.Clear();
 
             int AtomCount = AtomsAsBase.Count;
+            //Debug.Log(AtomCount * 5 - 6);
 
             Vector3[] vertices = new Vector3[AtomCount * 5 - 6];
             for (int p = 0; p < AtomCount - 1; p++) {

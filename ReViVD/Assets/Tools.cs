@@ -96,6 +96,15 @@ namespace Revivd {
             return f < lower ? lower : (f > upper ? upper : f);
         }
 
+        public static float InterpretExponent(string word) {
+            int pos = word.IndexOf("E");
+            if (pos != -1) {
+                return float.Parse(word.Substring(0, pos - 1).Replace('.', ',')) * Mathf.Pow(10, float.Parse(word.Substring(pos + 1)));
+            }
+            else
+                return float.Parse(word);
+        }
+
         public static string CoordsToString(int[] c) {
             string str = '['  + c[0].ToString() + ' ' + c[1].ToString() + ' ' + c[2].ToString() + ']';
             return str;
