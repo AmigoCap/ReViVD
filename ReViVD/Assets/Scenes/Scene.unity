@@ -490,7 +490,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  ShouldPollManualModifications: 0
   length: 5
   radius: 0.3
   handOffset: {x: 0, y: 0, z: 0}
@@ -692,7 +691,7 @@ RectTransform:
   - {fileID: 131876988}
   - {fileID: 1561134179}
   m_Father: {fileID: 1636365210}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -808,7 +807,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  ShouldPollManualModifications: 0
   handOffset: {x: 0, y: 0, z: 4}
   size: {x: 1, y: 1, z: 1}
 --- !u!114 &490082326
@@ -1530,13 +1528,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1003333522}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 57, y: 9, z: 38.6}
   m_LocalScale: {x: 1.3, y: 1.2, z: 1}
   m_Children: []
   m_Father: {fileID: 1531627655}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!212 &1003333524
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1774,7 +1772,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  ShouldPollManualModifications: 0
   length: 1800
   radius: 600
   handOffset: {x: 300, y: -250, z: 0}
@@ -2307,7 +2304,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d0144ec77d6cd64fabf216a8639d6ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dampener: 45
+  dampener: 50
   pullSpeed: 0.2
   pullThreshold: 0.7
   operationThreshold: 0.2
@@ -2766,8 +2763,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: -0.053}
   m_LocalScale: {x: 0.03, y: 0.030000065, z: 1}
   m_Children:
-  - {fileID: 426579631}
   - {fileID: 2106293283}
+  - {fileID: 426579631}
   m_Father: {fileID: 1160231443}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 111, y: 0, z: 0}
@@ -3716,7 +3713,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77e5fd706bc612343903e410882783ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dampener: 50
+  dampener: 60
   centeringSpeed: 0.2
 --- !u!1 &2004474616
 GameObject:
@@ -3853,7 +3850,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  ShouldPollManualModifications: 0
   radius: 0.5
   handOffset: {x: 0, y: 0, z: 2.5}
 --- !u!114 &2022752032
@@ -3978,7 +3974,7 @@ RectTransform:
   - {fileID: 1983479985}
   - {fileID: 1483176150}
   m_Father: {fileID: 1636365210}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -4118,7 +4114,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2110390904}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10, y: 10, z: 10}
+  m_LocalPosition: {x: -20, y: 10, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1284480675}

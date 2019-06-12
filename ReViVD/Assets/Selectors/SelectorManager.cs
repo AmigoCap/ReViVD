@@ -33,22 +33,16 @@ namespace Revivd {
             get => _currentControlMode;
             set {
                 _currentControlMode = value;
-                if (_currentControlMode == ControlMode.SelectionMode) {
-                    leftSelectionCircleMask.SetActive(true);
-                    rightSelectionCircleMask.SetActive(true);
-                    leftCreationCircleMask.SetActive(false);
-                    rightCreationCircleMask.SetActive(false);
-                }
-                else {
-                    leftSelectionCircleMask.SetActive(false);
-                    rightSelectionCircleMask.SetActive(false);
-                    leftCreationCircleMask.SetActive(true); 
-                    rightCreationCircleMask.SetActive(true);
-                }
+                bool selectionMode = _currentControlMode == ControlMode.SelectionMode;
+                leftSelectionCircleMask.SetActive(selectionMode);
+                rightSelectionCircleMask.SetActive(selectionMode);
+                leftCreationCircleMask.SetActive(!selectionMode);
+                rightCreationCircleMask.SetActive(!selectionMode);
+
                 Selector hs = handSelectors[(int)CurrentColor];
                 if (hs != null && hs.isActiveAndEnabled) {
                     foreach (SelectorPart p in hs.GetComponents<SelectorPart>()) {
-                        p.ShouldPollManualModifications = (_currentControlMode == ControlMode.CreationMode);
+                        p.ShouldPollManualModifications = (!selectionMode);
                     }
                 }
             }

@@ -59,7 +59,16 @@ namespace Revivd {
 
         protected GameObject primitive;
 
-        public bool ShouldPollManualModifications = false;
+        private bool _shouldPollManualModifications;
+        public bool ShouldPollManualModifications {
+            get => _shouldPollManualModifications;
+            set {
+                _shouldPollManualModifications = value;
+                if (primitive != null && primitive.activeInHierarchy) {
+                    primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+                }
+            }
+        }
         protected abstract void UpdateManualModifications(); //Called every frame when the part is to be modified in creation mode
 
         private void FindRibbonsToCheck() {
@@ -250,14 +259,22 @@ namespace Revivd {
             UpdatePrimitive();
         }
 
+        private static readonly float colorPulseFrequency = 10;
+        private static readonly float colorPulseAmplitude = 0.15f;
+
         protected virtual void Update() {
-            if (primitive != null && !primitive.activeInHierarchy)
+            if (primitive == null || !primitive.activeInHierarchy)
                 return;
 
-            if (ShouldPollManualModifications)
-                UpdateManualModifications();
+            Selector s = GetComponent<Selector>();
+            if (s.isActiveAndEnabled && s.Shown) {
+                if (ShouldPollManualModifications) {
+                    UpdateManualModifications();
+                    primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)s.Color] * (1 - colorPulseAmplitude * Mathf.Sin(colorPulseFrequency * Time.time));
+                }
 
-            UpdatePrimitive();
+                UpdatePrimitive();
+            }
         }
 
         protected virtual void OnEnable() {

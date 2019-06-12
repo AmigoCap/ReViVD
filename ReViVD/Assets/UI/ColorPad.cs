@@ -13,30 +13,27 @@ namespace Revivd {
         int color;
 
         void Update() {
-
-            if (SelectorManager.Instance.CurrentControlMode == SelectorManager.ControlMode.SelectionMode) {
-                RectTransform rt = GetComponent<RectTransform>();
-                if (SteamVR_ControllerManager.RightController.padTouched) {
-                    if (!swiping)
-                        swiping = true;
-                    else {
-                        rt.Translate(Tools.Limit(SteamVR_ControllerManager.RightController.Pad.x - prevFingerX, -2.5f - rt.localPosition.x, 2.5f - rt.localPosition.x) / dampener, 0, 0);
-                    }
-                    prevFingerX = SteamVR_ControllerManager.RightController.Pad.x;
-                }
+            RectTransform rt = GetComponent<RectTransform>();
+            if (SteamVR_ControllerManager.RightController.padTouched) {
+                if (!swiping)
+                    swiping = true;
                 else {
-                    swiping = false;
-                    float centering = Tools.MaxAbs(2.5f - color - rt.localPosition.x, centeringSpeed);
-                    if (Mathf.Abs(centering) < centeringSpeed / 100)
-                        centering = 0;
-                    rt.Translate(centering * Time.deltaTime, 0, 0);
+                    rt.Translate(Tools.Limit(SteamVR_ControllerManager.RightController.Pad.x - prevFingerX, -2.5f - rt.localPosition.x, 2.5f - rt.localPosition.x) / dampener, 0, 0);
                 }
-
-                color = Mathf.FloorToInt(3f - rt.localPosition.x);
-                if (color != (int)SelectorManager.Instance.CurrentColor)
-                    SelectorManager.Instance.CurrentColor = (SelectorManager.ColorGroup)color;
+                prevFingerX = SteamVR_ControllerManager.RightController.Pad.x;
+            }
+            else {
+                swiping = false;
+                float centering = Tools.MaxAbs(2.5f - color - rt.localPosition.x, centeringSpeed);
+                if (Mathf.Abs(centering) < centeringSpeed / 2)
+                    rt.position.Set(2.5f - color, 0, 0);
+                else
+                    rt.Translate(centering * Time.deltaTime, 0, 0);
             }
 
+            color = Mathf.FloorToInt(3f - rt.localPosition.x);
+            if (color != (int)SelectorManager.Instance.CurrentColor)
+                SelectorManager.Instance.CurrentColor = (SelectorManager.ColorGroup)color;
         }
     }
 
