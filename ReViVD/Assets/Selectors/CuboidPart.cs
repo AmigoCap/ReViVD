@@ -20,8 +20,9 @@ namespace Revivd {
         
         protected override void UpdatePrimitive() {
             primitive.transform.localPosition = handOffset;
-            primitive.transform.localRotation = Quaternion.identity;
             primitive.transform.localScale = size;
+            if (!GetComponent<Selector>().Persistent)
+                primitive.transform.eulerAngles = new Vector3(0, SteamVR_ControllerManager.RightController.transform.eulerAngles.y, 0);
         }
 
         protected override void UpdateManualModifications() {
