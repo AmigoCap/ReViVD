@@ -36,7 +36,6 @@ References of the project can be found in the *annotated_bibliography.md* file.
 Some documentation can be found under the *docs* folder.
 
 ## 
-![picture](img/teaser_article.jpg)
 
 
 
