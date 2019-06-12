@@ -8,6 +8,8 @@ namespace Revivd {
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public IReadOnlyList<TurbulencePath> PathsAsTurbulence { get { return paths; } }
 
+        public float scaleCoeff = 5000;
+
         public void Reset() {
             districtSize = new Vector3(10, 10, 10);
         }
@@ -52,11 +54,11 @@ namespace Revivd {
                     pressureStagnation = press,
                     density = dens,
                     rotatingMach = rot,
-                    point = 5000 * new Vector3(x, y, z),
+                    point = scaleCoeff * new Vector3(x, y, z),
                     path = p,
                     indexInPath = p.atoms.Count,
-                   // BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), press / 185185f)
-                   // BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), dens)
+                    //BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), press / 185185f)
+                    //BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), dens)
                     BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), rot)
 
                 };
