@@ -2,6 +2,7 @@
 **Github Repository - PAr 118 - ReViVD (2018-2019)**
 
 **Full name: 3D data exploration with Virtual Reality Headset (aircraft trajectories, sports data)**
+![picture](img/teaser_article.png)
 
 ![picture](img/teaser_article.jpg)
 
