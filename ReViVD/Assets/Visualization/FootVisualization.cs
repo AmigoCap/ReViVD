@@ -68,7 +68,7 @@ namespace Revivd {
 
         private float startTime = 0;
 
-        private void Update() {
+        protected override void Update() {
             if (Input.GetMouseButtonDown(0)) {
                 startTime = Time.time;
             }
@@ -90,7 +90,7 @@ namespace Revivd {
                 }
             }
 
-            UpdateRendering();
+            base.Update();
         }
 
         public class FootPath : TimePath {

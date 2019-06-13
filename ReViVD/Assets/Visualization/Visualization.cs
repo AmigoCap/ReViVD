@@ -102,6 +102,10 @@ namespace Revivd {
             CreateDistricts();
         }
 
+        protected virtual void Update() {
+            UpdateRendering();
+        }
+
         protected void UpdateRendering() {
             foreach (Path p in PathsAsBase) {
                 p.UpdatePath();

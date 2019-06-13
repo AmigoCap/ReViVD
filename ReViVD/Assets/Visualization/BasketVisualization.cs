@@ -67,8 +67,8 @@ namespace Revivd {
 
         }
 
-        private void Update() {
-            UpdateRendering();
+        protected override void Update() {
+            base.Update();
         }
 
         public class BasketPath : Path {

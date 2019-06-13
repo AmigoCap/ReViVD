@@ -68,8 +68,8 @@ namespace Revivd {
             return true;
         }
 
-        private void Update() {
-            UpdateRendering();
+        protected override void Update() {
+            base.Update();
         }
 
         public class TurbulencePath : Path {

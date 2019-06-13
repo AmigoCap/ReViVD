@@ -63,36 +63,7 @@ namespace Revivd {
             float time = float.Parse(word.Replace('.', ','));
             return time;
         }
-
-        bool doTime = false;
-
-        private float startTime = 0;
-
-        private void Update() {
-            if (Input.GetMouseButtonDown(0)) {
-                startTime = Time.time;
-            }
-            if (Input.GetMouseButtonDown(1)) {
-                doTime = !doTime;
-                if (doTime) {
-                    startTime = Time.time;
-                }
-                else {
-                    foreach (LouRugbyPath p in paths) {
-                        p.RemoveTimeWindow();
-                    }
-                }
-            }
-
-            if (doTime) {
-                foreach (LouRugbyPath p in paths) {
-                    p.SetTimeWindow((Time.time - startTime) * 5 - 10, (Time.time - startTime) * 5 + 10);
-                }
-            }
-
-            UpdateRendering();
-        }
-
+        
         public class LouRugbyPath : TimePath {
             public List<LouRugbyAtom> atoms = new List<LouRugbyAtom>();
             public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }

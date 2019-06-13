@@ -68,35 +68,6 @@ namespace Revivd {
             return time;
         }
 
-        bool doTime = false;
-
-        private float startTime = 0;
-
-        private void Update() {
-            if (Input.GetMouseButtonDown(0)) {
-                startTime = Time.time;
-            }
-            if (Input.GetMouseButtonDown(1)) {
-                doTime = !doTime;
-                if (doTime) {
-                    startTime = Time.time;
-                }
-                else {
-                    foreach (AirTrafficPath p in paths) {
-                        p.RemoveTimeWindow();
-                    }
-                }
-            }
-
-            if (doTime) {
-                foreach (AirTrafficPath p in paths) {
-                    p.SetTimeWindow((Time.time - startTime) * 60 - 300, (Time.time - startTime) * 60 + 300);
-                }
-            }
-
-            UpdateRendering();
-        }
-
         public class AirTrafficPath : TimePath {
             public List<AirTrafficAtom> atoms = new List<AirTrafficAtom>();
             public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }
