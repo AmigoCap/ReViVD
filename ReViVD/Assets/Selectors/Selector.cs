@@ -143,7 +143,7 @@ namespace Revivd {
 
             Tools.AddClockStop("Added new s_highlights");
 
-            if (SelectorManager.Instance.HighlightChecked)
+            if (SelectorManager.Instance.HighlightChecked && !Persistent)
                 needsCheckedHighlightCleanup = true;
         }
 

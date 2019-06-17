@@ -69,6 +69,7 @@ namespace Revivd {
         }
         protected abstract void UpdateManualModifications(); //Called every frame when the part is to be modified in creation mode
 
+        private HashSet<int[]> exploredDistricts = new HashSet<int[]>(new CoordsEqualityComparer());
         private void FindRibbonsToCheck() {
             
             Visualization viz = Visualization.Instance;
@@ -99,7 +100,7 @@ namespace Revivd {
             }
 
             CoordsEqualityComparer comparer = new CoordsEqualityComparer();
-            HashSet<int[]> explored = new HashSet<int[]>(comparer);
+            exploredDistricts.Clear();
 
             Tools.AddClockStop("Initialization of district checking 1");
             
@@ -115,7 +116,7 @@ namespace Revivd {
             
             //PHASE 2: starting from the border district found, create a "shell" of border districts around the (convex) primitive
             bool addToShell(int[] c) { //Checks if c is part of the shell and wasn't explored before and returns true if it is
-                if (!explored.Add(c)) {
+                if (!exploredDistricts.Add(c)) {
                     return false;
                 }
 
@@ -125,11 +126,11 @@ namespace Revivd {
 
                     int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
 
-                    if (get1DProjDistance_dc(exitDir) > exitDist) { //Border district: add ribbons to ribbonsToCheck and keep spreading
+                    if (get1DProjDistance_dc(exitDir) > exitDist * 0.95f) { //Border district: add ribbons to ribbonsToCheck and keep spreading
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
                             if (viz.debugMode)
                                 viz.districtsToHighlight[1].Add(true_c); //DEBUG
-
+                            
                             foreach (Atom a in d.atoms) {
                                 if (a.ShouldDisplay) {
                                     ribbonsToCheck.Add(a);
@@ -139,8 +140,10 @@ namespace Revivd {
 
                         return true;
                     }
-                    else { //Inside district: add ribbons to touchedRibbons and stop the spreading there
+                    else { //Inside district: add ribbons to touchedRibbons and stop the spreading
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
+                            if (viz.debugMode)
+                                viz.districtsToHighlight[2].Add(true_c); //DEBUG
 
                             foreach (Atom a in d.atoms) {
                                 if (a.ShouldDisplay) {
@@ -188,7 +191,7 @@ namespace Revivd {
 
             //PHASE 3: starting from the center, flood the created shell
             bool addToInside(int[] c) { //Checks if c was explored before and returns true if it wasn't
-                if (!explored.Add(c)) {
+                if (!exploredDistricts.Add(c)) {
                     return false;
                 }
 

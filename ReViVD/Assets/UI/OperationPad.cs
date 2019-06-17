@@ -164,7 +164,7 @@ namespace Revivd {
                 swiping_logic = false;
                 float pull = Tools.MaxAbs(-rt.localPosition.y, pullSpeed);
                 if (Mathf.Abs(pull) < pullSpeed / 2) {
-                    rt.position.Set(0, 0, 0);
+                    rt.localPosition = Vector3.zero;
                 }
                 else {
                     rt.Translate(0, pull * Time.deltaTime, 0);

@@ -12,6 +12,11 @@ namespace Revivd {
 
         int color;
 
+        private void Start() {
+            color = (int)SelectorManager.Instance.CurrentColor;
+            GetComponent<RectTransform>().localPosition = new Vector3(2.5f - color, 0, 0);
+        }
+
         void Update() {
             RectTransform rt = GetComponent<RectTransform>();
             if (SteamVR_ControllerManager.RightController.padTouched) {
@@ -25,8 +30,8 @@ namespace Revivd {
             else {
                 swiping = false;
                 float centering = Tools.MaxAbs(2.5f - color - rt.localPosition.x, centeringSpeed);
-                if (Mathf.Abs(centering) < centeringSpeed / 2)
-                    rt.position.Set(2.5f - color, 0, 0);
+                if (Mathf.Abs(centering) < centeringSpeed / 10)
+                    rt.localPosition = new Vector3(2.5f - color, 0, 0);
                 else
                     rt.Translate(centering * Time.deltaTime, 0, 0);
             }
