@@ -55,6 +55,14 @@ namespace Revivd {
 
         private GameObject timeSphere;
 
+        protected virtual void CreateTimeSphere() {
+            timeSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            Destroy(timeSphere.GetComponent<SphereCollider>());
+            timeSphere.transform.parent = this.transform;
+            timeSphere.transform.localScale = Vector3.one * baseRadius * 24;
+            timeSphere.SetActive(shouldDisplayTimeSpheres);
+        }
+
         private float _timeSphereTime;
         public float TimeSphereTime {
             get => _timeSphereTime;
@@ -64,14 +72,17 @@ namespace Revivd {
                 it.MoveNext();
                 float t = it.Current.time;
                 if (t >= _timeSphereTime) { //First point is already too late
-                    timeSphere.transform.localPosition = it.Current.point;
-                    timeSphere.SetActive(false);
+                    Destroy(timeSphere);
+                    timeSphere = null;
                     return;
                 }
 
                 TimeAtom a = it.Current;
                 while (it.MoveNext()) {
                     if (it.Current.time >= _timeSphereTime) { //Next point is too late
+                        if (timeSphere == null)
+                            CreateTimeSphere();
+
                         Vector3 pos = a.point;
                         pos += (_timeSphereTime - a.time) / (it.Current.time - a.time) * (it.Current.point - a.point);
                         timeSphere.transform.localPosition = pos;
@@ -82,21 +93,20 @@ namespace Revivd {
                 }
 
                 //Reached the end while still being too early
-                timeSphere.transform.localPosition = a.point;
-                timeSphere.SetActive(false);
+                Destroy(timeSphere);
+                timeSphere = null;
             }
         }
 
+        private bool shouldDisplayTimeSpheres = false;
         public void DisplayTimeSphere(bool state = true) {
-            timeSphere.SetActive(state);
+            shouldDisplayTimeSpheres = state;
+            if (timeSphere != null)
+                timeSphere.SetActive(state);
         }
 
         protected override void Awake() {
             base.Awake();
-            timeSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            timeSphere.transform.parent = this.transform;
-            timeSphere.transform.localScale = Vector3.one * baseRadius * 24;
-            timeSphere.SetActive(false);
         }
 
         public void SetTimeWindow(float startTime, float stopTime) { //Met à jour les atomes à afficher en fonction de si leur temps est dans la fenêtre recherchée

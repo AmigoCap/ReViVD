@@ -21,7 +21,7 @@ namespace Revivd {
         bool swiping_logic = false;
 
         public float dampener = 45;
-        public float pullSpeed = 0.2f;
+        public float pullSpeed = 3f;
         public float pullThreshold = 0.7f;
         public float operationThreshold = 0.2f;
         public float pullMaxStartPos = 0.45f;
@@ -162,12 +162,11 @@ namespace Revivd {
             else {
                 swiping_reset = false;
                 swiping_logic = false;
-                float pull = Tools.MaxAbs(-rt.localPosition.y, pullSpeed);
-                if (Mathf.Abs(pull) < pullSpeed / 2) {
+                if (Mathf.Abs(-rt.localPosition.y) < pullSpeed * Time.deltaTime) {
                     rt.localPosition = Vector3.zero;
                 }
                 else {
-                    rt.Translate(0, pull * Time.deltaTime, 0);
+                    rt.localPosition = new Vector3(0, rt.localPosition.y + Tools.Sign(-rt.localPosition.y) * pullSpeed * Time.deltaTime, 0);
                 }
             }
 

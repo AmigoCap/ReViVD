@@ -124,6 +124,10 @@ namespace Revivd {
             return r < 0 ? r + m : r;
         }
 
+        public static int Sign(float f) {
+            return f < 0 ? -1 : 1;
+        }
+
         public static float MaxAbs(float f, float max) {
             return f > max ? max : (f < -max ? -max : f);
         }

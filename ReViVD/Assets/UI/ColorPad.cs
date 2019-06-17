@@ -8,7 +8,7 @@ namespace Revivd {
         bool swiping = false;
 
         public float dampener = 50;
-        public float centeringSpeed = 0.2f;
+        public float centeringSpeed = 3f;
 
         int color;
 
@@ -29,11 +29,12 @@ namespace Revivd {
             }
             else {
                 swiping = false;
-                float centering = Tools.MaxAbs(2.5f - color - rt.localPosition.x, centeringSpeed);
-                if (Mathf.Abs(centering) < centeringSpeed / 10)
+                if (Mathf.Abs(2.5f - color - rt.localPosition.x) < centeringSpeed * Time.deltaTime) {
                     rt.localPosition = new Vector3(2.5f - color, 0, 0);
-                else
-                    rt.Translate(centering * Time.deltaTime, 0, 0);
+                }
+                else {
+                    rt.localPosition = new Vector3(rt.localPosition.x + Tools.Sign(2.5f - color - rt.localPosition.x) * centeringSpeed * Time.deltaTime, 0, 0);
+                }
             }
 
             color = Mathf.FloorToInt(3f - rt.localPosition.x);
