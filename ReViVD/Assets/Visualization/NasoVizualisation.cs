@@ -120,64 +120,6 @@ namespace Revivd {
             return true;
         }
 
-        /*
-        protected override bool LoadFromFile() {
-            UnityEditor.SceneView.FocusWindowIfItsOpen(typeof(UnityEditor.SceneView)); //DEBUG
-            if (dataFile == null)
-                return false;
-
-            Stream s = new MemoryStream(dataFile.bytes);
-            BinaryReader br = new BinaryReader(s);
-
-            System.Random rnd = new System.Random();
-            HashSet<int> randomNumbersGenerated = new HashSet<int>();
-
-            paths = new List<NasoPath>(n_particles);
-            for (int i = 0; i < n_particles; i++) {
-                int true_i;
-                if (randomParticles) {
-                    do {
-                        true_i = rnd.Next(1000000);
-                    } while (!randomNumbersGenerated.Add(true_i));
-                }
-                else {
-                    true_i = particlesStart + i * particlesStep;
-                }
-
-                GameObject go = new GameObject(true_i.ToString());
-                go.transform.parent = transform;
-                NasoPath p = go.AddComponent<NasoPath>();
-
-                Color32 color = Random.ColorHSV();
-
-                for (int t = 0; t < n_instants; t++) {
-                    int true_t = instantsStart + instantsStep * t;
-
-                    Vector3 point = new Vector3();
-                    s.Position = (3 * 1000000 * true_t + true_i)*8;
-                    point.x = (float)br.ReadDouble() * sizeCoeff;
-                    s.Position += 1000000 * 8;
-                    point.z = (float)br.ReadDouble() * sizeCoeff;
-                    s.Position += 1000000 * 8;
-                    point.y = (float)br.ReadDouble() * sizeCoeff;
-
-                    NasoAtom a = new NasoAtom() {
-                        time = (float)true_t,
-                        point = point,
-                        path = p,
-                        indexInPath = t
-                    };
-
-                    a.BaseColor = color;
-                    p.atoms.Add(a);
-                }
-
-                paths.Add(p);
-            }
-
-            return true;
-        } */
-
         protected override float InterpretTime(string word) {
             return 0;
         }
