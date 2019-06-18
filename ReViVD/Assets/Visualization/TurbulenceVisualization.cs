@@ -14,7 +14,7 @@ namespace Revivd {
             districtSize = new Vector3(10, 10, 10);
         }
 
-        protected override bool LoadFromCSV() {
+        protected override bool LoadFromFile() {
             if (dataFile == null)
                 return false;
             paths = new List<TurbulencePath>();

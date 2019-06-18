@@ -58,6 +58,10 @@ namespace Revivd {
         protected virtual void CreateTimeSphere() {
             timeSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             Destroy(timeSphere.GetComponent<SphereCollider>());
+            MeshRenderer renderer = timeSphere.GetComponent<MeshRenderer>();
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+            renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
             timeSphere.transform.parent = this.transform;
             timeSphere.transform.localScale = Vector3.one * baseRadius * 24;
             timeSphere.SetActive(shouldDisplayTimeSpheres);

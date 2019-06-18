@@ -12,7 +12,7 @@ namespace Revivd {
             districtSize = new Vector3(15, 15, 15);
         }
 
-        protected override bool LoadFromCSV() {
+        protected override bool LoadFromFile() {
             if (dataFile == null)
                 return false;
             paths = new List<AirTrafficPath>();

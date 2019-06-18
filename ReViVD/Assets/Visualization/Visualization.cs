@@ -41,7 +41,7 @@ namespace Revivd {
             }
         }
 
-        protected abstract bool LoadFromCSV();
+        protected abstract bool LoadFromFile();
 
         protected bool badNumber(float f) {
             return float.IsNaN(f) || float.IsNegativeInfinity(f) || float.IsPositiveInfinity(f);
@@ -96,7 +96,7 @@ namespace Revivd {
             }
             _instance = this;
 
-            if (!LoadFromCSV())
+            if (!LoadFromFile())
                 return;
 
             CreateDistricts();
