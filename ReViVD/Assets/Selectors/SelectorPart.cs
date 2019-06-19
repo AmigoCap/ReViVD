@@ -16,7 +16,6 @@ namespace Revivd {
             get => _positive;
             set {
                 _positive = value;
-                primitive.GetComponent<MeshRenderer>().material.color = _positive ? Color.white : Color.red;
             }
         }
 
@@ -24,7 +23,9 @@ namespace Revivd {
             if (!isActiveAndEnabled)
                 return;
             primitive.SetActive(true);
-            primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+            Color32 color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+            color.a = SelectorManager.Instance.selectorTransparency;
+            primitive.GetComponent<Renderer>().material.color = color;
             if (GetComponent<Selector>().Persistent) {
                 primitive.transform.SetParent(this.transform, false);
             }
@@ -62,8 +63,10 @@ namespace Revivd {
             get => _shouldPollManualModifications;
             set {
                 _shouldPollManualModifications = value;
-                if (primitive != null && primitive.activeInHierarchy) {
-                    primitive.GetComponent<Renderer>().material.color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+                if (!_shouldPollManualModifications && primitive != null && primitive.activeInHierarchy) {
+                    Color32 color = SelectorManager.colors[(int)GetComponent<Selector>().Color];
+                    color.a = color.a = SelectorManager.Instance.selectorTransparency;
+                    primitive.GetComponent<Renderer>().material.color = color;
                 }
             }
         }
@@ -257,6 +260,7 @@ namespace Revivd {
 
         protected virtual void Awake() {
             CreatePrimitive();
+            primitive.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/Selector");
             UpdatePrimitive();
         }
 

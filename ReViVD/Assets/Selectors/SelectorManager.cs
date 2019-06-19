@@ -27,6 +27,7 @@ namespace Revivd {
         public GameObject leftCreationCircleMask;
         public GameObject rightCreationCircleMask;
 
+        public byte selectorTransparency = 172;
 
         private ControlMode _currentControlMode = ControlMode.SelectionMode;
         public ControlMode CurrentControlMode {

@@ -1022,7 +1022,7 @@ MonoBehaviour:
   particlesStep: 1
   randomParticles: 1
   instantsStart: 0
-  n_instants: 30
+  n_instants: 100
   instantsStep: 5
 --- !u!4 &634383034
 Transform:
