@@ -27,6 +27,9 @@ namespace Revivd {
         }
 
 
+        public Vector3 maxPoint = new Vector3(500, 500, 500);
+        public Vector3 minPoint = new Vector3(-500, -500, -500);
+
         protected override bool LoadFromFile() {
             if (filenameBase == "")
                 return false;
@@ -61,7 +64,7 @@ namespace Revivd {
 
             Tools.AddClockStop("created paths");
 
-            int currentFileNumber = instantsStart / n_instants + 1;
+            int currentFileNumber = instantsStart / 50 + 1;
             int instant = instantsStart;
             int localInstant = instantsStart % 50;
             TextAsset currentFile = Resources.Load<TextAsset>(filenameBase + currentFileNumber.ToString("0000"));
@@ -97,6 +100,9 @@ namespace Revivd {
                     point.z = ((float)br.ReadDouble() - 317) * sizeCoeff;
                     s.Position += 1000000 * 8;
                     point.y = ((float)br.ReadDouble() - 317) * sizeCoeff;
+
+                    point = Vector3.Max(point, minPoint);
+                    point = Vector3.Min(point, maxPoint);
 
                     NasoAtom a = new NasoAtom() {
                         time = (float)instant,

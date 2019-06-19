@@ -163,6 +163,7 @@ MonoBehaviour:
   rightSelectionCircleMask: {fileID: 2106293282}
   leftCreationCircleMask: {fileID: 708094032}
   rightCreationCircleMask: {fileID: 426579630}
+  selectorTransparency: 172
   operationMode: 1
   s_highlightChecked: 1
   s_highlightSelected: 1
@@ -1022,8 +1023,10 @@ MonoBehaviour:
   particlesStep: 1
   randomParticles: 1
   instantsStart: 0
-  n_instants: 100
+  n_instants: 200
   instantsStep: 5
+  maxPoint: {x: 5000, y: 5000, z: 5000}
+  minPoint: {x: -5000, y: -5000, z: -5000}
 --- !u!4 &634383034
 Transform:
   m_ObjectHideFlags: 0
