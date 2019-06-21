@@ -144,11 +144,14 @@ namespace Revivd {
 
         public static float InterpretExponent(string word) {
             int pos = word.IndexOf("E");
+            if (pos == -1) {
+                pos = word.IndexOf("e");
+            }
             if (pos != -1) {
                 return float.Parse(word.Substring(0, pos - 1).Replace('.', ',')) * Mathf.Pow(10, float.Parse(word.Substring(pos + 1)));
             }
             else
-                return float.Parse(word);
+                return float.Parse(word.Replace('.', ','));
         }
 
         public static string CoordsToString(int[] c) {

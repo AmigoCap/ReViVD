@@ -184,7 +184,7 @@ Transform:
   - {fileID: 490082324}
   - {fileID: 1219430416}
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &103728627
 GameObject:
@@ -202,7 +202,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &103728628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,7 +240,7 @@ Transform:
   m_Children:
   - {fileID: 282450141}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &131876987
 GameObject:
@@ -502,6 +502,61 @@ Camera:
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &186726881
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 186726883}
+  - component: {fileID: 186726882}
+  m_Layer: 0
+  m_Name: Visualization Turbulences 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &186726882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186726881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1923b80e698d2744183f4b561cd82229, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  districtSize: {x: 10, y: 10, z: 10}
+  dataFile: {fileID: 4900000, guid: 37e0a919d75706e4e92c58ca160633db, type: 3}
+  material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
+  debugMode: 0
+  clearDistrictsToHighlight: 0
+  time: 0
+  displayTimeSpheres: 0
+  doTimeAnim: 0
+  animSpeed: 10
+  paths: []
+  maxPoint: {x: 500, y: 500, z: 500}
+  minPoint: {x: -500, y: -500, z: -500}
+--- !u!4 &186726883
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186726881}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &199338843
 GameObject:
   m_ObjectHideFlags: 0
@@ -1143,23 +1198,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   districtSize: {x: 15, y: 15, z: 15}
-  dataFile: {fileID: 0}
+  dataFile: {fileID: 4900000, guid: f117db61b9fb4f747bd01d4a22159b5c, type: 3}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
-  debugMode: 1
+  debugMode: 0
   clearDistrictsToHighlight: 0
   time: 0
   displayTimeSpheres: 0
   doTimeAnim: 0
   animSpeed: 2
   paths: []
-  filenameBase: Data/Naso/xyz_droplet_
+  filenameBase: Data/Simulations/Naso/xyz_droplet_
   particlesStart: 0
-  n_particles: 5000
+  n_particles: 2500
   particlesStep: 1
-  randomParticles: 1
+  randomParticles: 0
   instantsStart: 0
-  n_instants: 200
-  instantsStep: 5
+  n_instants: 250
+  instantsStep: 1
   maxPoint: {x: 5000, y: 5000, z: 5000}
   minPoint: {x: -5000, y: -5000, z: -5000}
 --- !u!4 &634383034
@@ -1174,7 +1229,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &708094032
 GameObject:
@@ -3094,7 +3149,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1722164516
 Transform:
   m_ObjectHideFlags: 0
