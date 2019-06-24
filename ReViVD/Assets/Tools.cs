@@ -9,6 +9,45 @@ namespace Revivd {
         private static float time = 0;
         private static float subTime = 0;
         private static string clockString = "";
+        private static Vector2 _GPSOrigin = Vector2.zero;
+        private static float _LatGPS { get { return _GPSOrigin.x; } }
+        private static float _LonGPS { get { return _GPSOrigin.y; } }
+        private static float metersPerLat;
+        private static float metersPerLon;
+
+        public static void SetGPSOrigin(Vector2 GPSOrigin) {
+            _GPSOrigin = GPSOrigin;
+        }
+
+        private static void FindMetersPerLat(float lat) {
+            float m1 = 111132.92f;
+            float m2 = -559.82f;
+            float m3 = 1.175f;
+            float m4 = -0.0023f;
+            float p1 = 111412.84f;
+            float p2 = -93.5f;
+            float p3 = 0.118f;
+            lat = lat * Mathf.Deg2Rad;
+            metersPerLat = m1 + (m2 * Mathf.Cos(2 * lat)) + (m3 * Mathf.Cos(4 * lat)) + (m4 * Mathf.Cos(6 * lat));
+            metersPerLon = (p1 * Mathf.Cos(lat)) + (p2 * Mathf.Cos(3 * lat)) + (p3 * Mathf.Cos(5 * lat));
+        }
+    
+
+        public static Vector3 GPSToXYZ(Vector2 GPSCoordinates) {
+            FindMetersPerLat(_LatGPS);
+            float z = metersPerLat * (GPSCoordinates.x - _LatGPS);
+            float x = metersPerLon * (GPSCoordinates.y - _LonGPS);
+            return new Vector3(x, 0, z);
+        }
+
+        public static Vector2 XYZToGPS(Vector3 position) {
+            FindMetersPerLat(_LatGPS);
+            Vector2 GPSCoordinates = new Vector2(0, 0);
+            GPSCoordinates.x = (_LatGPS + (position.z) / metersPerLat);
+            GPSCoordinates.y = (_LonGPS + (position.x) / metersPerLon);
+            return GPSCoordinates;
+        }
+
         public static void StartClock() {
             if (!Visualization.Instance.debugMode)
                 return;

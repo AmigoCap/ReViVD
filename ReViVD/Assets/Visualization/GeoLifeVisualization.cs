@@ -55,11 +55,11 @@ namespace Revivd {
                 y = Mathf.Max(y, minAltitude);
                 y = Mathf.Min(y, maxAltitude);
        
-                GPSEncoder.SetLocalOrigin(new Vector2(39.919223f, 116.374909f));
-                Vector3 point = GPSEncoder.GPSToUCS(x, z);
+                Tools.SetGPSOrigin(new Vector2(39.919223f, 116.374909f));
+                Vector3 point = Tools.GPSToXYZ(new Vector2(x, z));
                 point.x /= 100;
                 point.z /= 100;
-                point.y = y/100;
+                point.y = y / 100;
                 Debug.Log(point);
 
                 GeoLifeAtom a = new GeoLifeAtom {
