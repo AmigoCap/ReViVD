@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Revivd {
 
-    public class FootVisualization : TimeVisualization {
-        public List<FootPath> paths;
+    public class GeoLifeVisualization : TimeVisualization {
+        public List<GeoLifePath> paths;
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
@@ -14,39 +14,57 @@ namespace Revivd {
             districtSize = new Vector3(10, 10, 10);
         }
 
+        public float maxAltitude = 2000;
+        public float minAltitude = -777;
+
+
         protected override bool LoadFromFile() {
-            paths = new List<FootPath>();
-            Dictionary<string, FootPath> pathsDict = new Dictionary<string, FootPath>();
+            paths = new List<GeoLifePath>();
+            Dictionary<string, GeoLifePath> pathsDict = new Dictionary<string, GeoLifePath>();
 
             Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
 
             string[] rawData = System.IO.File.ReadAllLines(filename);
 
-            for (int i = 0; i < rawData.Length; i+=20) {
+            for (int i = 0; i < rawData.Length; i+=1) {
                 string[] words = CsvSplit(rawData[i], ',');
 
                 if (words.Length < 2)
                     continue;
 
-                float t = InterpretTime(words[1]);
-                float x = float.Parse(words[3].Replace('.', ','));
-                float z = float.Parse(words[4].Replace('.', ','));
-                if (badNumber(t) || badNumber(x) || badNumber(z))
+                float x = float.Parse(words[1].Replace('.', ','));
+                float z = float.Parse(words[2].Replace('.', ','));
+                float y = float.Parse(words[4].Replace('.', ','));
+
+
+                float t = InterpretTime(words[5]);
+
+                if (badNumber(t) || badNumber(x) || badNumber(y) || badNumber(z) || y ==-777)
                     continue;
 
-                if (!pathsDict.TryGetValue(words[2], out FootPath p)) {
-                    GameObject go = new GameObject(words[2]);
+                if (!pathsDict.TryGetValue(words[0], out GeoLifePath p)) {
+                    GameObject go = new GameObject(words[0]);
                     go.transform.parent = transform;
-                    p = go.AddComponent<FootPath>();
+                    p = go.AddComponent<GeoLifePath>();
                     paths.Add(p);
                     pathsDict.Add(p.name, p);
                     colorsDict.Add(p.name, Random.ColorHSV());
                     p.baseRadius = 0.2f;
                 }
 
-                FootAtom a = new FootAtom {
+                y = Mathf.Max(y, minAltitude);
+                y = Mathf.Min(y, maxAltitude);
+       
+                Tools.SetGPSOrigin(new Vector2(39.919223f, 116.374909f));
+                Vector3 point = Tools.GPSToXYZ(new Vector2(x, z));
+                point.x /= 100;
+                point.z /= 100;
+                point.y = y / 100;
+                Debug.Log(point);
+
+                GeoLifeAtom a = new GeoLifeAtom {
                     time = t,
-                    point = new Vector3(8 * x, 0, 8 * z),
+                    point = point,
                     path = p,
                     indexInPath = p.atoms.Count,
                     BaseColor = colorsDict[p.name]
@@ -60,8 +78,14 @@ namespace Revivd {
         }
 
         protected override float InterpretTime(string word) {
-            float time = float.Parse(word.Replace('.', ','));
+            float time = float.Parse(word.Replace('.', ',')) - 39173f ;
             return time;
+        }
+
+        private float InterpretGPSCoordinates(string word) {
+            string[] coordinates = word.Split('.');
+            float coord = float.Parse(coordinates[0]) * 1000 + float.Parse(coordinates[1]);
+            return coord;
         }
 
         bool doTime = false;
@@ -78,14 +102,14 @@ namespace Revivd {
                     startTime = Time.time;
                 }
                 else {
-                    foreach (FootPath p in paths) {
+                    foreach (GeoLifePath p in paths) {
                         p.RemoveTimeWindow();
                     }
                 }
             }
 
             if (doTime) {
-                foreach (FootPath p in paths) {
+                foreach (GeoLifePath p in paths) {
                     p.SetTimeWindow((Time.time - startTime) * 5 - 10, (Time.time - startTime) * 5 + 10);
                 }
             }
@@ -93,13 +117,13 @@ namespace Revivd {
             base.Update();
         }
 
-        public class FootPath : TimePath {
-            public List<FootAtom> atoms = new List<FootAtom>();
+        public class GeoLifePath : TimePath {
+            public List<GeoLifeAtom> atoms = new List<GeoLifeAtom>();
             public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }
             public override IReadOnlyList<TimeAtom> AtomsAsTime { get { return atoms; } }
         }
 
-        public class FootAtom : TimeAtom {
+        public class GeoLifeAtom : TimeAtom {
 
         }
     }

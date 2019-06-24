@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Revivd {
 
-    public class FootVisualization : TimeVisualization {
-        public List<FootPath> paths;
+    public class StreamLinesVisualization : TimeVisualization {
+        public List<StreamLinesPath> paths;
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
@@ -14,42 +14,53 @@ namespace Revivd {
             districtSize = new Vector3(10, 10, 10);
         }
 
-        protected override bool LoadFromFile() {
-            paths = new List<FootPath>();
-            Dictionary<string, FootPath> pathsDict = new Dictionary<string, FootPath>();
 
+        public Vector3 maxPoint = new Vector3(500, 500, 500);
+        public Vector3 minPoint = new Vector3(-500, -500, -500);
+
+
+        protected override bool LoadFromFile() {
+            paths = new List<StreamLinesPath>();
+            Dictionary<string, StreamLinesPath> pathsDict = new Dictionary<string, StreamLinesPath>();
             Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
 
             string[] rawData = System.IO.File.ReadAllLines(filename);
 
-            for (int i = 0; i < rawData.Length; i+=20) {
+            for (int i = 0; i < rawData.Length; i += 1) {
                 string[] words = CsvSplit(rawData[i], ',');
 
                 if (words.Length < 2)
                     continue;
 
+                float mach = Tools.InterpretExponent(words[0]);
                 float t = InterpretTime(words[1]);
-                float x = float.Parse(words[3].Replace('.', ','));
-                float z = float.Parse(words[4].Replace('.', ','));
-                if (badNumber(t) || badNumber(x) || badNumber(z))
+                float x = Tools.InterpretExponent(words[2]);
+                float y = Tools.InterpretExponent(words[3]);
+                float z = Tools.InterpretExponent(words[4]);
+                if (badNumber(t) || badNumber(x) || badNumber(y) || badNumber(z))
                     continue;
 
-                if (!pathsDict.TryGetValue(words[2], out FootPath p)) {
-                    GameObject go = new GameObject(words[2]);
+                if (!pathsDict.TryGetValue(words[5], out StreamLinesPath p)) {
+                    GameObject go = new GameObject(words[5]);
                     go.transform.parent = transform;
-                    p = go.AddComponent<FootPath>();
+                    p = go.AddComponent<StreamLinesPath>();
                     paths.Add(p);
                     pathsDict.Add(p.name, p);
                     colorsDict.Add(p.name, Random.ColorHSV());
                     p.baseRadius = 0.2f;
                 }
 
-                FootAtom a = new FootAtom {
+                Vector3 point =  new Vector3(1000 * y, 1000 * x, 1000 * z);
+                point = Vector3.Max(point, minPoint);
+                point = Vector3.Min(point, maxPoint);
+
+                StreamLinesAtom a = new StreamLinesAtom {
                     time = t,
-                    point = new Vector3(8 * x, 0, 8 * z),
+                    point = point,
                     path = p,
                     indexInPath = p.atoms.Count,
-                    BaseColor = colorsDict[p.name]
+                    //BaseColor = colorsDict[p.name]
+                    BaseColor = Color.Lerp(new Color32(0, 0, 255, 255), new Color32(255, 0, 0, 255), mach)
                 };
 
                 p.atoms.Add(a);
@@ -78,14 +89,14 @@ namespace Revivd {
                     startTime = Time.time;
                 }
                 else {
-                    foreach (FootPath p in paths) {
+                    foreach (StreamLinesPath p in paths) {
                         p.RemoveTimeWindow();
                     }
                 }
             }
 
             if (doTime) {
-                foreach (FootPath p in paths) {
+                foreach (StreamLinesPath p in paths) {
                     p.SetTimeWindow((Time.time - startTime) * 5 - 10, (Time.time - startTime) * 5 + 10);
                 }
             }
@@ -93,13 +104,13 @@ namespace Revivd {
             base.Update();
         }
 
-        public class FootPath : TimePath {
-            public List<FootAtom> atoms = new List<FootAtom>();
+        public class StreamLinesPath : TimePath {
+            public List<StreamLinesAtom> atoms = new List<StreamLinesAtom>();
             public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }
             public override IReadOnlyList<TimeAtom> AtomsAsTime { get { return atoms; } }
         }
 
-        public class FootAtom : TimeAtom {
+        public class StreamLinesAtom : TimeAtom {
 
         }
     }
