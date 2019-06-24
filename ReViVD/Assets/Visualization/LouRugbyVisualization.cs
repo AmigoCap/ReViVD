@@ -8,19 +8,19 @@ namespace Revivd {
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
+        public string filename;
+
         public void Reset() {
             districtSize = new Vector3(10, 10, 10);
         }
 
         protected override bool LoadFromFile() {
-            if (dataFile == null)
-                return false;
             paths = new List<LouRugbyPath>();
             Dictionary<string, LouRugbyPath> pathsDict = new Dictionary<string, LouRugbyPath>();
 
             Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
 
-            string[] rawData = dataFile.text.Split(new char[] { '\n' });
+            string[] rawData = System.IO.File.ReadAllLines(filename);
 
             for (int i = 0; i < rawData.Length / 20; i++) {
                 string[] words = CsvSplit(rawData[20 * i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'

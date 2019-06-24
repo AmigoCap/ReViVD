@@ -11,8 +11,6 @@ namespace Revivd {
 
         public Vector3 districtSize;
 
-        public TextAsset dataFile;
-
         public Material material;
 
         public abstract IReadOnlyList<Path> PathsAsBase { get; }

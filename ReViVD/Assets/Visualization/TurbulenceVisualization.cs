@@ -10,19 +10,19 @@ namespace Revivd {
 
         public float scaleCoeff = 5000;
 
+        public string filename;
+
         public void Reset() {
             districtSize = new Vector3(10, 10, 10);
         }
 
         protected override bool LoadFromFile() {
-            if (dataFile == null)
-                return false;
             paths = new List<TurbulencePath>();
             Dictionary<string, TurbulencePath> pathsDict = new Dictionary<string, TurbulencePath>();
 
             Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
 
-            string[] rawData = dataFile.text.Split(new char[] { '\n' });
+            string[] rawData = System.IO.File.ReadAllLines(filename);
 
             for (int i = 0; i < rawData.Length; i++) {
                 string[] words = CsvSplit(rawData[i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'

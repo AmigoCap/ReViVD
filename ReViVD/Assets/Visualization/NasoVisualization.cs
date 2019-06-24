@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Revivd {
 
-    public class NasoVizualisation : TimeVisualization {
+    public class NasoVisualization : TimeVisualization {
         public List<NasoPath> paths;
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
@@ -67,26 +67,18 @@ namespace Revivd {
             int currentFileNumber = instantsStart / 50 + 1;
             int instant = instantsStart;
             int localInstant = instantsStart % 50;
-            TextAsset currentFile = Resources.Load<TextAsset>(filenameBase + currentFileNumber.ToString("0000"));
-            Stream s = new MemoryStream(currentFile.bytes);
-            BinaryReader br = new BinaryReader(s);
+            BinaryReader br = new BinaryReader(File.Open(filenameBase + currentFileNumber.ToString("0000") + ".bytes", FileMode.Open));
             Tools.AddClockStop("Loaded file " + currentFileNumber.ToString("0000"));
             for (int t = 0; t < n_instants; t++) {
                 if (localInstant >=  50) {
                     Tools.AddClockStop("Finished loading from file " + currentFileNumber.ToString("0000"));
 
                     localInstant %= 50;
-                    br.Close();
-                    s.Close();
-                    Resources.UnloadAsset(currentFile);
+                    br.Dispose();
                     Tools.AddClockStop("Closed file " + currentFileNumber.ToString("0000"));
 
                     currentFileNumber++;
-                    currentFile = Resources.Load<TextAsset>(filenameBase + currentFileNumber.ToString("0000"));
-                    Tools.AddSubClockStop("Resources.Load");
-                    s = new MemoryStream(currentFile.bytes);
-                    Tools.AddSubClockStop("MemoryStream creation");
-                    br = new BinaryReader(s);
+                    br = new BinaryReader(File.Open(filenameBase + currentFileNumber.ToString("0000") + ".bytes", FileMode.Open));
                     Tools.AddSubClockStop("BinaryReader creation");
 
                     Tools.AddClockStop("Loaded file " + currentFileNumber.ToString("0000"));
@@ -94,11 +86,11 @@ namespace Revivd {
 
                 for (int i = 0; i < n_particles; i++) {
                     Vector3 point = new Vector3();
-                    s.Position = (3 * 1000000 * localInstant + keptParticles[i]) * 8;
+                    br.BaseStream.Position = (3 * 1000000 * localInstant + keptParticles[i]) * 8;
                     point.x = ((float)br.ReadDouble() - 317) * sizeCoeff;
-                    s.Position += 1000000 * 8;
+                    br.BaseStream.Position += 1000000 * 8 - 8; //Going back 8 bytes because reading the data advances the position
                     point.z = ((float)br.ReadDouble() - 317) * sizeCoeff;
-                    s.Position += 1000000 * 8;
+                    br.BaseStream.Position += 1000000 * 8 - 8;
                     point.y = ((float)br.ReadDouble() - 317) * sizeCoeff;
 
                     point = Vector3.Max(point, minPoint);

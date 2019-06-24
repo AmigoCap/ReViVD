@@ -8,17 +8,17 @@ namespace Revivd {
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
+        public string filename;
+
         public void Reset() {
             districtSize = new Vector3(15, 15, 15);
         }
 
         protected override bool LoadFromFile() {
-            if (dataFile == null)
-                return false;
             paths = new List<AirTrafficPath>();
             Dictionary<string, AirTrafficPath> pathsDict = new Dictionary<string, AirTrafficPath>();
 
-            string[] rawData = dataFile.text.Split(new char[] { '\n' });
+            string[] rawData = System.IO.File.ReadAllLines(filename);
 
             foreach (string row in rawData) {
                 string[] words = CsvSplit(row, ',');    //Selon configuration de l'OS, mettre ',' ou '.'

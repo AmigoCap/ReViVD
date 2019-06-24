@@ -8,19 +8,19 @@ namespace Revivd {
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
+        public string filename;
+
         public void Reset() {
             districtSize = new Vector3(10, 10, 10);
         }
 
         protected override bool LoadFromFile() {
-            if (dataFile == null)
-                return false;
             paths = new List<FootPath>();
             Dictionary<string, FootPath> pathsDict = new Dictionary<string, FootPath>();
 
             Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
 
-            string[] rawData = dataFile.text.Split(new char[] { '\n' });
+            string[] rawData = System.IO.File.ReadAllLines(filename);
 
             for (int i = 0; i < rawData.Length; i+=20) {
                 string[] words = CsvSplit(rawData[i], ',');
