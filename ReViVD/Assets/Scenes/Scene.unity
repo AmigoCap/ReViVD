@@ -202,7 +202,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &103728628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -518,7 +518,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &186726882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -532,7 +532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   districtSize: {x: 10, y: 10, z: 10}
-  dataFile: {fileID: 4900000, guid: 37e0a919d75706e4e92c58ca160633db, type: 3}
+  dataFile: {fileID: 4900000, guid: ac07e0374675c634db5c50edcc0f816d, type: 3}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0

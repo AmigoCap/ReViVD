@@ -51,7 +51,7 @@ namespace Revivd {
                     p.baseRadius = 0.2f;
                 }
 
-                Vector3 point =  new Vector3(1000 * x, 1000 * z, 1000 * y);
+                Vector3 point =  new Vector3(1000 * y, 1000 * x, 1000 * z);
                 point = Vector3.Max(point, minPoint);
                 point = Vector3.Min(point, maxPoint);
 
@@ -60,10 +60,8 @@ namespace Revivd {
                     point = point,
                     path = p,
                     indexInPath = p.atoms.Count,
-                    BaseColor = colorsDict[p.name]
-                    //BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), press / 185185f)
-                    //BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), dens)
-                    //BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), rot)
+                    //BaseColor = colorsDict[p.name]
+                    BaseColor = Color.Lerp(new Color32(0, 0, 255, 255), new Color32(255, 0, 0, 255), mach)
                 };
 
                 p.atoms.Add(a);
