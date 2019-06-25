@@ -55,7 +55,7 @@ namespace Revivd {
                 point = Vector3.Min(point, maxPoint);
 
                 StreamLinesAtom a = new StreamLinesAtom {
-                    time = t,
+                    time = 1000 * t,
                     point = point,
                     path = p,
                     indexInPath = p.atoms.Count,
