@@ -1150,15 +1150,15 @@ MonoBehaviour:
   time: 0
   displayTimeSpheres: 0
   doTimeAnim: 0
-  animSpeed: 2
+  animSpeed: 10
   paths: []
-  filenameBase: External Data/Naso/xyz_droplet_
+  filenameBase: External Data/Naso/droplet_bundle_
   particlesStart: 0
   n_particles: 500
   particlesStep: 1
   randomParticles: 0
   instantsStart: 0
-  n_instants: 50
+  n_instants: 250
   instantsStep: 5
   maxPoint: {x: 5000, y: 5000, z: 5000}
   minPoint: {x: -5000, y: -5000, z: -5000}
