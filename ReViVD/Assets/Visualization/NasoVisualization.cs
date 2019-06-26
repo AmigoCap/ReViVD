@@ -103,9 +103,7 @@ namespace Revivd {
                         };
 
                         //a.BaseColor = Color32.Lerp(Color.blue, Color.red, (a.speed - 0.08f) / (0.39f - 0.08f));
-                        a.BaseColor = Color32.Lerp(Color.blue, Color.red, (a.power - 0.006f) / (0.148f - 0.006f));
-                        if (a.power < 0)
-                            a.BaseColor = Color.green;
+                        a.BaseColor = Color32.Lerp(Color.blue, Color.red, (a.power + 0.03f) / 0.06f);
                         paths[i].atoms.Add(a);
                     }
                 }
@@ -113,51 +111,7 @@ namespace Revivd {
 
                 Tools.AddClockStop("Loaded bundle " + currentFileNumber.ToString("0000"));
             }
-
-            //for (int t = 0; t < n_instants; t++) {
-            //    if (localInstant >=  50) {
-            //        Tools.AddClockStop("Finished loading from file " + currentFileNumber.ToString("0000"));
-
-            //        localInstant %= 50;
-            //        br.Dispose();
-            //        Tools.AddClockStop("Closed file " + currentFileNumber.ToString("0000"));
-
-            //        currentFileNumber++;
-            //        br = new BinaryReader(File.Open(filenameBase + currentFileNumber.ToString("0000") + ".bytes", FileMode.Open));
-            //        Tools.AddSubClockStop("BinaryReader creation");
-
-            //        Tools.AddClockStop("Loaded file " + currentFileNumber.ToString("0000"));
-            //    }
-
-            //    for (int i = 0; i < n_particles; i++) {
-            //        Vector3 point = new Vector3();
-            //        br.BaseStream.Position = (6 * 1000000 * localInstant + 6 * keptParticles[i]) * 4;
-            //        point.x = ((float)br.ReadDouble() - 317) * sizeCoeff;
-            //        br.BaseStream.Position += 1000000 * 8 - 8; //Going back 8 bytes because reading the data advances the position
-            //        point.z = ((float)br.ReadDouble() - 317) * sizeCoeff;
-            //        br.BaseStream.Position += 1000000 * 8 - 8;
-            //        point.y = ((float)br.ReadDouble() - 317) * sizeCoeff;
-
-            //        point = Vector3.Max(point, minPoint);
-            //        point = Vector3.Min(point, maxPoint);
-
-            //        NasoAtom a = new NasoAtom() {
-            //            time = (float)instant,
-            //            point = point,
-            //            path = paths[i],
-            //            indexInPath = t
-            //        };
-
-            //        a.BaseColor = pathColors[i];
-            //        paths[i].atoms.Add(a);
-            //    }
-
-            //    Tools.AddSubClockStop("Loaded particles for instant " + instant);
-
-            //    instant += instantsStep;
-            //    localInstant += instantsStep;
-            //}
-
+            
             Tools.EndClock();
 
             return true;

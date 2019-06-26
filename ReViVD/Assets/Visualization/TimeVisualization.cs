@@ -9,12 +9,23 @@ namespace Revivd {
         public abstract IReadOnlyList<TimePath> PathsAsTime { get; }
 
         public float time = 0;
-        private float old_time = 0;
+        private float old_time;
         public bool displayTimeSpheres = false;
-        private bool old_displayTimeSpheres = false;
+        private bool old_displayTimeSpheres;
+
+        public float timeSphereRadius = 1;
+        private float old_timeSphereRadius;
 
         public bool doTimeAnim;
         public float animSpeed = 10;
+
+        protected override void Awake() {
+            base.Awake();
+
+            old_displayTimeSpheres = displayTimeSpheres;
+            old_time = time;
+            old_timeSphereRadius = timeSphereRadius;
+        }
 
         protected override void Update() {
             //if (Input.GetMouseButtonDown(0)) {
@@ -39,6 +50,13 @@ namespace Revivd {
                     old_displayTimeSpheres = displayTimeSpheres;
                 }
             }
+
+            if (displayTimeSpheres && (timeSphereRadius != old_timeSphereRadius)) {
+                foreach (TimePath p in PathsAsTime) {
+                    p.TimeSphereRadius = timeSphereRadius;
+                }
+            }
+
             if (displayTimeSpheres && (time != old_time)) {
                 foreach (TimePath p in PathsAsTime) {
                     p.TimeSphereTime = time;
@@ -63,8 +81,15 @@ namespace Revivd {
             renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
             renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
             timeSphere.transform.parent = this.transform;
-            timeSphere.transform.localScale = Vector3.one * baseRadius * 24;
+            timeSphere.transform.localScale = Vector3.one * ((TimeVisualization)Visualization.Instance).timeSphereRadius;
             timeSphere.SetActive(shouldDisplayTimeSpheres);
+        }
+
+        public float TimeSphereRadius {
+            set {
+                if (timeSphere != null)
+                    timeSphere.transform.localScale = Vector3.one * value;
+            }
         }
 
         private float _timeSphereTime;
@@ -76,14 +101,24 @@ namespace Revivd {
                 it.MoveNext();
                 float t = it.Current.time;
                 if (t >= _timeSphereTime) { //First point is already too late
-                    Destroy(timeSphere);
-                    timeSphere = null;
+                    if (timeSphere != null) {
+                        Destroy(timeSphere);
+                        timeSphere = null;
+                    }
                     return;
                 }
 
                 TimeAtom a = it.Current;
                 while (it.MoveNext()) {
                     if (it.Current.time >= _timeSphereTime) { //Next point is too late
+                        if (!a.ShouldDisplay) {
+                            if (timeSphere != null) {
+                                Destroy(timeSphere);
+                                timeSphere = null;
+                            }
+                            return;
+                        }
+
                         if (timeSphere == null)
                             CreateTimeSphere();
 
@@ -97,8 +132,10 @@ namespace Revivd {
                 }
 
                 //Reached the end while still being too early
-                Destroy(timeSphere);
-                timeSphere = null;
+                if (timeSphere != null) {
+                    Destroy(timeSphere);
+                    timeSphere = null;
+                }
             }
         }
 

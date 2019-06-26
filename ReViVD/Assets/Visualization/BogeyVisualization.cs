@@ -76,15 +76,15 @@ namespace Revivd {
 
                 if (instantsStart + instantsStep >= pathLength)
                     continue;
+                int true_n_instants = Math.Min(n_instants, pathLength - instantsStart);
 
                 GameObject go = new GameObject(keptParticles[i].ToString());
                 go.transform.parent = transform;
                 BogeyPath p = go.AddComponent<BogeyPath>();
-                p.atoms = new List<BogeyAtom>(pathLength);
+                p.atoms = new List<BogeyAtom>(true_n_instants);
                 Color32 color = UnityEngine.Random.ColorHSV();
 
                 br.BaseStream.Position += instantsStart * 3 * 4;
-                int true_n_instants = Math.Min(n_instants, pathLength - instantsStart);
                 long nextPathPosition = br.BaseStream.Position + pathLength * 3 * 4;
 
                 for (int j = 0; j < true_n_instants; j += instantsStep) {

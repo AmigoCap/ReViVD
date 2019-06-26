@@ -105,7 +105,7 @@ namespace Revivd {
             CoordsEqualityComparer comparer = new CoordsEqualityComparer();
             exploredDistricts.Clear();
 
-            Tools.AddClockStop("Initialization of district checking 1");
+            Tools.AddClockStop("Initialized district checking");
             
             //PHASE 1: starting from the center, find a "border" district
             int[] start = new int[] { 0, 0, 0 };
@@ -129,10 +129,12 @@ namespace Revivd {
 
                     int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
 
+                    Debug.Log(Tools.CoordsToString(c) + " " + get1DProjDistance_dc(exitDir) + " " + exitDist * 0.95f + " " + ((get1DProjDistance_dc(exitDir) > exitDist * 0.95f) ? "BORDER" : "INSIDE"));
+
                     if (get1DProjDistance_dc(exitDir) > exitDist * 0.95f) { //Border district: add ribbons to ribbonsToCheck and keep spreading
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
                             if (viz.debugMode)
-                                viz.districtsToHighlight[1].Add(true_c); //DEBUG
+                                viz.districtsToHighlight[0].Add(true_c); //DEBUG
                             
                             foreach (Atom a in d.atoms) {
                                 if (a.ShouldDisplay) {
@@ -146,7 +148,7 @@ namespace Revivd {
                     else { //Inside district: add ribbons to touchedRibbons and stop the spreading
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
                             if (viz.debugMode)
-                                viz.districtsToHighlight[2].Add(true_c); //DEBUG
+                                viz.districtsToHighlight[1].Add(true_c); //DEBUG
 
                             foreach (Atom a in d.atoms) {
                                 if (a.ShouldDisplay) {
