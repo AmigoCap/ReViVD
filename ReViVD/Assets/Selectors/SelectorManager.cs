@@ -115,8 +115,9 @@ namespace Revivd {
         }
 
         private void ChangeControlMode(SteamVR_TrackedController sender) {
-            if (CurrentControlMode == ControlMode.SelectionMode)
+            if (CurrentControlMode == ControlMode.SelectionMode) {
                 CurrentControlMode = ControlMode.CreationMode;
+            }
             else
                 CurrentControlMode = ControlMode.SelectionMode;
         }
@@ -221,8 +222,7 @@ namespace Revivd {
         private void OnEnable() {
             SteamVR_ControllerManager.RightController.Gripped += SelectWithPersistents;
             SteamVR_ControllerManager.RightController.MenuButtonClicked += MakePersistentCopyOfHand;
-            //SteamVR_ControllerManager.LeftController.MenuButtonClicked += ChangeControlMode;
-            SteamVR_ControllerManager.LeftController.JoystickClicked += ChangeControlMode;
+            SteamVR_ControllerManager.LeftController.MenuButtonClicked += ChangeControlMode;
         }
 
         private void OnDisable() {
@@ -232,8 +232,7 @@ namespace Revivd {
             }
 
             if (SteamVR_ControllerManager.LeftController != null) {
-                //SteamVR_ControllerManager.LeftController.MenuButtonClicked -= ChangeControlMode;
-                SteamVR_ControllerManager.LeftController.JoystickClicked -= ChangeControlMode;
+                SteamVR_ControllerManager.LeftController.MenuButtonClicked -= ChangeControlMode;
             }
         }
 
