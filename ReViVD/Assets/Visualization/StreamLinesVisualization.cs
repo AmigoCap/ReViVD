@@ -60,7 +60,7 @@ namespace Revivd {
                     path = p,
                     indexInPath = p.atoms.Count,
                     //BaseColor = colorsDict[p.name]
-                    BaseColor = Color.Lerp(new Color32(0, 0, 255, 255), new Color32(255, 0, 0, 255), mach)
+                    BaseColor = Color.Lerp(Color.blue, Color.red, mach / 1.1f)
                 };
 
                 p.atoms.Add(a);
