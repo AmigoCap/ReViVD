@@ -97,22 +97,36 @@ namespace Revivd {
             const byte outside = 0;
             const byte border_done = 1;
             const byte border = 2;
-            const byte inside_done = 3;
-            const byte inside = 4;
+            const byte border_or_inside = 3;
+            const byte inside_done = 4;
+            const byte inside = 5;
+
+            byte getDepth(int[] coords) {
+                if (!districtMap.TryGetValue(coords, out byte depth)) {
+                    if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(coords[0], coords[1], coords[2])), viz.transform.rotation,
+                                                   primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out float exitDist)) {
+                        if (exitDist > districtDiagLength)
+                            depth = inside;
+                        else if (exitDist < districtMinSideLength)
+                            depth = border;
+                        else
+                            depth = border_or_inside;
+                    }
+                    else {
+                        depth = outside;
+                    }
+                    districtMap.Add((int[])coords.Clone(), depth);
+                }
+                return depth;
+            }
 
             Tools.AddClockStop("Initialized district checking");
 
             //PHASE 1: starting from the center, find a "border" district
             int[] start = new int[] { 0, 0, 0 };
-            while (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(start[0], start[1], start[2])), viz.transform.rotation,
-                                                   primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out float exitDist)) {
-                if (exitDist > districtDiagLength)
-                    districtMap[(int[])start.Clone()] = inside;
-                else
-                    districtMap[(int[])start.Clone()] = border;
+            while (getDepth(start) != outside) {
                 start[0] += 1;
             }
-            districtMap[(int[])start.Clone()] = outside;
             start[0] -= 1;
             districtMap[(int[])start.Clone()] = border;
 
@@ -126,33 +140,43 @@ namespace Revivd {
             int cycle = 0;
             while (districtsToSpreadFrom.Count > 0) {
                 foreach (int[] c in districtsToSpreadFrom) {
-                    if (!districtMap.TryGetValue(c, out byte depth)) {
-                        if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(c[0], c[1], c[2])), viz.transform.rotation,
-                                                       primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out float exitDist)) {
-                            if (exitDist > districtDiagLength)
-                                depth = inside;
-                            else
-                                depth = border;
-                        }
-                        else {
-                            depth = outside;
-                        }
-                        districtMap.Add(c, depth);
-                    }
+                    byte depth = getDepth(c);
 
                     if (depth == inside || depth == border_done) {
                         continue;
                     }
 
-                    int[][] neighbours = new int[6][];
-                    for (int i = 0; i < 6; i++) {
-                        neighbours[i] = (int[])c.Clone();
-                        neighbours[i][i / 2] += (i % 2 == 0 ? 1 : -1);
+                    int[][] neighbours = new int[26][];
+                    byte[] neighboursDepth = new byte[26];
+                    int index = 0;
+                    for (int i = -1; i <= 1; i++) {
+                        for (int j = -1; j <= 1; j++) {
+                            for (int k = -1; k <= 1; k++) {
+                                if (i == 0 && j == 0 && k == 0)
+                                    continue;
+                                neighbours[index] = (int[])c.Clone();
+                                neighbours[index][0] += i;
+                                neighbours[index][1] += j;
+                                neighbours[index][2] += k;
+                                neighboursDepth[index] = getDepth(neighbours[index]);
+                                index++;
+                            }
+                        }
+                    }
+
+                    if (depth == border_or_inside) {
+                        for (int i = 0; i < 26; i++) {
+                            if (neighboursDepth[i] == outside)
+                                depth = border;
+                        }
+                        if (depth == border_or_inside)
+                            depth = inside;
                     }
 
                     if (depth == border) {
-                        for (int i = 0; i < 6; i++) {
-                            nextDistrictsToSpreadFrom.Add(neighbours[i]);
+                        for (int i = 0; i < 26; i++) {
+                            if (neighboursDepth[i] == border || neighboursDepth[i] == border_or_inside)
+                                nextDistrictsToSpreadFrom.Add(neighbours[i]);
                         }
 
                         int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] };

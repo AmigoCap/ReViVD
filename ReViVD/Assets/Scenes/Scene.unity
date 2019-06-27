@@ -165,7 +165,7 @@ MonoBehaviour:
   rightCreationCircleMask: {fileID: 426579630}
   selectorTransparency: 172
   operationMode: 1
-  s_highlightChecked: 1
+  s_highlightChecked: 0
   s_highlightSelected: 1
   s_currentColor: 0
 --- !u!4 &28837753
@@ -3366,7 +3366,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1606882030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3381,7 +3381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   districtSize: {x: 30, y: 30, z: 10}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
-  debugMode: 1
+  debugMode: 0
   clearDistrictsToHighlight: 0
   time: 0
   displayTimeSpheres: 0
