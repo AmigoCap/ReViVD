@@ -22,12 +22,12 @@ namespace Revivd {
 
         private void OnDrawGizmos() {
             if (debugMode) {
-                Gizmos.color = Color.green;
+                Gizmos.color = Color.red;
                 foreach (int[] d in districtsToHighlight[0]) {
                     Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
                 }
 
-                Gizmos.color = Color.red;
+                Gizmos.color = Color.green;
                 foreach (int[] d in districtsToHighlight[1]) {
                     Gizmos.DrawWireCube(transform.TransformPoint(districtSize / 2 + new Vector3(d[0] * districtSize.x, d[1] * districtSize.y, d[2] * districtSize.z)), districtSize);
                 }

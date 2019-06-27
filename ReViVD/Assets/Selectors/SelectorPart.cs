@@ -72,70 +72,94 @@ namespace Revivd {
         }
         protected abstract void UpdateManualModifications(); //Called every frame when the part is to be modified in creation mode
 
-        private HashSet<int[]> exploredDistricts = new HashSet<int[]>(new CoordsEqualityComparer());
         private void FindRibbonsToCheck() {
-            
+
             Visualization viz = Visualization.Instance;
 
             BoxCollider districtCollider = gameObject.AddComponent<BoxCollider>();
             districtCollider.size = Vector3.Scale(viz.districtSize, viz.transform.lossyScale);
-            Vector3[] districtColliderDiags = new Vector3[4];
-            for (int i = 0; i < 4; i++) {
-                districtColliderDiags[i] = viz.districtSize;
-                if (i != 0)
-                    districtColliderDiags[i][i - 1] = -districtColliderDiags[i][i - 1];
-                districtColliderDiags[i] = viz.transform.TransformVector(districtColliderDiags[i]);
-            }
+
             districtCollider.center = Vector3.zero;
             Collider primitiveCollider = primitive.GetComponent<Collider>();
 
             int[] seedDistrict = viz.FindDistrictCoords(viz.transform.InverseTransformPoint(primitive.transform.position));
+            Vector3 trueDistrictSize = viz.transform.TransformVector(viz.districtSize);
+            float districtDiagLength = trueDistrictSize.magnitude;
+            float districtMinSideLength = Mathf.Abs(trueDistrictSize[0]);
+            districtMinSideLength = Mathf.Min(districtMinSideLength, Mathf.Abs(trueDistrictSize[1]));
+            districtMinSideLength = Mathf.Min(districtMinSideLength, Mathf.Abs(trueDistrictSize[2]));
 
             Vector3 seedPos = viz.transform.TransformPoint(viz.getDistrictCenter(seedDistrict));
             Vector3 districtUnitTranslation = viz.transform.TransformVector(viz.districtSize);
 
-            float get1DProjDistance_dc(Vector3 direction) {
-                float dist = 0;
-                foreach (Vector3 diag in districtColliderDiags) {
-                    dist = Mathf.Max(dist, Mathf.Abs(Vector3.Dot(direction, diag)));
-                }
-                return dist;
-            }
-
             CoordsEqualityComparer comparer = new CoordsEqualityComparer();
-            exploredDistricts.Clear();
+            Dictionary<int[], byte> districtMap = new Dictionary<int[], byte>(comparer);
+            const byte outside = 0;
+            const byte border_done = 1;
+            const byte border = 2;
+            const byte inside_done = 3;
+            const byte inside = 4;
 
             Tools.AddClockStop("Initialized district checking");
-            
+
             //PHASE 1: starting from the center, find a "border" district
             int[] start = new int[] { 0, 0, 0 };
             while (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(start[0], start[1], start[2])), viz.transform.rotation,
-                                                   primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out _)) {
+                                                   primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out float exitDist)) {
+                if (exitDist > districtDiagLength)
+                    districtMap[(int[])start.Clone()] = inside;
+                else
+                    districtMap[(int[])start.Clone()] = border;
                 start[0] += 1;
             }
+            districtMap[(int[])start.Clone()] = outside;
             start[0] -= 1;
+            districtMap[(int[])start.Clone()] = border;
 
-            Tools.AddClockStop("End phase 1");
-            
+            Tools.AddClockStop("End of phase 1");
+
             //PHASE 2: starting from the border district found, create a "shell" of border districts around the (convex) primitive
-            bool addToShell(int[] c) { //Checks if c is part of the shell and wasn't explored before and returns true if it is
-                if (!exploredDistricts.Add(c)) {
-                    return false;
-                }
 
-                //Check whether or not the district touches the primitive
-                if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(c[0], c[1], c[2])), viz.transform.rotation,
-                                                   primitiveCollider, primitive.transform.position, primitive.transform.rotation, out Vector3 exitDir, out float exitDist)) {
+            HashSet<int[]> districtsToSpreadFrom = new HashSet<int[]>(comparer);
+            HashSet<int[]> nextDistrictsToSpreadFrom = new HashSet<int[]>(comparer);
+            districtsToSpreadFrom.Add(start);
+            int cycle = 0;
+            while (districtsToSpreadFrom.Count > 0) {
+                foreach (int[] c in districtsToSpreadFrom) {
+                    if (!districtMap.TryGetValue(c, out byte depth)) {
+                        if (Physics.ComputePenetration(districtCollider, seedPos + Vector3.Scale(districtUnitTranslation, new Vector3(c[0], c[1], c[2])), viz.transform.rotation,
+                                                       primitiveCollider, primitive.transform.position, primitive.transform.rotation, out _, out float exitDist)) {
+                            if (exitDist > districtDiagLength)
+                                depth = inside;
+                            else
+                                depth = border;
+                        }
+                        else {
+                            depth = outside;
+                        }
+                        districtMap.Add(c, depth);
+                    }
 
-                    int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
+                    if (depth == inside || depth == border_done) {
+                        continue;
+                    }
 
-                    Debug.Log(Tools.CoordsToString(c) + " " + get1DProjDistance_dc(exitDir) + " " + exitDist * 0.95f + " " + ((get1DProjDistance_dc(exitDir) > exitDist * 0.95f) ? "BORDER" : "INSIDE"));
+                    int[][] neighbours = new int[6][];
+                    for (int i = 0; i < 6; i++) {
+                        neighbours[i] = (int[])c.Clone();
+                        neighbours[i][i / 2] += (i % 2 == 0 ? 1 : -1);
+                    }
 
-                    if (get1DProjDistance_dc(exitDir) > exitDist * 0.95f) { //Border district: add ribbons to ribbonsToCheck and keep spreading
+                    if (depth == border) {
+                        for (int i = 0; i < 6; i++) {
+                            nextDistrictsToSpreadFrom.Add(neighbours[i]);
+                        }
+
+                        int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] };
                         if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
                             if (viz.debugMode)
                                 viz.districtsToHighlight[0].Add(true_c); //DEBUG
-                            
+
                             foreach (Atom a in d.atoms) {
                                 if (a.ShouldDisplay) {
                                     ribbonsToCheck.Add(a);
@@ -143,113 +167,84 @@ namespace Revivd {
                             }
                         }
 
-                        return true;
+                        depth = border_done;
                     }
-                    else { //Inside district: add ribbons to touchedRibbons and stop the spreading
-                        if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
-                            if (viz.debugMode)
-                                viz.districtsToHighlight[1].Add(true_c); //DEBUG
 
-                            foreach (Atom a in d.atoms) {
-                                if (a.ShouldDisplay) {
-                                    touchedRibbons.Add(a);
-                                }
-                            }
-                        }
-
-                        return false;
-                    }
-                }
-                else {
-                    return false;
-                }
-            }
-
-            HashSet<int[]> set1 = new HashSet<int[]>(comparer);
-            HashSet<int[]> set2 = new HashSet<int[]>(comparer);
-            set1.Add(start);
-            int cycle = 0;
-            while (set1.Count != 0) {
-                foreach (int[] c in set1) {
-                    if (addToShell(c)) {
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = -1; j <= 1; j += 2) {
-                                int[] next_c = (int[])c.Clone();
-                                next_c[i] += j;
-                                set2.Add(next_c);
-                            }
-                        }
-                    }
+                    districtMap[c] = depth;
                 }
 
-                Tools.AddSubClockStop("End of cycle 2." + cycle.ToString() + "; " + set1.Count.ToString() + " districts treated");
+                Tools.AddSubClockStop("End of cycle 2." + cycle.ToString() + "; " + districtsToSpreadFrom.Count.ToString() + " districts treated");
 
-                HashSet<int[]> temp = set1;
-                set1.Clear();
-                set1 = set2;
-                set2 = temp;
+                HashSet<int[]> temp = districtsToSpreadFrom;
+                districtsToSpreadFrom.Clear();
+                districtsToSpreadFrom = nextDistrictsToSpreadFrom;
+                nextDistrictsToSpreadFrom = temp;
 
                 cycle++;
             }
 
-            Tools.AddClockStop("End phase 2");
+            Tools.AddClockStop("End of phase 2");
 
             //PHASE 3: starting from the center, flood the created shell
-            bool addToInside(int[] c) { //Checks if c was explored before and returns true if it wasn't
-                if (!exploredDistricts.Add(c)) {
-                    return false;
-                }
 
-                int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
-
-                if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
-                    if (viz.debugMode)
-                        viz.districtsToHighlight[2].Add(true_c); //DEBUG
-
-                    foreach (Atom a in d.atoms) {
-                        if (a.ShouldDisplay) {
-                            TouchedRibbons.Add(a);
-                        }
-                    }
-                }
-
-                return true;
+            districtsToSpreadFrom.Clear();
+            nextDistrictsToSpreadFrom.Clear();
+            int[] center = new int[] { 0, 0, 0 };
+            if (districtMap.ContainsKey(center) && districtMap[center] != inside) {
+                Tools.AddClockStop("Skipping phase 3: center district is not an inside district");
             }
-
-            set1.Clear();
-            set2.Clear();
-            set1.Add(new int[] { 0, 0, 0 });
+            else {
+                districtsToSpreadFrom.Add(center);
+            }
             cycle = 0;
-            while (set1.Count != 0) {
-                foreach (int[] c in set1) {
-                    if (addToInside(c)) {
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = -1; j <= 1; j += 2) {
-                                if (c[i] == 0 || c[i] > 0 == j > 0) { //Only flood towards the exterior
-                                    int[] next_c = (int[])c.Clone();
-                                    next_c[i] += j;
-                                    set2.Add(next_c);
+            while (districtsToSpreadFrom.Count > 0) {
+                foreach (int[] c in districtsToSpreadFrom) {
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = -1; j <= 1; j += 2) {
+                            if (c[i] == 0 || c[i] > 0 == j > 0) { //Only flood towards the exterior (the selector part is convex)
+                                int[] neighbour = (int[])c.Clone();
+                                neighbour[i] += j;
+                                if (!districtMap.TryGetValue(neighbour, out byte neighbourDepth)) {
+                                    neighbourDepth = inside;
+                                    districtMap[neighbour] = neighbourDepth;
                                 }
+                                if (neighbourDepth == inside)
+                                    nextDistrictsToSpreadFrom.Add(neighbour);
                             }
                         }
                     }
+
+                    int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] }; //True coordinates of the district in the visualization dictionary
+
+                    if (viz.districts.TryGetValue(true_c, out Visualization.District d)) {
+                        if (viz.debugMode)
+                            viz.districtsToHighlight[1].Add(true_c); //DEBUG
+
+                        foreach (Atom a in d.atoms) {
+                            if (a.ShouldDisplay) {
+                                TouchedRibbons.Add(a);
+                            }
+                        }
+                    }
+
+                    districtMap[c] = inside_done;
                 }
 
-                Tools.AddSubClockStop("End of cycle 3." + cycle.ToString() + "; " + set1.Count.ToString() + " districts treated");
+                Tools.AddSubClockStop("End of cycle 3." + cycle.ToString() + "; " + districtsToSpreadFrom.Count.ToString() + " districts treated");
 
-                HashSet<int[]> temp = set1;
-                set1.Clear();
-                set1 = set2;
-                set2 = temp;
+                HashSet<int[]> temp = districtsToSpreadFrom;
+                districtsToSpreadFrom.Clear();
+                districtsToSpreadFrom = nextDistrictsToSpreadFrom;
+                nextDistrictsToSpreadFrom = temp;
 
                 cycle++;
             }
 
-            Tools.AddClockStop("End phase 3");
+            Tools.AddClockStop("End of phase 3");
 
             ribbonsToCheck.ExceptWith(touchedRibbons);
 
-            Tools.AddClockStop("Removed obvious from toCheck");
+            Tools.AddClockStop("Removed obvious touchedRibbons from ribbonsToCheck");
 
             Destroy(districtCollider);
         }
