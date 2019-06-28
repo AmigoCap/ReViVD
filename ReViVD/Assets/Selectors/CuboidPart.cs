@@ -115,49 +115,52 @@ namespace Revivd {
         }
 
         private bool CuboidTouchesRibbon(Atom a) {
+            //All computations are made in the primitive's coordinates, which changes the scale of things (like the ribbons' radii)
 
             if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float radius))
                 radius = a.path.baseRadius;
+            Vector3 scaledRadius = Vector3.one * radius;
+            for (int i = 0; i < 3; i++) {
+                scaledRadius[i] /= primitive.transform.localScale[i];
+            }
 
-            Vector3 extendedScale = primitive.transform.localScale / 2;// + new Vector3(radius, radius, radius) ;
+            Vector3 cuboidDimensions = Vector3.one / 2; //Constant in the primitive's coordinate system
 
             //Segment in the world space coordinates
-            Vector3 b = a.path.transform.TransformPoint(a.point);  //Coordinates World Space
-            Vector3 c = a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point); //Coordinates World Space
-            //and then in the right hand space coordinates
-            Vector3 bc = primitive.transform.parent.InverseTransformPoint(b);
-            Vector3 cc = primitive.transform.parent.InverseTransformPoint(c);
+            Vector3 b = a.path.transform.TransformPoint(a.point);
+            Vector3 c = a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point);
+            //and then in the primitive's coordinates
+            Vector3 bc = primitive.transform.InverseTransformPoint(b);
+            Vector3 cc = primitive.transform.InverseTransformPoint(c);
 
-            Vector3 mc = (bc + cc) / 2; //midpoint vector of the segment
+            Vector3 mc = (bc + cc) / 2; //midpoint vector of the segment (origin is the cuboid's center)
             Vector3 l = bc - mc; 
             Vector3 lext = new Vector3(Mathf.Abs(l.x), Mathf.Abs(l.y), Mathf.Abs(l.z));//extent vector of the segment
-
-            mc = primitive.transform.localPosition - mc;
-
+            
             //Separating axis test: axis = separating axis? 
-            if (Mathf.Abs(mc.x) >  extendedScale.x + radius + lext.x) return false;
-            if (Mathf.Abs(mc.y) >  extendedScale.y + radius + lext.y) return false;
-            if (Mathf.Abs(mc.z) >  extendedScale.z + radius + lext.z) return false;
+            if (Mathf.Abs(mc.x) >  cuboidDimensions.x + scaledRadius.x + lext.x) return false;
+            if (Mathf.Abs(mc.y) >  cuboidDimensions.y + scaledRadius.y + lext.y) return false;
+            if (Mathf.Abs(mc.z) >  cuboidDimensions.z + scaledRadius.z + lext.z) return false;
 
             bool first = true;
             bool second = true;
 
-            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > ((extendedScale.y + radius) * lext.z + extendedScale.z * lext.y)) first = false;
-            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > (extendedScale.y * lext.z + (extendedScale.z + radius) * lext.y)) second = false;
+            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > ((cuboidDimensions.y + scaledRadius.y) * lext.z + cuboidDimensions.z * lext.y)) first = false;
+            if (Mathf.Abs(mc.y * l.z - mc.z * l.y) > (cuboidDimensions.y * lext.z + (cuboidDimensions.z + scaledRadius.z) * lext.y)) second = false;
 
             if (!first & !second) return false;
             first = true;
             second = true;
 
-            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > ((extendedScale.x + radius) * lext.z + extendedScale.z * lext.x)) first = false;
-            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > (extendedScale.x * lext.z + (extendedScale.z + radius) * lext.x)) second = false;
+            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > ((cuboidDimensions.x + scaledRadius.x) * lext.z + cuboidDimensions.z * lext.x)) first = false;
+            if (Mathf.Abs(mc.x * l.z - mc.z * l.x) > (cuboidDimensions.x * lext.z + (cuboidDimensions.z + scaledRadius.z) * lext.x)) second = false;
 
             if (!first & !second) return false;
             first = true;
             second = true;
 
-            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > ((extendedScale.x + radius) * lext.y + extendedScale.y * lext.x)) first = false;
-            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > (extendedScale.x * lext.y + (extendedScale.y + radius) * lext.x)) second = false;
+            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > ((cuboidDimensions.x + scaledRadius.x) * lext.y + cuboidDimensions.y * lext.x)) first = false;
+            if (Mathf.Abs(mc.x * l.y - mc.y * l.x) > (cuboidDimensions.x * lext.y + (cuboidDimensions.y + scaledRadius.z) * lext.x)) second = false;
 
             if (!first & !second) return false;
 
