@@ -551,7 +551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1923b80e698d2744183f4b561cd82229, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 10, y: 10, z: 10}
+  districtSize: {x: 30, y: 30, z: 30}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
@@ -616,7 +616,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   districtSize: {x: 10, y: 10, z: 10}
-  material: {fileID: 0}
+  material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
   time: 0
@@ -1672,7 +1672,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2845a1a91823d514cbf6a518ab68d7d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 10, y: 10, z: 10}
+  districtSize: {x: 25, y: 25, z: 25}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
@@ -2773,7 +2773,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3962230c3006f4498b612eb318a3358, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 10, y: 10, z: 10}
+  districtSize: {x: 40, y: 40, z: 40}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
@@ -3706,7 +3706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 411b5cc6f1325c4429dae5590aaab22a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 10, y: 10, z: 10}
+  districtSize: {x: 30, y: 30, z: 30}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0

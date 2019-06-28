@@ -60,7 +60,6 @@ namespace Revivd {
                 point.x /= 100;
                 point.z /= 100;
                 point.y = y / 100;
-                Debug.Log(point);
 
                 GeoLifeAtom a = new GeoLifeAtom {
                     time = t,
