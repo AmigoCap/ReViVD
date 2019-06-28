@@ -166,8 +166,10 @@ namespace Revivd {
         }
 
         public void DoLogicOperation() {
+            Visualization viz = Visualization.Instance;
+
             if (InverseMode) { // Invert displayed ribbons
-                foreach (Path p in Visualization.Instance.PathsAsBase) {
+                foreach (Path p in viz.PathsAsBase) {
                     foreach (Atom a in p.AtomsAsBase)
                         a.ShouldDisplay = !a.ShouldDisplay;
                 }
@@ -175,24 +177,21 @@ namespace Revivd {
                 return;
             }
 
-            foreach (Path p in Visualization.Instance.PathsAsBase) {
-                foreach (Atom a in p.AtomsAsBase)
-                    a.ShouldDisplay = false;
-            }
-
             HashSet<Path> pathsToKeep = new HashSet<Path>();
             if (operationMode == LogicMode.AND) {
                 bool firstPass = true;
                 foreach (ColorGroup c in operatingColors) {
                     if (firstPass) {
-                        foreach (Atom a in selectedRibbons[(int)c])
-                            pathsToKeep.Add(a.path);
                         firstPass = false;
+                        foreach (Atom a in selectedRibbons[(int)c])
+                            if (a.ShouldDisplay)
+                                pathsToKeep.Add(a.path);
                     }
                     else {
                         HashSet<Path> pathsToKeep2 = new HashSet<Path>();
                         foreach (Atom a in selectedRibbons[(int)c])
-                            pathsToKeep2.Add(a.path);
+                            if (a.ShouldDisplay)
+                                pathsToKeep2.Add(a.path);
                         pathsToKeep.IntersectWith(pathsToKeep2);
                     }
                 }
@@ -200,13 +199,17 @@ namespace Revivd {
             else {
                 foreach (ColorGroup c in operatingColors) {
                     foreach (Atom a in selectedRibbons[(int)c])
-                        pathsToKeep.Add(a.path);
+                        if (a.ShouldDisplay)
+                            pathsToKeep.Add(a.path);
                 }
             }
 
-            foreach (Path p in pathsToKeep) {
+            HashSet<Path> pathsToRemove = new HashSet<Path>(viz.PathsAsBase);
+            pathsToRemove.ExceptWith(pathsToKeep);
+
+            foreach (Path p in pathsToRemove) {
                 foreach (Atom a in p.AtomsAsBase)
-                    a.ShouldDisplay = true;
+                    a.ShouldDisplay = false;
             }
 
         }
