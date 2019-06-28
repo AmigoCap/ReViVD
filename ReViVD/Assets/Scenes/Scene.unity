@@ -1074,8 +1074,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  handOffset: {x: 0, y: 0, z: 6}
-  size: {x: 1.5, y: 1.5, z: 1.5}
+  handOffset: {x: 0, y: 0, z: 9}
+  size: {x: 3, y: 3, z: 3}
 --- !u!114 &584037492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1916,7 +1916,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _positive: 1
   length: 30
-  radius: 0.3
+  radius: 0.5
   handOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &944124989
 MonoBehaviour:
@@ -3366,7 +3366,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1606882030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4409,8 +4409,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _positive: 1
-  radius: 1.5
-  handOffset: {x: 0, y: 0, z: 6}
+  radius: 3
+  handOffset: {x: 0, y: 0, z: 8}
 --- !u!114 &1947554688
 MonoBehaviour:
   m_ObjectHideFlags: 0

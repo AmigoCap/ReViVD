@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace Revivd { 
 
@@ -115,7 +115,7 @@ namespace Revivd {
                     else {
                         depth = outside;
                     }
-                    districtMap.Add((int[])coords.Clone(), depth);
+                    districtMap.Add(coords, depth); //getDepth does not clone coordinates, make sure they aren't modified afterwards (pass a clone if need be)
                 }
                 return depth;
             }
@@ -123,8 +123,9 @@ namespace Revivd {
             Tools.AddClockStop("Initialized district checking");
 
             //PHASE 1: starting from the center, find a "border" district
+
             int[] start = new int[] { 0, 0, 0 };
-            while (getDepth(start) != outside) {
+            while (getDepth((int[])start.Clone()) != outside) {
                 start[0] += 1;
             }
             start[0] -= 1;
@@ -146,37 +147,55 @@ namespace Revivd {
                         continue;
                     }
 
-                    int[][] neighbours = new int[26][];
-                    byte[] neighboursDepth = new byte[26];
-                    int index = 0;
-                    for (int i = -1; i <= 1; i++) {
-                        for (int j = -1; j <= 1; j++) {
-                            for (int k = -1; k <= 1; k++) {
-                                if (i == 0 && j == 0 && k == 0)
-                                    continue;
-                                neighbours[index] = (int[])c.Clone();
-                                neighbours[index][0] += i;
-                                neighbours[index][1] += j;
-                                neighbours[index][2] += k;
-                                neighboursDepth[index] = getDepth(neighbours[index]);
-                                index++;
-                            }
-                        }
+                    int[][] adjacentNeighbours = new int[6][];
+                    byte[] adjacentNeighboursDepth = new byte[6];
+
+                    for (int i = 0; i < 6; i++) {
+                        adjacentNeighbours[i] = (int[])c.Clone();
+                        adjacentNeighbours[i][i / 2] += (i % 2 == 0 ? 1 : -1);
+                        adjacentNeighboursDepth[i] = getDepth(adjacentNeighbours[i]);
                     }
 
                     if (depth == border_or_inside) {
-                        for (int i = 0; i < 26; i++) {
-                            if (neighboursDepth[i] == outside)
+                        //Acertain the depth of the district by looking at all its neighbours' (including diagonal neighbours) depths
+
+                        //First look at the already-obtained adjacent neighbours
+                        for (int i = 0; i < 6; i++) {
+                            if (adjacentNeighboursDepth[i] == outside) {
                                 depth = border;
+                                break;
+                            }
                         }
-                        if (depth == border_or_inside)
-                            depth = inside;
+
+                        //If still unknown, look at diagonal neighbours
+                        if (depth == border_or_inside) {
+                            for (int i = -1; i <= 1; i++) {
+                                for (int j = -1; j <= 1; j++) {
+                                    for (int k = -1; k <= 1; k++) {
+                                        if (Math.Abs(i) + Math.Abs(j) + Math.Abs(k) < 2)
+                                            continue;
+                                        if (getDepth(new int[] { c[0] + i, c[1] + j, c[2] + k }) == outside) {
+                                            depth = border;
+                                            break;
+                                        }
+                                    }
+                                    if (depth == border)
+                                        break;
+                                }
+                                if (depth == border)
+                                    break;
+                            }
+
+                            //If none of the neighbours was outside, then we know the district is inside.
+                            if (depth == border_or_inside)
+                                depth = inside;
+                        }
                     }
 
                     if (depth == border) {
-                        for (int i = 0; i < 26; i++) {
-                            if (neighboursDepth[i] == border || neighboursDepth[i] == border_or_inside)
-                                nextDistrictsToSpreadFrom.Add(neighbours[i]);
+                        for (int i = 0; i < 6; i++) {
+                            if (adjacentNeighboursDepth[i] == border || adjacentNeighboursDepth[i] == border_or_inside)
+                                nextDistrictsToSpreadFrom.Add(adjacentNeighbours[i]);
                         }
 
                         int[] true_c = new int[] { c[0] + seedDistrict[0], c[1] + seedDistrict[1], c[2] + seedDistrict[2] };
