@@ -14,6 +14,10 @@ namespace Revivd {
         public bool needsMeshUpdate = false; //Rebuild the whole mesh from scratch
 
         public bool needsTriangleUpdate = false; //Update which atoms are displayed
+        private bool _updatedTrianglesThisFrame;
+        public bool UpdatedTrianglesThisFrame {
+            get => _updatedTrianglesThisFrame;
+        }
 
         public bool needsColorUpdate = false; //Update the color of the vertices
 
@@ -31,10 +35,15 @@ namespace Revivd {
         public void UpdatePath() {
             if (needsMeshUpdate)
                 UpdateMesh();
+
             if (needsColorUpdate)
                 UpdateColor();
-            if (needsTriangleUpdate)
+
+            _updatedTrianglesThisFrame = false;
+            if (needsTriangleUpdate) {
                 UpdateTriangles();
+                _updatedTrianglesThisFrame = true;
+            }
         }
 
         private void UpdateMesh() {

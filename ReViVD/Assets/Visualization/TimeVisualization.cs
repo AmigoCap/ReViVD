@@ -51,20 +51,31 @@ namespace Revivd {
                 }
             }
 
-            if (displayTimeSpheres && (timeSphereRadius != old_timeSphereRadius)) {
-                foreach (TimePath p in PathsAsTime) {
-                    p.TimeSphereRadius = timeSphereRadius;
+            if (displayTimeSpheres) {
+                if (timeSphereRadius != old_timeSphereRadius) {
+                    foreach (TimePath p in PathsAsTime) {
+                        p.TimeSphereRadius = timeSphereRadius;
+                    }
+                    old_timeSphereRadius = timeSphereRadius;
                 }
-            }
 
-            if (displayTimeSpheres && (time != old_time)) {
-                foreach (TimePath p in PathsAsTime) {
-                    p.TimeSphereTime = time;
+                if (time != old_time) {
+                    foreach (TimePath p in PathsAsTime) {
+                        p.TimeSphereTime = time;
+                    }
+                    old_time = time;
                 }
-                old_time = time;
             }
 
             base.Update();
+
+            if (displayTimeSpheres) {
+                foreach (TimePath p in PathsAsTime) {
+                    if (p.UpdatedTrianglesThisFrame) {
+                        p.TimeSphereTime = time;
+                    }
+                }
+            }
         }
     }
 
@@ -100,7 +111,7 @@ namespace Revivd {
                 var it = AtomsAsTime.GetEnumerator();
                 it.MoveNext();
                 float t = it.Current.time;
-                if (t >= _timeSphereTime) { //First point is already too late
+                if (t > _timeSphereTime) { //First point is already too late
                     if (timeSphere != null) {
                         Destroy(timeSphere);
                         timeSphere = null;
@@ -110,7 +121,7 @@ namespace Revivd {
 
                 TimeAtom a = it.Current;
                 while (it.MoveNext()) {
-                    if (it.Current.time >= _timeSphereTime) { //Next point is too late
+                    if (it.Current.time > _timeSphereTime) { //Next point is too late
                         if (!a.ShouldDisplay) {
                             if (timeSphere != null) {
                                 Destroy(timeSphere);
