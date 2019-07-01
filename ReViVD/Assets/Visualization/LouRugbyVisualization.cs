@@ -22,13 +22,13 @@ namespace Revivd {
 
             string[] rawData = System.IO.File.ReadAllLines(filename);
 
-            for (int i = 0; i < rawData.Length / 20; i++) {
-                string[] words = CsvSplit(rawData[20 * i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
+            for (int i = 0; i < rawData.Length; i+=10) {
+                string[] words = CsvSplit(rawData[i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
 
                 if (words.Length < 2)
                     continue;
 
-                float t = InterpretTime(words[4]);
+                float t = InterpretTime(words[3]);
                 float x = float.Parse(words[1]);
                 float z = float.Parse(words[2]);
                 if (badNumber(t) || badNumber(x) || badNumber(z))
@@ -46,7 +46,7 @@ namespace Revivd {
                 
                 LouRugbyAtom a = new LouRugbyAtom {
                     time = t,
-                    point = new Vector3(x, t / 20, z),
+                    point = new Vector3(x, 0, z),
                     path = p,
                     indexInPath = p.atoms.Count,
                     BaseColor = colorsDict[p.name]
@@ -63,7 +63,13 @@ namespace Revivd {
             float time = float.Parse(word.Replace('.', ','));
             return time;
         }
-        
+        /*
+        private float InterpretGPSCoordinates(string word) {
+            string[] coordinates = word.Split('.');
+            float coord = float.Parse(coordinates[0]) * 1000 + float.Parse(coordinates[1]);
+            return coord;
+        }*/
+
         public class LouRugbyPath : TimePath {
             public List<LouRugbyAtom> atoms = new List<LouRugbyAtom>();
             public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }
