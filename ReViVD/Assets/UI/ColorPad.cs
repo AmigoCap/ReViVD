@@ -18,6 +18,9 @@ namespace Revivd {
         }
 
         void Update() {
+            if (SelectorManager.Instance.CurrentControlMode == SelectorManager.ControlMode.CreationMode)
+                return;
+
             RectTransform rt = GetComponent<RectTransform>();
             if (SteamVR_ControllerManager.RightController.padTouched) {
                 if (!swiping)

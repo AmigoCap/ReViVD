@@ -18,6 +18,7 @@ namespace Revivd {
             initialRadius = radius;
             initialHandOffset = handOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            _type = PrimitiveType.Sphere;
         }
 
         protected override void UpdatePrimitive() {

@@ -56,6 +56,11 @@ namespace Revivd {
             ParseRibbonsToCheck();
         }
 
+        protected PrimitiveType _type = PrimitiveType.Quad;
+        public PrimitiveType Type {
+            get => _type;
+        }
+
         protected GameObject primitive;
 
         private bool _shouldPollManualModifications;

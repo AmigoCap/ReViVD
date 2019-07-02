@@ -21,6 +21,7 @@ namespace Revivd {
             initialRadius = radius;
             initialHandOffset = handOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            _type = PrimitiveType.Cylinder;
         }
 
         protected override void UpdatePrimitive() {
@@ -52,6 +53,9 @@ namespace Revivd {
             else {
                 if (SteamVR_ControllerManager.RightController.padPressed) {
                     handOffset.z += (SteamVR_ControllerManager.RightController.Pad.y >= 0 ? 1 : -1) * Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+                }
+                if (SteamVR_ControllerManager.LeftController.padPressed) {
+                    length += (SteamVR_ControllerManager.LeftController.Pad.y >= 0 ? 1 : -1) * length * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
                 }
             }
 

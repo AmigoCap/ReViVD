@@ -37,8 +37,8 @@ namespace Revivd {
                 bool selectionMode = _currentControlMode == ControlMode.SelectionMode;
                 leftSelectionCircleMask.SetActive(selectionMode);
                 rightSelectionCircleMask.SetActive(selectionMode);
-                leftCreationCircleMask.SetActive(!selectionMode);
-                rightCreationCircleMask.SetActive(!selectionMode);
+                //leftCreationCircleMask.SetActive(!selectionMode);
+                //rightCreationCircleMask.SetActive(!selectionMode);
 
                 Selector hs = handSelectors[(int)CurrentColor];
                 if (hs != null && hs.isActiveAndEnabled) {

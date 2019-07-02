@@ -16,6 +16,7 @@ namespace Revivd {
             initialSize = size;
             initialHandOffset = handOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            _type = PrimitiveType.Cube;
         }
         
         protected override void UpdatePrimitive() {

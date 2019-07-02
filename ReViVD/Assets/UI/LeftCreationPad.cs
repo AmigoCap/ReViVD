@@ -14,7 +14,7 @@ namespace Revivd {
 
             if (hs != null && hs.isActiveAndEnabled) {
                 foreach (SelectorPart p in hs.GetComponents<SelectorPart>()) {
-                    if (p.name == "Cuboid" && !sm.InverseMode) {//it works only if there is one primitive per selector
+                    if (p.Type == PrimitiveType.Cube && !sm.InverseMode) {//this works only if there is one primitive per selector
                         creationPad.SetActive(true);
                     }
                     else {
@@ -24,10 +24,8 @@ namespace Revivd {
             }
         }
 
-
-    void SetFullOrEmptySprites(SteamVR_TrackedController sender) {
-            SelectorManager sm = SelectorManager.Instance;
-            if (sm.InverseMode) {
+        void SetActiveSprite(SteamVR_TrackedController sender) {
+            if (SelectorManager.Instance.InverseMode) {
                 creationReset.SetActive(true);
             }
             else {
@@ -36,19 +34,18 @@ namespace Revivd {
         }
 
         private void OnEnable() {
-            SteamVR_ControllerManager.LeftController.TriggerClicked += SetFullOrEmptySprites;
-            SteamVR_ControllerManager.LeftController.TriggerUnclicked += SetFullOrEmptySprites;
+            SteamVR_ControllerManager.LeftController.TriggerClicked += SetActiveSprite;
+            SteamVR_ControllerManager.LeftController.TriggerUnclicked += SetActiveSprite;
 
-            SetFullOrEmptySprites(SteamVR_ControllerManager.RightController);
+            SetActiveSprite(SteamVR_ControllerManager.RightController);
         }
 
         private void OnDisable() {
             if (SteamVR_ControllerManager.LeftController != null) {
-                SteamVR_ControllerManager.LeftController.TriggerClicked -= SetFullOrEmptySprites;
-                SteamVR_ControllerManager.LeftController.TriggerUnclicked -= SetFullOrEmptySprites;
+                SteamVR_ControllerManager.LeftController.TriggerClicked -= SetActiveSprite;
+                SteamVR_ControllerManager.LeftController.TriggerUnclicked -= SetActiveSprite;
             }
         }
 
     }
-
 }
