@@ -60,7 +60,7 @@ namespace Revivd {
         void ResetDisplayedPaths() {
             foreach (Path p in Visualization.Instance.PathsAsBase) {
                 foreach (Atom a in p.AtomsAsBase) {
-                    a.ShouldDisplay = true;
+                    a.ShouldDisplayBecauseSelected = true;
                 }
             }
             if (SelectorManager.Instance.InverseMode) { //Hard reset

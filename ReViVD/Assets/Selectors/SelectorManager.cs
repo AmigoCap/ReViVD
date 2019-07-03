@@ -171,7 +171,7 @@ namespace Revivd {
             if (InverseMode) { // Invert displayed ribbons
                 foreach (Path p in viz.PathsAsBase) {
                     foreach (Atom a in p.AtomsAsBase)
-                        a.ShouldDisplay = !a.ShouldDisplay;
+                        a.ShouldDisplayBecauseSelected = !a.ShouldDisplayBecauseSelected;
                 }
 
                 return;
@@ -209,7 +209,7 @@ namespace Revivd {
 
             foreach (Path p in pathsToRemove) {
                 foreach (Atom a in p.AtomsAsBase)
-                    a.ShouldDisplay = false;
+                    a.ShouldDisplayBecauseSelected = false;
             }
 
         }

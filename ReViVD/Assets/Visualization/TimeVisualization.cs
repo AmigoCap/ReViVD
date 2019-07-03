@@ -19,25 +19,19 @@ namespace Revivd {
         public bool doTimeAnim;
         public float animSpeed = 10;
 
+        public bool traceTimeSpheres = false;
+        private bool old_traceTimeSpheres;
+
         protected override void Awake() {
             base.Awake();
 
             old_displayTimeSpheres = displayTimeSpheres;
             old_time = time;
             old_timeSphereRadius = timeSphereRadius;
+            old_traceTimeSpheres = traceTimeSpheres;
         }
 
-        protected override void Update() {
-            //if (Input.GetMouseButtonDown(0)) {
-            //    doTimeAnim = !doTimeAnim;
-            //}
-            //if (Input.GetMouseButtonDown(1)) {
-            //    time = 0;
-            //}
-            //if (Input.GetMouseButtonDown(2)) {
-            //    displayTimeSpheres = !displayTimeSpheres;
-            //}
-            
+        protected override void Update() {            
             if (doTimeAnim && displayTimeSpheres) {
                 time += animSpeed * Time.deltaTime;
             }
@@ -64,6 +58,15 @@ namespace Revivd {
                         p.TimeSphereTime = time;
                     }
                     old_time = time;
+                }
+
+                if (traceTimeSpheres != old_traceTimeSpheres) {
+                    foreach (TimePath p in PathsAsTime) {
+                        foreach (TimeAtom a in p.AtomsAsTime) {
+                            a.ShouldDisplayBecauseTime = !traceTimeSpheres;
+                        }
+                    }
+                    old_traceTimeSpheres = traceTimeSpheres;
                 }
             }
 
@@ -119,10 +122,11 @@ namespace Revivd {
                     return;
                 }
 
+                TimeVisualization viz = (TimeVisualization)Visualization.Instance;
                 TimeAtom a = it.Current;
                 while (it.MoveNext()) {
                     if (it.Current.time > _timeSphereTime) { //Next point is too late
-                        if (!a.ShouldDisplay) {
+                        if (!a.ShouldDisplayBecauseSelected) {
                             if (timeSphere != null) {
                                 Destroy(timeSphere);
                                 timeSphere = null;
@@ -137,6 +141,9 @@ namespace Revivd {
                         pos += (_timeSphereTime - a.time) / (it.Current.time - a.time) * (it.Current.point - a.point);
                         timeSphere.transform.localPosition = pos;
                         timeSphere.SetActive(true);
+                        if (viz.traceTimeSpheres) {
+                            a.ShouldDisplayBecauseTime = true;
+                        }
                         return;
                     }
                     a = it.Current;
@@ -163,19 +170,38 @@ namespace Revivd {
 
         public void SetTimeWindow(float startTime, float stopTime) { //Met à jour les atomes à afficher en fonction de si leur temps est dans la fenêtre recherchée
             foreach (TimeAtom a in AtomsAsTime) {
-                a.ShouldDisplay = a.time > startTime && a.time < stopTime;
+                a.ShouldDisplayBecauseTime = a.time > startTime && a.time < stopTime;
             }
         }
 
         public void RemoveTimeWindow() {
             foreach (TimeAtom a in AtomsAsTime) {
-                a.ShouldDisplay = true;
+                a.ShouldDisplayBecauseTime = true;
             }
         }
     }
 
     public abstract class TimeAtom : Atom {
         public float time;
+
+        private bool shouldDisplay_time = true;
+
+        public override bool ShouldDisplay {
+            get => base.ShouldDisplay && shouldDisplay_time;
+        }
+
+        public bool ShouldDisplayBecauseTime {
+            get => shouldDisplay_time;
+            set {
+                bool wasDisplayed = ShouldDisplay;
+                shouldDisplay_time = value;
+                if (wasDisplayed != ShouldDisplay) {
+                    path.needsTriangleUpdate = true;
+                    if (!wasDisplayed)
+                        path.needsColorUpdate = true;
+                }
+            }
+        }
     }
 
 }

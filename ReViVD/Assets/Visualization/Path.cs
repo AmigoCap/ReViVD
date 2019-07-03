@@ -193,10 +193,11 @@ namespace Revivd {
             return false;
         }
 
-        private bool shouldDisplay = true;
+        private bool shouldDisplay_selected = true;
+
         private bool shouldUpdateColor = false;
-        private BitArray shouldHighlight_checked = new BitArray(SelectorManager.colors.Length, false);
-        private BitArray shouldHighlight_selected = new BitArray(SelectorManager.colors.Length, false);
+        private readonly BitArray shouldHighlight_checked = new BitArray(SelectorManager.colors.Length, false);
+        private readonly BitArray shouldHighlight_selected = new BitArray(SelectorManager.colors.Length, false);
         private bool shouldHighlight_debug = false;
 
         private Color32 baseColor = new Color32(255, 255, 255, 255);
@@ -246,15 +247,19 @@ namespace Revivd {
             }
         }
 
-        public bool ShouldDisplay {
-            get => shouldDisplay;
+        public virtual bool ShouldDisplay {
+            get => shouldDisplay_selected;
+        }
+
+        public bool ShouldDisplayBecauseSelected {
+            get => shouldDisplay_selected;
             set {
-                if (value != shouldDisplay) {
+                bool wasDisplayed = ShouldDisplay;
+                shouldDisplay_selected = value;
+                if (wasDisplayed != ShouldDisplay) {
                     path.needsTriangleUpdate = true;
-                    shouldDisplay = value;
-                    if (shouldDisplay) {
+                    if (!wasDisplayed)
                         path.needsColorUpdate = true;
-                    }
                 }
             }
         }

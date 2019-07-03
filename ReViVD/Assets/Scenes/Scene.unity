@@ -486,6 +486,7 @@ MonoBehaviour:
   timeSphereRadius: 1
   doTimeAnim: 0
   animSpeed: 10
+  traceTimeSpheres: 0
   paths: []
   filename: External Data/Duquesne/LDC.csv
   maxPoint: {x: 500, y: 500, z: 500}
@@ -550,6 +551,7 @@ MonoBehaviour:
   timeSphereRadius: 1
   doTimeAnim: 0
   animSpeed: 10
+  traceTimeSpheres: 0
   paths: []
   filename: External Data/GeoLife/geolife_extract.csv
   maxAltitude: 2000
@@ -770,6 +772,7 @@ MonoBehaviour:
   timeSphereRadius: 1
   doTimeAnim: 0
   animSpeed: 10
+  traceTimeSpheres: 0
   paths: []
   filename: External Data/Traffic_Lyon_6/lyon6
   nb_vehicules: 6121
@@ -1156,7 +1159,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &634383033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1178,15 +1181,16 @@ MonoBehaviour:
   timeSphereRadius: 1
   doTimeAnim: 0
   animSpeed: 10
+  traceTimeSpheres: 0
   paths: []
   filenameBase: External Data/Naso/droplet_bundle_
   particlesStart: 0
-  n_particles: 5000
+  n_particles: 2000
   particlesStep: 1
   randomParticles: 0
   instantsStart: 0
-  n_instants: 20
-  instantsStep: 5
+  n_instants: 200
+  instantsStep: 2
   maxPoint: {x: 5000, y: 5000, z: 5000}
   minPoint: {x: -5000, y: -5000, z: -5000}
 --- !u!4 &634383034
@@ -2422,6 +2426,7 @@ MonoBehaviour:
   timeSphereRadius: 1
   doTimeAnim: 0
   animSpeed: 10
+  traceTimeSpheres: 0
   paths: []
   filename: External Data/Foot/players.csv
 --- !u!4 &1465584111
@@ -2954,6 +2959,7 @@ MonoBehaviour:
   timeSphereRadius: 1
   doTimeAnim: 0
   animSpeed: 10
+  traceTimeSpheres: 0
   paths: []
   totalNumberOfPaths: 28913
   particlesStart: 0
@@ -3280,6 +3286,7 @@ MonoBehaviour:
   timeSphereRadius: 1
   doTimeAnim: 0
   animSpeed: 10
+  traceTimeSpheres: 0
   paths: []
   filename: External Data/LouRugby/lourugby.csv
 --- !u!4 &1731387382 stripped
@@ -4551,7 +4558,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2138234665
 Transform:
   m_ObjectHideFlags: 0
@@ -4588,5 +4595,6 @@ MonoBehaviour:
   timeSphereRadius: 1
   doTimeAnim: 0
   animSpeed: 100
+  traceTimeSpheres: 0
   paths: []
   filename: External Data/AirTraffic/aviation.csv
