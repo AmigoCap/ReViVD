@@ -8,76 +8,90 @@ namespace Revivd {
 
         public abstract IReadOnlyList<TimePath> PathsAsTime { get; }
 
-        public float time = 0;
-        private float old_time;
         public bool displayTimeSpheres = false;
-        private bool old_displayTimeSpheres;
 
-        public float timeSphereRadius = 1;
+        public float globalTime = 0;
+
+        public bool useGlobalTime = true;
+
+        public bool doSphereDrop = false;
+
         private float old_timeSphereRadius;
+        public float timeSphereRadius = 1;
 
-        public bool doTimeAnim;
-        public float animSpeed = 10;
+        public bool doTimeSphereAnimation = false;
+        public float timeSphereAnimationSpeed = 10;
 
-        public bool traceTimeSpheres = false;
         private bool old_traceTimeSpheres;
+        public bool traceTimeSpheres = false;
 
         protected override void Awake() {
             base.Awake();
 
-            old_displayTimeSpheres = displayTimeSpheres;
-            old_time = time;
             old_timeSphereRadius = timeSphereRadius;
             old_traceTimeSpheres = traceTimeSpheres;
         }
 
-        protected override void Update() {            
-            if (doTimeAnim && displayTimeSpheres) {
-                time += animSpeed * Time.deltaTime;
+        public void DropSpheres() {
+            foreach (TimePath p in PathsAsTime) {
+                p.timeSphereDropped = false;
+                p.timeSphereTime = timeSphereAnimationSpeed < 0 ? float.NegativeInfinity : float.PositiveInfinity;
             }
-
-            if (displayTimeSpheres != old_displayTimeSpheres) {
-                foreach (TimePath p in PathsAsTime) {
-                    if (displayTimeSpheres)
-                        p.TimeSphereTime = time;
-                    p.DisplayTimeSphere(displayTimeSpheres);
-                    old_displayTimeSpheres = displayTimeSpheres;
+            foreach (TimeAtom a in SelectorManager.Instance.selectedRibbons[(int)SelectorManager.Instance.CurrentColor]) {
+                if (a.ShouldDisplay) {
+                    TimePath p = (TimePath)a.path;
+                    if (timeSphereAnimationSpeed < 0) {
+                        p.timeSphereTime = Mathf.Max(p.timeSphereTime, a.time);
+                    }
+                    else {
+                        p.timeSphereTime = Mathf.Min(p.timeSphereTime, a.time);
+                    }
+                    p.timeSphereDropped = true;
                 }
+            }
+        }
+
+        protected override void Update() {
+            base.Update();
+
+            if (!traceTimeSpheres && old_traceTimeSpheres) {
+                foreach (TimePath p in PathsAsTime) {
+                    foreach (TimeAtom a in p.AtomsAsTime) {
+                        a.ShouldDisplayBecauseTime = true;
+                    }
+                }
+                old_traceTimeSpheres = false;
             }
 
             if (displayTimeSpheres) {
+                if (doSphereDrop) {
+                    DropSpheres();
+                    doSphereDrop = false;
+                }
+
                 if (timeSphereRadius != old_timeSphereRadius) {
                     foreach (TimePath p in PathsAsTime) {
-                        p.TimeSphereRadius = timeSphereRadius;
+                        p.UpdateTimeSphereRadius();
                     }
                     old_timeSphereRadius = timeSphereRadius;
                 }
 
-                if (time != old_time) {
-                    foreach (TimePath p in PathsAsTime) {
-                        p.TimeSphereTime = time;
-                    }
-                    old_time = time;
-                }
-
-                if (traceTimeSpheres != old_traceTimeSpheres) {
+                if (traceTimeSpheres && !old_traceTimeSpheres) {
                     foreach (TimePath p in PathsAsTime) {
                         foreach (TimeAtom a in p.AtomsAsTime) {
-                            a.ShouldDisplayBecauseTime = !traceTimeSpheres;
+                            a.ShouldDisplayBecauseTime = false;
                         }
                     }
-                    old_traceTimeSpheres = traceTimeSpheres;
+                    old_traceTimeSpheres = true;
                 }
+
+                if (useGlobalTime && doTimeSphereAnimation)
+                    globalTime += timeSphereAnimationSpeed * Time.deltaTime;
+
             }
 
-            base.Update();
-
-            if (displayTimeSpheres) {
-                foreach (TimePath p in PathsAsTime) {
-                    if (p.UpdatedTrianglesThisFrame) {
-                        p.TimeSphereTime = time;
-                    }
-                }
+            foreach (TimePath p in PathsAsTime) {
+                p.UpdateTimeSphere();
             }
         }
     }
@@ -85,7 +99,10 @@ namespace Revivd {
     public abstract class TimePath : Path {
         public abstract IReadOnlyList<TimeAtom> AtomsAsTime { get; }
 
-        private GameObject timeSphere;
+        private GameObject timeSphere = null;
+
+        public float timeSphereTime = 0;
+        public bool timeSphereDropped = false;
 
         protected virtual void CreateTimeSphere() {
             timeSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -96,76 +113,88 @@ namespace Revivd {
             renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
             timeSphere.transform.parent = this.transform;
             timeSphere.transform.localScale = Vector3.one * ((TimeVisualization)Visualization.Instance).timeSphereRadius;
-            timeSphere.SetActive(shouldDisplayTimeSpheres);
         }
 
-        public float TimeSphereRadius {
-            set {
-                if (timeSphere != null)
-                    timeSphere.transform.localScale = Vector3.one * value;
+        public void UpdateTimeSphereRadius() {
+            if (timeSphere != null) {
+                timeSphere.transform.localScale = Vector3.one * ((TimeVisualization)Visualization.Instance).timeSphereRadius;
             }
         }
 
-        private float _timeSphereTime;
-        public float TimeSphereTime {
-            get => _timeSphereTime;
-            set {
-                _timeSphereTime = value;
-                var it = AtomsAsTime.GetEnumerator();
-                it.MoveNext();
-                float t = it.Current.time;
-                if (t > _timeSphereTime) { //First point is already too late
-                    if (timeSphere != null) {
-                        Destroy(timeSphere);
-                        timeSphere = null;
-                    }
-                    return;
+        public void UpdateTimeSphere() {
+            TimeVisualization viz = (TimeVisualization)Visualization.Instance;
+
+            if (!viz.displayTimeSpheres) {
+                if (timeSphere != null) {
+                    Destroy(timeSphere);
+                    timeSphere = null;
                 }
+                return;
+            }
 
-                TimeVisualization viz = (TimeVisualization)Visualization.Instance;
-                TimeAtom a = it.Current;
-                while (it.MoveNext()) {
-                    if (it.Current.time > _timeSphereTime) { //Next point is too late
-                        if (!a.ShouldDisplayBecauseSelected) {
-                            if (timeSphere != null) {
-                                Destroy(timeSphere);
-                                timeSphere = null;
-                            }
-                            return;
-                        }
-
-                        if (timeSphere == null)
-                            CreateTimeSphere();
-
-                        Vector3 pos = a.point;
-                        pos += (_timeSphereTime - a.time) / (it.Current.time - a.time) * (it.Current.point - a.point);
-                        timeSphere.transform.localPosition = pos;
-                        timeSphere.SetActive(true);
-                        if (viz.traceTimeSpheres) {
-                            a.ShouldDisplayBecauseTime = true;
-                        }
-                        return;
-                    }
-                    a = it.Current;
-                }
-
-                //Reached the end while still being too early
+            if (viz.useGlobalTime) {
+                timeSphereDropped = false;
+                timeSphereTime = viz.globalTime;
+                UpdateTimeSpherePosition();
+            }
+            else if (timeSphereDropped) {
+                if (viz.doTimeSphereAnimation)
+                    timeSphereTime += viz.timeSphereAnimationSpeed * Time.deltaTime;
+                UpdateTimeSpherePosition();
+            }
+            else {
                 if (timeSphere != null) {
                     Destroy(timeSphere);
                     timeSphere = null;
                 }
             }
+
         }
 
-        private bool shouldDisplayTimeSpheres = false;
-        public void DisplayTimeSphere(bool state = true) {
-            shouldDisplayTimeSpheres = state;
-            if (timeSphere != null)
-                timeSphere.SetActive(state);
-        }
+        private void UpdateTimeSpherePosition() {
+            var it = AtomsAsTime.GetEnumerator();
+            it.MoveNext();
+            float t = it.Current.time;
+            if (t > timeSphereTime) { //First point is already too late
+                if (timeSphere != null) {
+                    Destroy(timeSphere);
+                    timeSphere = null;
+                }
+                return;
+            }
 
-        protected override void Awake() {
-            base.Awake();
+            TimeVisualization viz = (TimeVisualization)Visualization.Instance;
+            TimeAtom a = it.Current;
+            while (it.MoveNext()) {
+                if (it.Current.time > timeSphereTime) { //Next point is too late
+                    if (!a.ShouldDisplayBecauseSelected) {
+                        if (timeSphere != null) {
+                            Destroy(timeSphere);
+                            timeSphere = null;
+                        }
+                        return;
+                    }
+
+                    if (timeSphere == null)
+                        CreateTimeSphere();
+
+                    Vector3 pos = a.point;
+                    pos += (timeSphereTime - a.time) / (it.Current.time - a.time) * (it.Current.point - a.point);
+                    timeSphere.transform.localPosition = pos;
+                    timeSphere.SetActive(true);
+                    if (viz.traceTimeSpheres) {
+                        a.ShouldDisplayBecauseTime = true;
+                    }
+                    return;
+                }
+                a = it.Current;
+            }
+
+            //Reached the end while still being too early
+            if (timeSphere != null) {
+                Destroy(timeSphere);
+                timeSphere = null;
+            }
         }
 
         public void SetTimeWindow(float startTime, float stopTime) { //Met à jour les atomes à afficher en fonction de si leur temps est dans la fenêtre recherchée

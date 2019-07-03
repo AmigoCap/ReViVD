@@ -481,11 +481,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
-  time: 0
   displayTimeSpheres: 0
+  globalTime: 0
+  useGlobalTime: 1
+  doSphereDrop: 0
   timeSphereRadius: 1
-  doTimeAnim: 0
-  animSpeed: 10
+  doTimeSphereAnimation: 0
+  timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
   filename: External Data/Duquesne/LDC.csv
@@ -546,11 +548,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
-  time: 0
   displayTimeSpheres: 0
+  globalTime: 0
+  useGlobalTime: 1
+  doSphereDrop: 0
   timeSphereRadius: 1
-  doTimeAnim: 0
-  animSpeed: 10
+  doTimeSphereAnimation: 0
+  timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
   filename: External Data/GeoLife/geolife_extract.csv
@@ -767,11 +771,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
-  time: 0
   displayTimeSpheres: 0
+  globalTime: 0
+  useGlobalTime: 1
+  doSphereDrop: 0
   timeSphereRadius: 1
-  doTimeAnim: 0
-  animSpeed: 10
+  doTimeSphereAnimation: 0
+  timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
   filename: External Data/Traffic_Lyon_6/lyon6
@@ -1176,11 +1182,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
-  time: 0
   displayTimeSpheres: 0
+  globalTime: 0
+  useGlobalTime: 1
+  doSphereDrop: 0
   timeSphereRadius: 1
-  doTimeAnim: 0
-  animSpeed: 10
+  doTimeSphereAnimation: 0
+  timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
   filenameBase: External Data/Naso/droplet_bundle_
@@ -2421,11 +2429,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
-  time: 0
   displayTimeSpheres: 0
+  globalTime: 0
+  useGlobalTime: 1
+  doSphereDrop: 0
   timeSphereRadius: 1
-  doTimeAnim: 0
-  animSpeed: 10
+  doTimeSphereAnimation: 0
+  timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
   filename: External Data/Foot/players.csv
@@ -2954,11 +2964,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
-  time: 0
   displayTimeSpheres: 0
+  globalTime: 0
+  useGlobalTime: 1
+  doSphereDrop: 0
   timeSphereRadius: 1
-  doTimeAnim: 0
-  animSpeed: 10
+  doTimeSphereAnimation: 0
+  timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
   totalNumberOfPaths: 28913
@@ -3281,11 +3293,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
-  time: 0
   displayTimeSpheres: 1
+  globalTime: 0
+  useGlobalTime: 1
+  doSphereDrop: 0
   timeSphereRadius: 1
-  doTimeAnim: 0
-  animSpeed: 10
+  doTimeSphereAnimation: 0
+  timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
   filename: External Data/LouRugby/lourugby.csv
@@ -4590,11 +4604,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
-  time: 0
-  displayTimeSpheres: 1
+  displayTimeSpheres: 0
+  globalTime: 0
+  useGlobalTime: 1
+  doSphereDrop: 0
   timeSphereRadius: 1
-  doTimeAnim: 0
-  animSpeed: 100
+  doTimeSphereAnimation: 0
+  timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
   filename: External Data/AirTraffic/aviation.csv
