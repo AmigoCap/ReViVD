@@ -43,6 +43,7 @@ namespace Revivd {
 
         public void LogControlModeSwitch(SelectorPart p) {
             string s = SelectorManager.Instance.CurrentControlMode == SelectorManager.ControlMode.CreationMode ? "CRMODE_IN," : "CRMODE_OUT,";
+            s += colorString[(int)SelectorManager.Instance.CurrentColor] + ',';
             LogEvent(s + p.GetLogString());
         }
 

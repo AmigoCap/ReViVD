@@ -84,8 +84,9 @@ namespace Revivd {
                 p.atoms = new List<BogeyAtom>(true_n_instants);
                 Color32 color = UnityEngine.Random.ColorHSV();
 
-                br.BaseStream.Position += instantsStart * 3 * 4;
                 long nextPathPosition = br.BaseStream.Position + pathLength * 3 * 4;
+
+                br.BaseStream.Position += instantsStart * 3 * 4;
 
                 for (int j = 0; j < true_n_instants; j += instantsStep) {
                     Vector3 point = new Vector3();
