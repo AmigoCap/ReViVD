@@ -3302,7 +3302,12 @@ MonoBehaviour:
   timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
-  filename: External Data/LouRugby/lourugby.csv
+  nb_players: 23
+  instantsStart: 0
+  instantsStep: 10
+  filename: External Data/LouRugby/lourugby
+  maxPoint: {x: 2000, y: 2000, z: 2000}
+  minPoint: {x: -2000, y: -2000, z: -2000}
 --- !u!4 &1731387382 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 75eee1dc48a6e8c48b291778543d9dc0,
@@ -3744,15 +3749,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1874862025}
-  m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
-  m_LocalPosition: {x: 59, y: 0, z: 33}
-  m_LocalScale: {x: 8, y: 8, z: 1}
+  m_LocalRotation: {x: 0.6868426, y: 0.16806932, z: -0.16806932, w: 0.6868426}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 14.5, y: 15.8, z: 1}
   m_Children:
   - {fileID: 1734848253}
   - {fileID: 1972275595}
   m_Father: {fileID: 1722164516}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 90, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 27.5, z: 0}
 --- !u!212 &1874862027
 SpriteRenderer:
   m_ObjectHideFlags: 0
