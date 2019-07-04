@@ -44,6 +44,7 @@ namespace Revivd {
                 if (hs != null && hs.isActiveAndEnabled) {
                     foreach (SelectorPart p in hs.GetComponents<SelectorPart>()) {
                         p.ShouldPollManualModifications = (!selectionMode);
+                        Logger.Instance?.LogControlModeSwitch(p);
                     }
                 }
             }
@@ -51,7 +52,7 @@ namespace Revivd {
 
         public enum LogicMode { AND, OR };
         public LogicMode operationMode = LogicMode.OR;
-        public HashSet<ColorGroup> operatingColors;
+        public SortedSet<ColorGroup> operatingColors;
 
         [SerializeField]
         private bool s_highlightChecked = false;
@@ -115,9 +116,8 @@ namespace Revivd {
         }
 
         private void ChangeControlMode(SteamVR_TrackedController sender) {
-            if (CurrentControlMode == ControlMode.SelectionMode) {
+            if (CurrentControlMode == ControlMode.SelectionMode)
                 CurrentControlMode = ControlMode.CreationMode;
-            }
             else
                 CurrentControlMode = ControlMode.SelectionMode;
         }
@@ -128,10 +128,13 @@ namespace Revivd {
 
             if (InverseMode) {
                 ClearSelected(CurrentColor);
+                Logger.Instance?.LogEvent("CLEARSEL," + Logger.colorString[(int)CurrentColor]);
                 return;
             }
             foreach (Selector s in persistentSelectors[(int)CurrentColor])
                 s.Select();
+
+            Logger.Instance?.LogEvent("PRST_SEL," + Logger.colorString[(int)CurrentColor]);
         }
 
         private void MakePersistentCopyOfHand(SteamVR_TrackedController sender) {
@@ -145,6 +148,8 @@ namespace Revivd {
                 Selector last = persistentSelectors[(int)CurrentColor][len - 1];
                 persistentSelectors[(int)CurrentColor].RemoveAt(len - 1);
                 Destroy(last.gameObject);
+
+                Logger.Instance?.LogEvent("-PRST," + Logger.colorString[(int)CurrentColor]);
                 return;
             }
 
@@ -161,6 +166,8 @@ namespace Revivd {
                     newParts[i].PrimitiveTransform.localRotation = originalParts[i].PrimitiveTransform.localRotation;
                     newParts[i].PrimitiveTransform.localPosition = originalParts[i].PrimitiveTransform.localPosition;
                     newParts[i].PrimitiveTransform.localScale = originalParts[i].PrimitiveTransform.localScale;
+
+                    Logger.Instance?.LogPersistentAdded(newParts[i]);
                 }
             }                
         }
@@ -173,6 +180,8 @@ namespace Revivd {
                     foreach (Atom a in p.AtomsAsBase)
                         a.ShouldDisplayBecauseSelected = !a.ShouldDisplayBecauseSelected;
                 }
+
+                Logger.Instance?.LogEvent("OP_INV");
 
                 return;
             }
@@ -212,6 +221,7 @@ namespace Revivd {
                     a.ShouldDisplayBecauseSelected = false;
             }
 
+            Logger.Instance?.LogOperation(pathsToKeep.Count);
         }
 
         public void ClearSelected(ColorGroup color) {
@@ -255,7 +265,7 @@ namespace Revivd {
             _highlightChecked = s_highlightChecked;
             _highlightSelected = s_highlightSelected;
 
-            operatingColors = new HashSet<ColorGroup>();
+            operatingColors = new SortedSet<ColorGroup>();
         }
 
         private void Update() {

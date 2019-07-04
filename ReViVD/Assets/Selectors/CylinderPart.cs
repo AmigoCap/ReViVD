@@ -9,19 +9,26 @@ namespace Revivd {
     public class CylinderPart : SelectorPart {
         private float initialLength;
         private float initialRadius;
-        private Vector3 initialHandOffset;
+        private Vector3 initialHandOffset = Vector3.zero;
 
         public float length = 5f;
         public float radius = 0.3f;
         public Vector3 handOffset = Vector3.zero;
 
+        public override string GetLogString() {
+            return "CYLINDER," + handOffset.x.ToString(Logger.nfi) + ','
+                               + handOffset.y.ToString(Logger.nfi) + ','
+                               + handOffset.z.ToString(Logger.nfi) + ','
+                               + length.ToString(Logger.nfi) + ','
+                               + radius.ToString(Logger.nfi);
+        }
 
         protected override void CreatePrimitive() {
             initialLength = length;
             initialRadius = radius;
             initialHandOffset = handOffset;
+
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            _type = PrimitiveType.Cylinder;
         }
 
         protected override void UpdatePrimitive() {

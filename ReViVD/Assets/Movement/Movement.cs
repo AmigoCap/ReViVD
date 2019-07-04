@@ -47,9 +47,11 @@ namespace Revivd {
 
             if (SelectorManager.Instance.InverseMode) {
                 baseSpeed /= speedExponent;
+                Logger.Instance?.LogEvent("-SPEED," + baseSpeed.ToString(Logger.nfi));
             }
             else {
                 baseSpeed *= speedExponent;
+                Logger.Instance?.LogEvent("+SPEED," + baseSpeed.ToString(Logger.nfi));
             }
         }
 

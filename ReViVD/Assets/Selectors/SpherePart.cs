@@ -8,17 +8,22 @@ namespace Revivd {
     public class SpherePart : SelectorPart {
 
         private float initialRadius;
-        private Vector3 initialHandOffset;
+        private Vector3 initialHandOffset = Vector3.zero;
 
         public float radius = 0.3f;
         public Vector3 handOffset = Vector3.zero;
 
+        public override string GetLogString() {
+            return "SPHERE," + handOffset.x.ToString(Logger.nfi) + ','
+                             + handOffset.y.ToString(Logger.nfi) + ','
+                             + handOffset.z.ToString(Logger.nfi) + ','
+                             + radius.ToString(Logger.nfi);
+        }
 
         protected override void CreatePrimitive() {
             initialRadius = radius;
             initialHandOffset = handOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _type = PrimitiveType.Sphere;
         }
 
         protected override void UpdatePrimitive() {

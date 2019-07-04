@@ -6,17 +6,25 @@ using UnityEngine;
 namespace Revivd {
 
     public class CuboidPart : SelectorPart {
-        private Vector3 initialHandOffset;
+        private Vector3 initialHandOffset = Vector3.zero;
         private Vector3 initialSize;
 
         public Vector3 handOffset = new Vector3(0f, 0f, 4f);
         public Vector3 size = new Vector3(1f, 1f, 1f);
 
+        public override string GetLogString() {
+            return "CUBOID," + handOffset.x.ToString(Logger.nfi) + ','
+                             + handOffset.y.ToString(Logger.nfi) + ','
+                             + handOffset.z.ToString(Logger.nfi) + ','
+                             + size.x.ToString(Logger.nfi) + ','
+                             + size.y.ToString(Logger.nfi) + ','
+                             + size.z.ToString(Logger.nfi);
+        }
+
         protected override void CreatePrimitive() {
             initialSize = size;
             initialHandOffset = handOffset;
             primitive = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            _type = PrimitiveType.Cube;
         }
         
         protected override void UpdatePrimitive() {
@@ -116,6 +124,5 @@ namespace Revivd {
 
             return true;
         }
-
     }
 }

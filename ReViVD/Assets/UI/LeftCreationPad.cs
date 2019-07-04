@@ -14,7 +14,7 @@ namespace Revivd {
 
             if (hs != null && hs.isActiveAndEnabled) {
                 foreach (SelectorPart p in hs.GetComponents<SelectorPart>()) {
-                    if (p.Type == PrimitiveType.Cube && !sm.InverseMode) {//this works only if there is one primitive per selector
+                    if (!sm.InverseMode) {//this works only if there is one primitive per selector
                         creationPad.SetActive(true);
                     }
                     else {

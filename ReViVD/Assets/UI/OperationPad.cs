@@ -67,7 +67,10 @@ namespace Revivd {
                 for (int i = 0; i < SelectorManager.colors.Length; i++) {
                     SelectorManager.Instance.ClearSelected((SelectorManager.ColorGroup)i);
                 }
+                Logger.Instance?.LogEvent("HRESET");
             }
+            else
+                Logger.Instance?.LogEvent("RESET");
         }
 
         void ToggleLogicOperation() {
@@ -76,6 +79,7 @@ namespace Revivd {
                 logicPulldown.GetComponent<Image>().SetSprite(andPulldown);
                 centerpiece.GetComponent<Image>().SetSprite(andSign);
 
+                Logger.Instance?.LogEvent("CHOPMODE,AND");
                 SteamVR_ControllerManager.LeftController.Vibrate();
             }
             else {
@@ -83,6 +87,7 @@ namespace Revivd {
                 logicPulldown.GetComponent<Image>().SetSprite(orPulldown);
                 centerpiece.GetComponent<Image>().SetSprite(orSign);
 
+                Logger.Instance?.LogEvent("CHOPMODE,OR");
                 SteamVR_ControllerManager.LeftController.Vibrate();
                 StartCoroutine(SteamVR_ControllerManager.LeftController.VibrateAfter(0.1f));
             }
@@ -125,11 +130,15 @@ namespace Revivd {
             SelectorManager sm = SelectorManager.Instance;
             if (sm.operatingColors.Contains(sm.CurrentColor)) {
                 sm.operatingColors.Remove(sm.CurrentColor);
+
+                Logger.Instance?.LogEvent("CHOPCOL,-" + Logger.colorString[(int)sm.CurrentColor]);
                 SteamVR_ControllerManager.LeftController.Vibrate();
                 StartCoroutine(SteamVR_ControllerManager.LeftController.VibrateAfter(0.1f));
             }
             else {
                 sm.operatingColors.Add(sm.CurrentColor);
+
+                Logger.Instance?.LogEvent("CHOPCOL,+" + Logger.colorString[(int)sm.CurrentColor]);
                 SteamVR_ControllerManager.LeftController.Vibrate();
             }
 

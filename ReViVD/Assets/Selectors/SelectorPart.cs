@@ -56,11 +56,6 @@ namespace Revivd {
             ParseRibbonsToCheck();
         }
 
-        protected PrimitiveType _type = PrimitiveType.Quad;
-        public PrimitiveType Type {
-            get => _type;
-        }
-
         protected GameObject primitive;
 
         private bool _shouldPollManualModifications;
@@ -75,6 +70,9 @@ namespace Revivd {
                 }
             }
         }
+
+        public abstract string GetLogString();
+
         protected abstract void UpdateManualModifications(); //Called every frame when the part is to be modified in creation mode
 
         private void FindRibbonsToCheck() {
