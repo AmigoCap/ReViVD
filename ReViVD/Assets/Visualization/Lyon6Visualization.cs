@@ -9,11 +9,41 @@ namespace Revivd {
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
-        public string filename = "";
-
         public int nb_vehicules = 6121;
 
         private int sizeCoeff = 1;
+
+        public string filename = "";
+
+        public enum enumYAxis { zero, vehiculeSpeed, vehiculeDist };
+
+        public enum enumColorAttribute { random, vehiculeSpeed, vehiculeDist };
+
+        [SerializeField]
+        private enumYAxis yAxis = enumYAxis.zero;
+        private enumYAxis _yAxis;
+        public enumYAxis YAxis {
+            get => yAxis;
+            set {
+                if (_yAxis == value)
+                    return;
+                _yAxis = value;
+                yAxis = _yAxis;
+            }
+        }
+
+        [SerializeField]
+        private enumColorAttribute colorAttribute = enumColorAttribute.random;
+        private enumColorAttribute _colorAttribute;
+        public enumColorAttribute ColorAttribute {
+            get => colorAttribute;
+            set {
+                if (_colorAttribute == value)
+                    return;
+                _colorAttribute = value;
+                colorAttribute = _colorAttribute;
+            }
+        }
 
         public void Reset() {
             districtSize = new Vector3(15, 15, 15);
@@ -50,10 +80,17 @@ namespace Revivd {
                     };
 
                     float t = br.ReadSingle();
-                    float d = br.ReadSingle();
-                    float v = br.ReadSingle();
+                    float dist = br.ReadSingle();
+                    float velocity = br.ReadSingle();
 
-                    point.y = v;
+
+                    if (YAxis == enumYAxis.vehiculeDist)
+                        point.y = dist;
+                    else if (YAxis == enumYAxis.vehiculeSpeed)
+                        point.y = velocity;
+                    else
+                        point.y = 0.5f;
+
                     point *= sizeCoeff;
 
                     point = Vector3.Max(point, minPoint);
@@ -64,11 +101,16 @@ namespace Revivd {
                         point = point,
                         path = paths[i],
                         indexInPath = atom_index,
-                        speed = v,
-                        dist = d
+                        speed = velocity,
+                        dist = dist
                     };
 
-                    a.BaseColor = pathColors[i];
+                    if (ColorAttribute == enumColorAttribute.vehiculeSpeed)
+                        a.BaseColor = Color.Lerp(Color.blue, Color.red, a.speed);
+                    else if (ColorAttribute == enumColorAttribute.vehiculeDist)
+                        a.BaseColor = Color32.Lerp(Color.blue, Color.red, a.dist);
+                    else
+                        a.BaseColor = pathColors[i];
                     
                     paths[i].atoms.Add(a);
                 }

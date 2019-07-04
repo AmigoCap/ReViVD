@@ -9,6 +9,20 @@ namespace Revivd {
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
         public string filename;
+        public enum enumColorAttribute { random, mach };
+        [SerializeField]
+        private enumColorAttribute colorAttribute = enumColorAttribute.mach;
+        private enumColorAttribute _colorAttribute;
+        public enumColorAttribute ColorAttribute {
+            get => colorAttribute;
+            set {
+                if (_colorAttribute == value)
+                    return;
+                _colorAttribute = value;
+                colorAttribute = _colorAttribute;
+            }
+        }
+
 
         public void Reset() {
             districtSize = new Vector3(10, 10, 10);
@@ -58,10 +72,15 @@ namespace Revivd {
                     time = 1000 * t,
                     point = point,
                     path = p,
+                    mach = mach,
                     indexInPath = p.atoms.Count,
-                    //BaseColor = colorsDict[p.name]
-                    BaseColor = Color.Lerp(Color.blue, Color.red, mach / 1.1f)
                 };
+
+                if (ColorAttribute == enumColorAttribute.mach)
+                    a.BaseColor = Color.Lerp(Color.blue, Color.red, a.mach / 1.1f);
+                else
+                    a.BaseColor = colorsDict[p.name];
+
 
                 p.atoms.Add(a);
             }
@@ -111,6 +130,7 @@ namespace Revivd {
         }
 
         public class StreamLinesAtom : TimeAtom {
+            public float mach;
 
         }
     }

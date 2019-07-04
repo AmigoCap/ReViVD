@@ -22,6 +22,20 @@ namespace Revivd {
 
         private int sizeCoeff = 50;
 
+        public enum enumColorAttribute { random, particleSpeed, particlePower };
+        [SerializeField]
+        private enumColorAttribute colorAttribute = enumColorAttribute.random;
+        private enumColorAttribute _colorAttribute;
+        public enumColorAttribute ColorAttribute {
+            get => colorAttribute;
+            set {
+                if (_colorAttribute == value)
+                    return;
+                _colorAttribute = value;
+                colorAttribute = _colorAttribute;
+            }
+        }
+
         public void Reset() {
             districtSize = new Vector3(15, 15, 15);
         }
@@ -102,8 +116,13 @@ namespace Revivd {
                             power = br.ReadSingle()
                         };
 
-                        //a.BaseColor = Color32.Lerp(Color.blue, Color.red, (a.speed - 0.08f) / (0.39f - 0.08f));
-                        a.BaseColor = Color32.Lerp(Color.blue, Color.red, (a.power + 0.03f) / 0.06f);
+                        if (ColorAttribute == enumColorAttribute.particleSpeed)
+                            a.BaseColor = Color.Lerp(Color.blue, Color.red, (a.speed - 0.08f) / (0.39f - 0.08f));
+                        else if (ColorAttribute == enumColorAttribute.particlePower)
+                            a.BaseColor = Color32.Lerp(Color.blue, Color.red, (a.power + 0.03f) / 0.06f);
+                        else
+                            a.BaseColor = pathColors[i];
+
                         paths[i].atoms.Add(a);
                     }
                 }

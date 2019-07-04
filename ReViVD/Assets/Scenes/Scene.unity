@@ -491,6 +491,7 @@ MonoBehaviour:
   traceTimeSpheres: 0
   paths: []
   filename: External Data/Duquesne/LDC.csv
+  colorAttribute: 1
   maxPoint: {x: 500, y: 500, z: 500}
   minPoint: {x: -500, y: -500, z: -500}
 --- !u!4 &186726883
@@ -780,8 +781,10 @@ MonoBehaviour:
   timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
-  filename: External Data/Traffic_Lyon_6/lyon6
   nb_vehicules: 6121
+  filename: External Data/Traffic_Lyon_6/lyon6
+  yAxis: 1
+  colorAttribute: 0
   maxPoint: {x: 100, y: 200, z: 2000}
   minPoint: {x: -2000, y: -100, z: -100}
 --- !u!1 &522378953
@@ -1197,8 +1200,9 @@ MonoBehaviour:
   particlesStep: 1
   randomParticles: 0
   instantsStart: 0
-  n_instants: 200
-  instantsStep: 2
+  n_instants: 20
+  instantsStep: 5
+  colorAttribute: 1
   maxPoint: {x: 5000, y: 5000, z: 5000}
   minPoint: {x: -5000, y: -5000, z: -5000}
 --- !u!4 &634383034
@@ -1530,6 +1534,7 @@ MonoBehaviour:
   paths: []
   scaleCoeff: 5000
   filename: External Data/Duquesne/Streamlines.csv
+  colorAttribute: 3
 --- !u!4 &840246741
 Transform:
   m_ObjectHideFlags: 0
@@ -3302,10 +3307,12 @@ MonoBehaviour:
   timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
-  nb_players: 23
+  nb_players: 15
   instantsStart: 0
   instantsStep: 10
   filename: External Data/LouRugby/lourugby
+  yAxis: 0
+  colorAttribute: 0
   maxPoint: {x: 2000, y: 2000, z: 2000}
   minPoint: {x: -2000, y: -2000, z: -2000}
 --- !u!4 &1731387382 stripped
@@ -4662,3 +4669,4 @@ MonoBehaviour:
   traceTimeSpheres: 0
   paths: []
   filename: External Data/AirTraffic/aviation.csv
+  colorAttribute: 0
