@@ -3716,10 +3716,12 @@ MonoBehaviour:
   doTimeAnim: 0
   animSpeed: 10
   paths: []
+  nb_players: 23
+  instantsStart: 1000
+  instantsStep: 10
   filename: External Data/LouRugby/lourugby
-  nb_players: 26
-  maxPoint: {x: 2000, y: 2000, z: 2000}
-  minPoint: {x: -2000, y: -2000, z: -2000}
+  maxPoint: {x: 200, y: 200, z: 200}
+  minPoint: {x: -200, y: -200, z: -200}
 --- !u!4 &1731387382 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 75eee1dc48a6e8c48b291778543d9dc0,
