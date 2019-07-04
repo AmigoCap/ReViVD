@@ -16,13 +16,45 @@ namespace Revivd {
         public int instantsStart = 0;
         public int instantsStep = 1;
 
+        public string filename;
+
+        public enum enumYAxis { zero, playingTime, playerSpeed, playerAcceleration, playerOdometer, playerHeartRate, playerChargeLoad};
+
+        public enum enumColorAttribute { random, playingTime, playerSpeed, playerAcceleration, playerOdometer, playerHeartRate, playerChargeLoad };
+
+        [SerializeField]
+        private enumYAxis yAxis = enumYAxis.zero;
+        private enumYAxis _yAxis;
+        public enumYAxis YAxis {
+            get => yAxis;
+            set {
+                if (_yAxis == value)
+                    return;
+                _yAxis = value;
+                yAxis = _yAxis;
+            }
+        }
+
+        [SerializeField]
+        private enumColorAttribute colorAttribute = enumColorAttribute.random;
+        private enumColorAttribute _colorAttribute;
+        public enumColorAttribute ColorAttribute {
+            get => colorAttribute;
+            set {
+                if (_colorAttribute == value)
+                    return;
+                _colorAttribute = value;
+                colorAttribute = _colorAttribute;
+            }
+        }
+
         private float sizeCoeff = 2f;
 
         public void Reset() {
             districtSize = new Vector3(15, 15, 15);
         }
 
-        public string filename;
+        
 
         public Vector3 maxPoint = new Vector3(500, 500, 1500);
         public Vector3 minPoint = new Vector3(-500, -500, -200);
@@ -63,9 +95,9 @@ namespace Revivd {
                 if (instantsStart + instantsStep >= pathLength)
                     continue;
                 int true_n_instants = Math.Min(pathLength, pathLength - instantsStart);
-                
 
-                GameObject go = new GameObject((keptPlayers[i]+1).ToString());
+
+                GameObject go = new GameObject((keptPlayers[i] + 1).ToString());
                 go.transform.parent = transform;
                 LouRugbyPath p = go.AddComponent<LouRugbyPath>();
                 p.atoms = new List<LouRugbyAtom>(true_n_instants);
@@ -73,7 +105,7 @@ namespace Revivd {
 
                 long nextPathPosition = br.BaseStream.Position + pathLength * 8 * 4;
                 br.BaseStream.Position += instantsStart * 8 * 4;
-                
+
                 for (int j = 0; j < true_n_instants; j += instantsStep) {
 
                     float t = br.ReadSingle();
@@ -84,14 +116,40 @@ namespace Revivd {
                     float longitude = br.ReadSingle();
                     float heart = br.ReadSingle();
                     float load = br.ReadSingle();
-                    
+
                     Vector3 point = Tools.GPSToXYZ(new Vector2(latitude, longitude));
-                    point.y = heart;
+                    if (YAxis == enumYAxis.playerAcceleration)
+                        point.y = acceleration;
+                    else if (YAxis == enumYAxis.playerChargeLoad)
+                        point.y = load;
+                    else if (YAxis == enumYAxis.playerHeartRate)
+                        point.y = heart;
+                    else if (YAxis == enumYAxis.playerSpeed)
+                        point.y = velocity;
+                    else if (YAxis == enumYAxis.playerOdometer)
+                        point.y = odometer;
+                    else if (YAxis == enumYAxis.playingTime)
+                        point.y = t / 20;
+                    else
+                        point.y = 0.5f;
+
                     point *= sizeCoeff;
 
                     point = Vector3.Max(point, minPoint);
                     point = Vector3.Min(point, maxPoint);
-                    
+
+
+                    if (ColorAttribute == enumColorAttribute.playerAcceleration)
+                        color = Color.Lerp(Color.blue, Color.red, (acceleration + 6.47294569f) / 20f);
+                    else if (ColorAttribute == enumColorAttribute.playerChargeLoad)
+                        color = Color.Lerp(Color.blue, Color.red, (load) / 816.1f);
+                    else if (ColorAttribute == enumColorAttribute.playerHeartRate)
+                        color = Color.Lerp(Color.blue, Color.red, heart);
+                    else if (ColorAttribute == enumColorAttribute.playerSpeed)
+                        color = Color.Lerp(Color.blue, Color.red, (velocity) / 43.2f);
+                    else if (ColorAttribute == enumColorAttribute.playerOdometer)
+                        color = Color.Lerp(Color.blue, Color.red, (odometer) / 7342.33f);
+
 
                     p.atoms.Add(new LouRugbyAtom() {
                         time = t, //(float)(j + instantsStart)

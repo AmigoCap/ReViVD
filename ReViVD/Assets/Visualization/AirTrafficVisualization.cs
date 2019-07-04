@@ -10,6 +10,20 @@ namespace Revivd {
 
         public string filename;
 
+        public enum enumColorAttribute {altitude };
+        [SerializeField]
+        private enumColorAttribute colorAttribute = enumColorAttribute.altitude;
+        private enumColorAttribute _colorAttribute;
+        public enumColorAttribute ColorAttribute {
+            get => colorAttribute;
+            set {
+                if (_colorAttribute == value)
+                    return;
+                _colorAttribute = value;
+                colorAttribute = _colorAttribute;
+            }
+        }
+
         public void Reset() {
             districtSize = new Vector3(15, 15, 15);
         }
@@ -48,7 +62,10 @@ namespace Revivd {
                     indexInPath = p.atoms.Count
                 };
 
-                a.BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), a.point.y / 400f);
+                if (ColorAttribute == enumColorAttribute.altitude)
+                    a.BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), a.point.y / 400f);
+
+
                 p.atoms.Add(a);
             }
 

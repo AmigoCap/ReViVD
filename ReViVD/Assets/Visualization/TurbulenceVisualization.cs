@@ -11,6 +11,20 @@ namespace Revivd {
         public float scaleCoeff = 5000;
 
         public string filename;
+        public enum enumColorAttribute { random, pressure, density, mach };
+        [SerializeField]
+        private enumColorAttribute colorAttribute = enumColorAttribute.mach;
+        private enumColorAttribute _colorAttribute;
+        public enumColorAttribute ColorAttribute {
+            get => colorAttribute;
+            set {
+                if (_colorAttribute == value)
+                    return;
+                _colorAttribute = value;
+                colorAttribute = _colorAttribute;
+            }
+        }
+
 
         public void Reset() {
             districtSize = new Vector3(10, 10, 10);
@@ -57,11 +71,21 @@ namespace Revivd {
                     point = scaleCoeff * new Vector3(x, y, z),
                     path = p,
                     indexInPath = p.atoms.Count,
-                    //BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), press / 185185f)
-                    //BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), dens)
-                    BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), rot)
+                    //
+                    //
+                    
 
                 };
+
+                if (ColorAttribute == enumColorAttribute.pressure)
+                    a.BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), a.pressureStagnation / 185185f);
+                else if (ColorAttribute == enumColorAttribute.density)
+                    a.BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), a.density);
+                else if (ColorAttribute == enumColorAttribute.mach)
+                    a.BaseColor = Color32.Lerp(new Color32(255, 0, 0, 255), new Color32(0, 0, 255, 255), a.rotatingMach);
+                else
+                    a.BaseColor = colorsDict[p.name];
+
 
                 p.atoms.Add(a);
             }
