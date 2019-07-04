@@ -50,16 +50,33 @@ namespace Revivd {
 
         private float sizeCoeff = 2f;
 
+        private Dictionary<int, int> substitutedPlayers = new Dictionary<int, int>();
+        private Dictionary<int, int> substitutePlayers = new Dictionary<int, int>();
+
         public void Reset() {
             districtSize = new Vector3(15, 15, 15);
         }
-
-        
 
         public Vector3 maxPoint = new Vector3(500, 500, 1500);
         public Vector3 minPoint = new Vector3(-500, -500, -200);
 
         protected override bool LoadFromFile() {
+            //substituted and substitute players and time of the substitution
+            substitutedPlayers.Add(10, 33);
+            substitutedPlayers.Add(1, 47);
+            substitutedPlayers.Add(2, 57);
+            substitutedPlayers.Add(3, 57);
+            substitutedPlayers.Add(8, 68);
+            substitutedPlayers.Add(9, 74);
+
+            substitutePlayers.Add(21, 33);
+            substitutePlayers.Add(17, 47);
+            substitutePlayers.Add(16, 57);
+            substitutePlayers.Add(23, 57);
+            substitutePlayers.Add(19, 68);
+            substitutePlayers.Add(20, 74);
+
+
             Tools.StartClock();
             Tools.SetGPSOrigin(new Vector2(45.72377830692287f, 4.8322574249907895f)); //set Unity Origin to be the center of the rugby field
 
@@ -85,6 +102,10 @@ namespace Revivd {
                 }
 
                 int pathLength = br.ReadInt32();
+                long nextPathPosition = br.BaseStream.Position + pathLength * 8 * 4;
+
+                int _instantsStart = instantsStart;
+                int _pathLength = pathLength;
 
                 while (currentPlayer < keptPlayers[i]) {
                     br.BaseStream.Position += pathLength * 8 * 4;
@@ -92,9 +113,16 @@ namespace Revivd {
                     currentPlayer++;
                 }
 
-                if (instantsStart + instantsStep >= pathLength)
+                if (substitutedPlayers.ContainsKey(currentPlayer + 1)) {
+                    _pathLength = (substitutedPlayers[currentPlayer + 1] + 10) * 60 * 10 * 8;  // (x minutes + 10 minutes d'échauffement) * 60 secondes * 10 mesures par seconde * 8 attributs
+                }
+                else if (substitutePlayers.ContainsKey(currentPlayer + 1)) { 
+                    _instantsStart = substitutePlayers[currentPlayer + 1] * 60 * 10; // (x minutes) * 60 secondes * 10 mesures par seconde = environ début de son échauffement pour remplacer le joueur sur le terrain
+                }
+
+                if (_instantsStart + instantsStep >= _pathLength)
                     continue;
-                int true_n_instants = Math.Min(pathLength, pathLength - instantsStart);
+                int true_n_instants = Math.Min(_pathLength, _pathLength - _instantsStart);
 
 
                 GameObject go = new GameObject((keptPlayers[i] + 1).ToString());
@@ -103,8 +131,8 @@ namespace Revivd {
                 p.atoms = new List<LouRugbyAtom>(true_n_instants);
                 Color32 color = UnityEngine.Random.ColorHSV();
 
-                long nextPathPosition = br.BaseStream.Position + pathLength * 8 * 4;
-                br.BaseStream.Position += instantsStart * 8 * 4;
+               
+                br.BaseStream.Position += _instantsStart * 8 * 4;
 
                 for (int j = 0; j < true_n_instants; j += instantsStep) {
 

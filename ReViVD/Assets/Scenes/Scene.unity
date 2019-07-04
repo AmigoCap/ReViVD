@@ -3307,7 +3307,7 @@ MonoBehaviour:
   timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
-  nb_players: 15
+  nb_players: 23
   instantsStart: 0
   instantsStep: 10
   filename: External Data/LouRugby/lourugby
