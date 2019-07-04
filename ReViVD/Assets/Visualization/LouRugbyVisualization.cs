@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Revivd {
 
@@ -8,67 +9,87 @@ namespace Revivd {
         public override IReadOnlyList<Path> PathsAsBase { get { return paths; } }
         public override IReadOnlyList<TimePath> PathsAsTime { get { return paths; } }
 
-        public string filename;
+        public string filename = "";
+
+        public int nb_players = 26;
+
+        private int sizeCoeff = 2;
 
         public void Reset() {
-            districtSize = new Vector3(10, 10, 10);
+            districtSize = new Vector3(15, 15, 15);
         }
 
+
+        public Vector3 maxPoint = new Vector3(2000, 2000, 2000);
+        public Vector3 minPoint = new Vector3(-2000, -2000, -2000);
+
         protected override bool LoadFromFile() {
-            paths = new List<LouRugbyPath>();
-            Dictionary<string, LouRugbyPath> pathsDict = new Dictionary<string, LouRugbyPath>();
 
-            Dictionary<string, Color32> colorsDict = new Dictionary<string, Color32>();
+            Tools.SetGPSOrigin(new Vector2(45.72377830692287f, 4.8322574249907895f));
+            //Debug.Log(2*Tools.GPSToXYZ(new Vector2(45.72321854114279f, 4.832329569969196f)));
+            //Debug.Log(2*Tools.GPSToXYZ(new Vector2(45.72405377738516f, 4.832959767816362f)));
+            //Debug.Log(2*Tools.GPSToXYZ(new Vector2(45.7243368966102f, 4.83218369263958f)));
+            //Debug.Log(2*Tools.GPSToXYZ(new Vector2(45.72350401255333f, 4.83155666953802f)));
 
-            string[] rawData = System.IO.File.ReadAllLines(filename);
+            Color32[] pathColors = new Color32[nb_players];
 
-            for (int i = 0; i < rawData.Length; i+=10) {
-                string[] words = CsvSplit(rawData[i], ',');    //Selon configuration de l'OS, mettre ',' ou '.'
-
-                if (words.Length < 2)
-                    continue;
-
-                float t = InterpretTime(words[3]);
-                float x = float.Parse(words[1]);
-                float z = float.Parse(words[2]);
-                if (badNumber(t) || badNumber(x) || badNumber(z))
-                    continue;
-
-                if (!pathsDict.TryGetValue(words[0], out LouRugbyPath p)) {
-                    GameObject go = new GameObject(words[0]);
-                    go.transform.parent = transform;
-                    p = go.AddComponent<LouRugbyPath>();
-                    paths.Add(p);
-                    pathsDict.Add(p.name, p);
-                    colorsDict.Add(p.name, Random.ColorHSV());
-                    p.baseRadius = 0.2f;
-                }
-                
-                LouRugbyAtom a = new LouRugbyAtom {
-                    time = t,
-                    point = new Vector3(x, 0, z),
-                    path = p,
-                    indexInPath = p.atoms.Count,
-                    BaseColor = colorsDict[p.name]
-                };
-
-                p.atoms.Add(a);
+            paths = new List<LouRugbyPath>(nb_players);
+            for (int i = 0; i < nb_players; i++) {
+                GameObject go = new GameObject((i+1).ToString());
+                go.transform.parent = transform;
+                LouRugbyPath p = go.AddComponent<LouRugbyPath>();
+                p.atoms = new List<LouRugbyAtom>();
+                paths.Add(p);
+                pathColors[i] = Random.ColorHSV();
             }
 
-            return true;
 
+            BinaryReader br = new BinaryReader(File.Open(filename, FileMode.Open));
+
+            for (int i = 0; i < nb_players; i++) {
+                int natoms = br.ReadInt32();
+                for (int atom_index = 0; atom_index < natoms; atom_index++) {
+                    float t = br.ReadSingle();
+                    float velocity = br.ReadSingle();
+                    float acceleration = br.ReadSingle();
+                    float odometer = br.ReadSingle();
+                    float latitude = br.ReadSingle();
+                    float longitude = br.ReadSingle();
+                    float heart = br.ReadSingle();
+                    float load = br.ReadSingle();
+
+
+                    Vector3 point = Tools.GPSToXYZ(new Vector2(latitude, longitude));
+
+                    point.y = heart;
+                    point *= sizeCoeff;
+
+                    point = Vector3.Max(point, minPoint);
+                    point = Vector3.Min(point, maxPoint);
+
+                    LouRugbyAtom a = new LouRugbyAtom() {
+                        time = t,
+                        point = point,
+                        path = paths[i],
+                        indexInPath = atom_index,
+                        speed = velocity,
+                        acceleration = acceleration,
+                        odometer = odometer,
+                        heart_rate = heart,
+                        player_load = load
+                    };
+
+                    a.BaseColor = pathColors[i];
+
+                    paths[i].atoms.Add(a);
+                }
+            }
+            return true;
         }
 
         protected override float InterpretTime(string word) {
-            float time = float.Parse(word.Replace('.', ','));
-            return time;
+            return 0;
         }
-        /*
-        private float InterpretGPSCoordinates(string word) {
-            string[] coordinates = word.Split('.');
-            float coord = float.Parse(coordinates[0]) * 1000 + float.Parse(coordinates[1]);
-            return coord;
-        }*/
 
         public class LouRugbyPath : TimePath {
             public List<LouRugbyAtom> atoms = new List<LouRugbyAtom>();
@@ -77,7 +98,11 @@ namespace Revivd {
         }
 
         public class LouRugbyAtom : TimeAtom {
-
+            public float speed;
+            public float acceleration;
+            public float odometer;
+            public float heart_rate;
+            public float player_load;
         }
     }
 
