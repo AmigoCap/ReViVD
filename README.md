@@ -2,7 +2,7 @@
 **Github Repository - PAr 118 - ReViVD (2018-2019)**
 
 **Full name: 3D data exploration with Virtual Reality Headset (aircraft trajectories, sports data)**
-![picture](docs/assets/img/teaser_article.png)
+![picture](docs/assets/img/teaser_website.png)
 
 ## Objective
 The main objective is to develop new 3D data visualization and exploration tools in Virtual Reality. We intend, through the ReViVD project, to showcase methods of interacting with data in VR which are simply not possible in other desktop configurations.
