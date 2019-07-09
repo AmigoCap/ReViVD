@@ -117,7 +117,7 @@ $medium-breakpoint: 42em !default;
 .project-tagline {
 
   display: inline-block;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   color: rgba(0, 0, 0, 0.7);
   background-color: rgba(255, 255, 255, 0.7);
   border-color: rgba(255, 255, 255, 0.2);
@@ -126,15 +126,22 @@ $medium-breakpoint: 42em !default;
   border-radius: 0.3rem;
   transition: color 0.2s, background-color 0.2s, border-color 0.2s;
 
+
   @include large {
-    font-size: 1.25rem;
+    padding: 0.75rem 1rem;
   }
 
   @include medium {
-    font-size: 1.15rem;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
   }
 
   @include small {
-    font-size: 1rem;
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+
   }
+
 }

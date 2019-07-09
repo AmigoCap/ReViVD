@@ -14,12 +14,11 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: ReViVD
-email: par.revivd@gmail.com
+#email:
 description: >- # this means to ignore newlines until "baseurl:"
-   Unity-based VR trajectory data visualizer with an emphasis on innovative 3D brush shapes.
+   Unity-based Virtual Reality trajectory data visualizer
 baseurl: "/ReViVD" # the subpath of your site, e.g. /blog
 url: "https://amigocap.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-#twitter_username: jekyllrb
 github_username1:  FHomps
 github_username2:  yohhaan
 show_downloads: false
