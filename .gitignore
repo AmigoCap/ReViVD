@@ -1,2 +1,4 @@
-Gemfile*
-docs/Gemfile*
+Gemfile
+Gemfile.lock
+docs/Gemfile
+docs/Gemfile.lock
