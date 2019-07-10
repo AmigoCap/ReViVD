@@ -1,47 +1,43 @@
 {
-  "filename": "External Data/Bogey/turbine",
+  "filename": "External Data/name_binary",
   "severalFiles": false,
   "n_instants_per_file": 0,
   "endianness": "little-endian",
-  "sizeCoeff": {
-    "x": 0.5,
-    "y": 0.5,
-    "z": 0.5
-  },
   "districtSize": {
-    "x": 30,
-    "y": 30,
+    "x": 10,
+    "y": 10,
     "z": 10
   },
   "lowerTruncature": {
-    "x": -500,
-    "y": -500,
-    "z": -200
+    "x": -100,
+    "y": -100,
+    "z": -100
   },
   "upperTruncature": {
-    "x": 500,
-    "y": 500,
-    "z": 3000
+    "x": 100,
+    "y": 100,
+    "z": 100
   },
   "gpsOrigin": {
     "x": 0,
     "y": 0
   },
-  "file_n_paths": 28913,
-  "randomPaths": true,
-  "randomColorPaths": true,
-  "chosen_n_paths": 1500,
+  "file_n_paths": 100,
+  "randomPaths": false,
+  "randomColorPaths": false,
+  "chosen_n_paths": 100,
   "chosen_paths_start": 0,
   "chosen_paths_end": 0,
   "chosen_paths_step": 1,
-  "constant_n_instants": true,
-  "file_n_instants": 10000,
+  "constant_n_instants": false,
+  "file_n_instants": 10,
   "chosen_instants_start": 0,
   "chosen_instants_end": 0,
-  "chosen_instants_step": 4,
+  "chosen_instants_step": 1,
   "spheresRadius": 1,
-  "spheresAnimSpeed": 10,
+  "spheresAnimSpeed": 1,
   "spheresGlobalTime": 0,
+  "spheresDisplay": false,
   "assetBundles": [
     {
       "name": "map",
@@ -87,26 +83,70 @@
       "name": "id",
       "type": "int32",
       "role": "id"
-    }],
+    },
+    {
+      "name": "n",
+      "type": "int32",
+      "role": "n_atoms"
+    }
+  ],
   "atomAttributes": [
     {
       "name": "x",
       "type": "float32",
-      "role": "x"
+      "role": "x",
+      "sizeCoeff": 1
     },
     {
       "name": "y",
       "type": "float32",
       "role": "y",
+      "sizeCoeff": 1,
+      "valueColorUseMinMax": false,
       "valueColorStart": 0,
       "valueColorEnd": 1,
-      "colorStart": "Blue",
-      "colorEnd": "Red"
+      "colorStart": "Red",
+      "colorEnd": "Green"
     },
     {
       "name": "z",
       "type": "float32",
-      "role": "z"
+      "role": "z",
+      "sizeCoeff": 1
+    },
+    {
+      "name": "speed",
+      "type": "float32",
+      "role": "other",
+      "sizeCoeff": 1,
+      "valueColorUseMinMax": false,
+      "valueColorStart": 0,
+      "valueColorEnd": 1,
+      "colorStart": "Red",
+      "colorEnd": "Green"
+    },
+    {
+      "name": "acceleration",
+      "type": "float32",
+      "role": "other",
+      "sizeCoeff": 1,
+      "valueColorUseMinMax": false,
+      "valueColorStart": 0,
+      "valueColorEnd": 1,
+      "colorStart": "Red",
+      "colorEnd": "Green"
+    },
+    {
+      "name": "lat",
+      "type": "float32",
+      "role": "latitude",
+      "sizeCoeff": 1
+    },
+    {
+      "name": "long",
+      "type": "float32",
+      "role": "longitude",
+      "sizeCoeff": 1
     }
   ]
 }

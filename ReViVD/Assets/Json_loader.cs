@@ -4,19 +4,7 @@ using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
 
-public class Launcher : MonoBehaviour
-{
-    private static Launcher _instance;
-    public static Launcher Instance { get { return _instance; } }
-
-#pragma warning disable 0649
-    [SerializeField] SelectFile selectFile;
-    [SerializeField] AxisConf axisConf;
-    [SerializeField] Sampling sampling;
-    [SerializeField] Spheres spheres;
-    [SerializeField] Styles style;
-    [SerializeField] Advanced advanced;
-#pragma warning restore 0649
+public class Json_loader : MonoBehaviour {
 
     public struct LoadingData {
         public struct Vector3D {
@@ -117,24 +105,15 @@ public class Launcher : MonoBehaviour
     };
 
     void LoadJson() {
-        StreamReader r = new StreamReader(selectFile.field.text);
+        StreamReader r = new StreamReader("C:\\Users\\ReViVD\\Documents\\Unity_projects\\ReViVD\\ReViVD\\json\\example.json");
         string json = r.ReadToEnd();
         LoadingData loadingdata = JsonConvert.DeserializeObject<LoadingData>(json);
         Debug.Log(loadingdata.atomAttributes[0].role);
 
     }
 
-    void Start() {
-    }
-
-    void PrePopulate() {
-
-    }
-
-    void Awake() {
-        if (_instance != null) {
-            Debug.LogWarning("Multiple instances of launcher singleton");
-        }
-        _instance = this;
+    private void Start() {
+        LoadJson();
+   
     }
 }
