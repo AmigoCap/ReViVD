@@ -44,23 +44,20 @@ namespace Revivd {
             size.x += size.x * SelectorManager.Instance.creationGrowthCoefficient * SteamVR_ControllerManager.LeftController.Joystick.x * Time.deltaTime;
             size.y += size.y * SelectorManager.Instance.creationGrowthCoefficient * SteamVR_ControllerManager.LeftController.Joystick.y * Time.deltaTime;
 
-            if (SelectorManager.Instance.InverseMode) {
-                if (SteamVR_ControllerManager.LeftController.padPressed) {
-                    size = initialSize;
-                }
-
-                if (SteamVR_ControllerManager.RightController.padPressed) {
-                    handOffset = initialHandOffset;
-                }
+            if (SteamVR_ControllerManager.LeftController.gripped) {
+                size = initialSize;
             }
-            else {
-                if (SteamVR_ControllerManager.RightController.padPressed) {
-                    handOffset.z += (SteamVR_ControllerManager.RightController.Pad.y >= 0 ? 1 : -1) * Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
-                }
 
-                if (SteamVR_ControllerManager.LeftController.padPressed) {
-                    size.z += (SteamVR_ControllerManager.LeftController.Pad.y >= 0 ? 1 : -1) * size.z * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
-                }
+            if (SteamVR_ControllerManager.RightController.gripped) {
+                handOffset = initialHandOffset;
+            }
+
+            if (SteamVR_ControllerManager.RightController.padPressed) {
+                handOffset.z += (SteamVR_ControllerManager.RightController.Pad.y >= 0 ? 1 : -1) * Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+            }
+
+            if (SteamVR_ControllerManager.LeftController.padPressed) {
+                size.z += (SteamVR_ControllerManager.LeftController.Pad.y >= 0 ? 1 : -1) * size.z * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
             }
         }
 

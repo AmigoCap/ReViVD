@@ -254,6 +254,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
       objectReference: {fileID: 0}
+    - target: {fileID: -2416733968201007103, guid: 917c92e9d7615be45adc076b2ae81899,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 34f4297f6a588a04bb29ced23a527e70, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 917c92e9d7615be45adc076b2ae81899, type: 3}
 --- !u!4 &113629010 stripped
@@ -477,7 +482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1923b80e698d2744183f4b561cd82229, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  districtSize: {x: 30, y: 30, z: 30}
+  districtSize: {x: 15, y: 15, z: 15}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
   debugMode: 0
   clearDistrictsToHighlight: 0
@@ -485,15 +490,15 @@ MonoBehaviour:
   globalTime: 0
   useGlobalTime: 1
   doSphereDrop: 0
-  timeSphereRadius: 1
+  timeSphereRadius: 2
   doTimeSphereAnimation: 0
-  timeSphereAnimationSpeed: 10
+  timeSphereAnimationSpeed: 0.02
   traceTimeSpheres: 0
   paths: []
   filename: External Data/Duquesne/LDC.csv
   colorAttribute: 1
-  maxPoint: {x: 500, y: 500, z: 500}
-  minPoint: {x: -500, y: -500, z: -500}
+  maxPoint: {x: 500, y: 700, z: 500}
+  minPoint: {x: -500, y: -700, z: -500}
 --- !u!4 &186726883
 Transform:
   m_ObjectHideFlags: 0
@@ -502,7 +507,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 186726881}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -150, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1737187751}
@@ -1069,6 +1074,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
       objectReference: {fileID: 0}
+    - target: {fileID: -2416733968201007103, guid: 8e3a00e43722f2c4ba73f8a3f68b9454,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 34f4297f6a588a04bb29ced23a527e70, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8e3a00e43722f2c4ba73f8a3f68b9454, type: 3}
 --- !u!4 &591610665 stripped
@@ -1144,6 +1154,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
       objectReference: {fileID: 0}
+    - target: {fileID: -2416733968201007103, guid: 14a7f9ba04c24aa4c82c2a9085f95444,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 34f4297f6a588a04bb29ced23a527e70, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14a7f9ba04c24aa4c82c2a9085f95444, type: 3}
 --- !u!4 &619243578 stripped
@@ -1365,6 +1380,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
       objectReference: {fileID: 0}
+    - target: {fileID: -2416733968201007103, guid: 62bb95ebf73edf04f97de4752e9b3de0,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 34f4297f6a588a04bb29ced23a527e70, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 62bb95ebf73edf04f97de4752e9b3de0, type: 3}
 --- !u!4 &719168997 stripped
