@@ -8,10 +8,10 @@ public class Launcher : MonoBehaviour
     public static Launcher Instance { get { return _instance; } }
 
 #pragma warning disable 0649
-    [SerializeField] GameObject selectFile;
-    [SerializeField] GameObject sampling;
-    [SerializeField] GameObject spheres;
-    [SerializeField] GameObject style;
+    [SerializeField] SelectFile selectFile;
+    [SerializeField] Sampling sampling;
+    [SerializeField] Spheres spheres;
+    [SerializeField] Styles style;
 #pragma warning restore 0649
 
     public struct AssetBundle {
