@@ -23,6 +23,10 @@ public class SelectFile : MonoBehaviour
         }
         indicator_found.SetActive(exists);
         indicator_notFound.SetActive(!exists);
+
+        if (exists) {
+            Launcher.Instance.LoadJson();
+        }
     }
 
     // Start is called before the first frame update

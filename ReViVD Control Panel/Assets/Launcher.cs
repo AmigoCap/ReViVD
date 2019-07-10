@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEngine.UI;
 using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
@@ -18,69 +17,70 @@ public class Launcher : MonoBehaviour
     [SerializeField] Advanced advanced;
 #pragma warning restore 0649
 
-    public struct Vector3D {
-        public float x;
-        public float y;
-        public float z;
-    }
-    public struct Vector2D {
-        public float x;
-        public float y;
-    }
-
-
-    public struct AssetBundle {
-        public string name;
-        public string filename;
-        public Vector3D position;
-        public Vector3D rotation;
-        public Vector3D scale;
-    }
-
-    public enum DataType {
-        int32,
-        float32,
-        float64
-    }
-
-    public enum PathAttributeRole {
-        n_atoms,
-        id,
-        other
-    }
-
-    public struct PathAttribute {
-        public string name;
-        public DataType type;
-        public PathAttributeRole role;
-        public bool randomColor;
-        public string colorStart;
-        public string colorEnd;
-        public float valueColorStart;
-        public float valueColorEnd;
-    }
-
-    public enum AtomAttributeRole {
-        x,
-        y,
-        z,
-        t,
-        latitude,
-        longitude,
-        other
-    }
-
-    public struct AtomAttribute {
-        public string name;
-        public DataType type;
-        public AtomAttributeRole role;
-        public string colorStart;
-        public string colorEnd;
-        public float valueColorStart;
-        public float valueColorEnd;
-    }
-
     public struct LoadingData {
+        public struct Vector3D {
+            public float x;
+            public float y;
+            public float z;
+        }
+
+        public struct Vector2D {
+            public float x;
+            public float y;
+        }
+
+        public struct AssetBundle {
+            public string name;
+            public string filename;
+            public Vector3D position;
+            public Vector3D rotation;
+            public Vector3D scale;
+        }
+
+        public enum DataType {
+            int32,
+            float32,
+            float64
+        }
+
+        public enum PathAttributeRole {
+            n_atoms,
+            id,
+            other
+        }
+
+        public struct PathAttribute {
+            public string name;
+            public DataType type;
+            public PathAttributeRole role;
+            public bool randomColor;
+            public string colorStart;
+            public string colorEnd;
+            public float valueColorStart;
+            public float valueColorEnd;
+        }
+
+        public enum AtomAttributeRole {
+            x,
+            y,
+            z,
+            t,
+            latitude,
+            longitude,
+            other
+        }
+
+        public struct AtomAttribute {
+            public string name;
+            public DataType type;
+            public AtomAttributeRole role;
+            public string colorStart;
+            public string colorEnd;
+            public float valueColorStart;
+            public float valueColorEnd;
+        }
+
+
         public string filename;
         public bool severalFiles;
         public int n_instants_per_file;
@@ -113,20 +113,59 @@ public class Launcher : MonoBehaviour
         public AtomAttribute[] atomAttributes;
     };
 
-    void LoadJson() {
-        StreamReader r = new StreamReader("C:/Users/ReViVD/Documents/Unity_projects/ReViVD/ReViVD/json/example.json");
+    public LoadingData data;
+
+    public void LoadJson() {
+        StreamReader r = new StreamReader(selectFile.field.text);
         string json = r.ReadToEnd();
-        LoadingData loadingdata = JsonConvert.DeserializeObject<LoadingData>(json);
-        Debug.Log(loadingdata.atomAttributes[0].role);
+        data = JsonConvert.DeserializeObject<LoadingData>(json);
 
+        sampling.randomPaths.isOn = data.randomPaths;
+        sampling.n_paths.text = data.chosen_n_paths.ToString();
+        sampling.paths_start.text = data.chosen_paths_start.ToString();
+        sampling.paths_end.text = data.chosen_paths_end.ToString();
+        sampling.paths_step.text = data.chosen_paths_step.ToString();
+        sampling.instants_start.text = data.chosen_instants_start.ToString();
+        sampling.instants_end.text = data.chosen_instants_end.ToString();
+        sampling.instants_step.text = data.chosen_instants_step.ToString();
+
+        Dropdown[] dropdowns = { axisConf.xAxis, axisConf.yAxis, axisConf.zAxis, style.attribute };
+        Dropdown.OptionData emptyOption = new Dropdown.OptionData("<no attribute>");
+        foreach (Dropdown d in dropdowns) {
+            d.options.Clear();
+            d.options.Add(emptyOption);
+            d.value = 0;
+            d.captionText.text = emptyOption.text;
+        }
+
+        foreach (LoadingData.AtomAttribute attr in data.atomAttributes) {
+            Dropdown.OptionData option = new Dropdown.OptionData(attr.name);
+            foreach (Dropdown d in dropdowns)
+                d.options.Add(option);
+        }
+
+        axisConf.xScale.text = data.sizeCoeff.x.ToString();
+        axisConf.yScale.text = data.sizeCoeff.y.ToString();
+        axisConf.zScale.text = data.sizeCoeff.z.ToString();
+
+        //spheres.display.isOn = data.spheresDisplay;
+        spheres.globalTime.text = data.spheresGlobalTime.ToString();
+        spheres.animSpeed.text = data.spheresAnimSpeed.ToString();
+        spheres.radius.text = data.spheresRadius.ToString();
+
+        advanced.districtSize_x.text = data.districtSize.x.ToString();
+        advanced.districtSize_y.text = data.districtSize.y.ToString();
+        advanced.districtSize_z.text = data.districtSize.z.ToString();
+        advanced.lowerTrunc_x.text = data.minPoint.x.ToString();
+        advanced.lowerTrunc_y.text = data.minPoint.y.ToString();
+        advanced.lowerTrunc_z.text = data.minPoint.z.ToString();
+        advanced.upperTrunc_x.text = data.minPoint.x.ToString();
+        advanced.upperTrunc_y.text = data.minPoint.y.ToString();
+        advanced.upperTrunc_z.text = data.minPoint.z.ToString();
     }
 
-    void Start() {
-        LoadJson();
-    }
-
-    void PrePopulate() {
-
+    private void Start() {
+        selectFile.field.text = "..\\ReViVD\\json\\example.json";
     }
 
     void Awake() {
