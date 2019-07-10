@@ -14,6 +14,13 @@ public class SelectFile : MonoBehaviour
 
     void CheckForFile() {
         bool exists = File.Exists(field.text);
+        if (!indicator_found.activeSelf && !indicator_notFound.activeSelf) {
+            RectTransform rt = GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(rt.sizeDelta.x, rt.sizeDelta.y + 30);
+            VerticalLayoutGroup lg = ScrollbarContent.Instance.GetComponent<VerticalLayoutGroup>();
+            lg.spacing = lg.spacing + 1; //Forcing update of the layout group
+            lg.spacing = lg.spacing - 1;
+        }
         indicator_found.SetActive(exists);
         indicator_notFound.SetActive(!exists);
     }

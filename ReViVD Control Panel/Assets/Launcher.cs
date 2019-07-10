@@ -9,9 +9,11 @@ public class Launcher : MonoBehaviour
 
 #pragma warning disable 0649
     [SerializeField] SelectFile selectFile;
+    [SerializeField] AxisConf axisConf;
     [SerializeField] Sampling sampling;
     [SerializeField] Spheres spheres;
     [SerializeField] Styles style;
+    [SerializeField] Advanced advanced;
 #pragma warning restore 0649
 
     public struct AssetBundle {
@@ -106,7 +108,7 @@ public class Launcher : MonoBehaviour
 
     void Awake() {
         if (_instance != null) {
-            Debug.LogWarning("Multiple instances of logger singleton");
+            Debug.LogWarning("Multiple instances of launcher singleton");
         }
         _instance = this;
     }
