@@ -6,8 +6,11 @@ using System.IO;
 public class SelectFile : MonoBehaviour
 {
     public InputField field;
-    public GameObject indicator_found;
-    public GameObject indicator_notFound;
+
+#pragma warning disable 0649
+    [SerializeField] GameObject indicator_found;
+    [SerializeField] GameObject indicator_notFound;
+#pragma warning restore 0649
 
     void CheckForFile() {
         bool exists = File.Exists(field.text);

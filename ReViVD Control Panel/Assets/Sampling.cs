@@ -6,21 +6,28 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class Sampling : MonoBehaviour
 {
-    public Toggle toggle;
-    public GameObject randomLine;
-    public GameObject standardLine;
-    public RectTransform rangeLineTransform;
+#pragma warning disable 0649
+    [SerializeField] GameObject randomLine;
+    [SerializeField] GameObject standardLine;
+    [SerializeField] RectTransform rangeLineTransform;
+#pragma warning restore 0649
 
+    public Toggle randomPaths;
+    public InputField n_paths;
+    public InputField paths_start;
     public InputField paths_end;
+    public InputField paths_step;
+    public InputField instants_start;
     public InputField instants_end;
+    public InputField instants_step;
 
     float xPosRandom;
     float xPosStandard;
 
     void Switch() {
-        randomLine.SetActive(toggle.isOn);
-        standardLine.SetActive(!toggle.isOn);
-        rangeLineTransform.localPosition = new Vector3(toggle.isOn ? xPosRandom : xPosStandard, rangeLineTransform.localPosition.y, 0);
+        randomLine.SetActive(randomPaths.isOn);
+        standardLine.SetActive(!randomPaths.isOn);
+        rangeLineTransform.localPosition = new Vector3(randomPaths.isOn ? xPosRandom : xPosStandard, rangeLineTransform.localPosition.y, 0);
     }
 
     void CapInput(InputField field, int max) {
@@ -33,14 +40,14 @@ public class Sampling : MonoBehaviour
     void OnEnable() {
         xPosRandom = rangeLineTransform.localPosition.x;
         xPosStandard = xPosRandom - 185;
-        toggle.onValueChanged.AddListener(delegate { Switch(); });
+        randomPaths.onValueChanged.AddListener(delegate { Switch(); });
 
         paths_end.onValueChanged.AddListener(delegate { CapInput(paths_end, 1500); });
         instants_end.onValueChanged.AddListener(delegate { CapInput(instants_end, 1000); });
     }
 
     private void OnDisable() {
-        toggle.onValueChanged.RemoveAllListeners();
+        randomPaths.onValueChanged.RemoveAllListeners();
         paths_end.onValueChanged.RemoveAllListeners();
         instants_end.onValueChanged.RemoveAllListeners();
     }

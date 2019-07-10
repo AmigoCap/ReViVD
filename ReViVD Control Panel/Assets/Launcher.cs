@@ -7,10 +7,12 @@ public class Launcher : MonoBehaviour
     private static Launcher _instance;
     public static Launcher Instance { get { return _instance; } }
 
+#pragma warning disable 0649
     [SerializeField] GameObject selectFile;
     [SerializeField] GameObject sampling;
     [SerializeField] GameObject spheres;
     [SerializeField] GameObject style;
+#pragma warning restore 0649
 
     public struct AssetBundle {
         string name;
@@ -94,7 +96,11 @@ public class Launcher : MonoBehaviour
         AtomAttribute[] atomAttributes;
     };
 
-    public void LoadJSon() {
+    void LoadJSon() {
+
+    }
+
+    void PrePopulate() {
 
     }
 
