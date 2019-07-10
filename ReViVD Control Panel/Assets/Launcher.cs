@@ -53,7 +53,6 @@ public class Launcher : MonoBehaviour
             public string name;
             public DataType type;
             public PathAttributeRole role;
-            public bool randomColor;
             public string colorStart;
             public string colorEnd;
             public float valueColorStart;
@@ -74,6 +73,8 @@ public class Launcher : MonoBehaviour
             public string name;
             public DataType type;
             public AtomAttributeRole role;
+            public float sizeCoeff;
+            public bool valueColorUseMinMax;
             public string colorStart;
             public string colorEnd;
             public float valueColorStart;
@@ -85,14 +86,14 @@ public class Launcher : MonoBehaviour
         public bool severalFiles;
         public int n_instants_per_file;
         public string endianness;
-        public Vector3D sizeCoeff;
         public Vector3D districtSize;
-        public Vector3D minPoint;
-        public Vector3D maxPoint;
+        public Vector3D lowerTruncature;
+        public Vector3D upperTruncature;
         public Vector2D gpsOrigin;
 
         public int file_n_paths;
         public bool randomPaths;
+        public bool randomColorPaths;
         public int chosen_n_paths;
         public int chosen_paths_start;
         public int chosen_paths_end;
@@ -107,6 +108,7 @@ public class Launcher : MonoBehaviour
         public float spheresRadius;
         public float spheresAnimSpeed;
         public float spheresGlobalTime;
+        public bool spheresDisplay;
 
         public AssetBundle[] assetBundles;
         public PathAttribute[] pathAttributes;
@@ -144,10 +146,6 @@ public class Launcher : MonoBehaviour
                 d.options.Add(option);
         }
 
-        axisConf.xScale.text = data.sizeCoeff.x.ToString();
-        axisConf.yScale.text = data.sizeCoeff.y.ToString();
-        axisConf.zScale.text = data.sizeCoeff.z.ToString();
-
         //spheres.display.isOn = data.spheresDisplay;
         spheres.globalTime.text = data.spheresGlobalTime.ToString();
         spheres.animSpeed.text = data.spheresAnimSpeed.ToString();
@@ -156,12 +154,12 @@ public class Launcher : MonoBehaviour
         advanced.districtSize_x.text = data.districtSize.x.ToString();
         advanced.districtSize_y.text = data.districtSize.y.ToString();
         advanced.districtSize_z.text = data.districtSize.z.ToString();
-        advanced.lowerTrunc_x.text = data.minPoint.x.ToString();
-        advanced.lowerTrunc_y.text = data.minPoint.y.ToString();
-        advanced.lowerTrunc_z.text = data.minPoint.z.ToString();
-        advanced.upperTrunc_x.text = data.minPoint.x.ToString();
-        advanced.upperTrunc_y.text = data.minPoint.y.ToString();
-        advanced.upperTrunc_z.text = data.minPoint.z.ToString();
+        advanced.lowerTrunc_x.text = data.lowerTruncature.x.ToString();
+        advanced.lowerTrunc_y.text = data.lowerTruncature.y.ToString();
+        advanced.lowerTrunc_z.text = data.lowerTruncature.z.ToString();
+        advanced.upperTrunc_x.text = data.upperTruncature.x.ToString();
+        advanced.upperTrunc_y.text = data.upperTruncature.y.ToString();
+        advanced.upperTrunc_z.text = data.upperTruncature.z.ToString();
     }
 
     private void Start() {
