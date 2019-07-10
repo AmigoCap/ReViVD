@@ -53,7 +53,6 @@ public class Launcher : MonoBehaviour
         public string name;
         public DataType type;
         public PathAttributeRole role;
-        public bool randomColor;
         public string colorStart;
         public string colorEnd;
         public float valueColorStart;
@@ -87,12 +86,13 @@ public class Launcher : MonoBehaviour
         public string endianness;
         public Vector3D sizeCoeff;
         public Vector3D districtSize;
-        public Vector3D minPoint;
-        public Vector3D maxPoint;
+        public Vector3D lowerTruncature;
+        public Vector3D upperTruncature;
         public Vector2D gpsOrigin;
 
         public int file_n_paths;
         public bool randomPaths;
+        public bool randomColorPaths;
         public int chosen_n_paths;
         public int chosen_paths_start;
         public int chosen_paths_end;
@@ -122,7 +122,6 @@ public class Launcher : MonoBehaviour
     }
 
     void Start() {
-        LoadJson();
     }
 
     void PrePopulate() {
