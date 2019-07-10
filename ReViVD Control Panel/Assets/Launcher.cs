@@ -113,11 +113,16 @@ public class Launcher : MonoBehaviour
         public AtomAttribute[] atomAttributes;
     };
 
-    void LoadJSon() {
-        StreamReader r = new StreamReader(selectFile.field.text);
+    void LoadJson() {
+        StreamReader r = new StreamReader("C:/Users/ReViVD/Documents/Unity_projects/ReViVD/ReViVD/json/example.json");
         string json = r.ReadToEnd();
         LoadingData loadingdata = JsonConvert.DeserializeObject<LoadingData>(json);
+        Debug.Log(loadingdata.atomAttributes[0].role);
 
+    }
+
+    void Start() {
+        LoadJson();
     }
 
     void PrePopulate() {
