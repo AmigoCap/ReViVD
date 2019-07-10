@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+using Newtonsoft.Json;
 
 public class Launcher : MonoBehaviour
 {
@@ -16,12 +18,23 @@ public class Launcher : MonoBehaviour
     [SerializeField] Advanced advanced;
 #pragma warning restore 0649
 
+    public struct Vector3D {
+        public float x;
+        public float y;
+        public float z;
+    }
+    public struct Vector2D {
+        public float x;
+        public float y;
+    }
+
+
     public struct AssetBundle {
-        string name;
-        string filename;
-        Vector3 position;
-        Vector3 rotation;
-        Vector3 scale;
+        public string name;
+        public string filename;
+        public Vector3D position;
+        public Vector3D rotation;
+        public Vector3D scale;
     }
 
     public enum DataType {
@@ -37,14 +50,14 @@ public class Launcher : MonoBehaviour
     }
 
     public struct PathAttribute {
-        string name;
-        DataType type;
-        PathAttributeRole role;
-        bool randomColor;
-        Color32 colorStart;
-        Color32 colorEnd;
-        float valueColorStart;
-        float valueColorEnd;
+        public string name;
+        public DataType type;
+        public PathAttributeRole role;
+        public bool randomColor;
+        public string colorStart;
+        public string colorEnd;
+        public float valueColorStart;
+        public float valueColorEnd;
     }
 
     public enum AtomAttributeRole {
@@ -52,53 +65,58 @@ public class Launcher : MonoBehaviour
         y,
         z,
         t,
-        lat,
-        lon,
+        latitude,
+        longitude,
         other
     }
 
     public struct AtomAttribute {
-        string name;
-        DataType type;
-        AtomAttributeRole role;
-        Color32 colorStart;
-        Color32 colorEnd;
-        float valueColorStart;
-        float valueColorEnd;
+        public string name;
+        public DataType type;
+        public AtomAttributeRole role;
+        public string colorStart;
+        public string colorEnd;
+        public float valueColorStart;
+        public float valueColorEnd;
     }
 
     public struct LoadingData {
-        string filename;
-        bool endianness;
-        Vector3 sizeCoeff;
-        Vector3 districtSize;
-        Vector3 minPoint;
-        Vector3 maxPoint;
-        Vector2 gpsOrigin;
+        public string filename;
+        public bool severalFiles;
+        public int n_instants_per_file;
+        public string endianness;
+        public Vector3D sizeCoeff;
+        public Vector3D districtSize;
+        public Vector3D minPoint;
+        public Vector3D maxPoint;
+        public Vector2D gpsOrigin;
 
-        int file_n_paths;
-        bool randomPaths;
-        int chosen_n_paths;
-        int chosen_paths_start;
-        int chosen_paths_end;
-        int chosen_paths_step;
+        public int file_n_paths;
+        public bool randomPaths;
+        public int chosen_n_paths;
+        public int chosen_paths_start;
+        public int chosen_paths_end;
+        public int chosen_paths_step;
 
-        bool constant_n_instants;
-        int file_n_instants;
-        int chosen_instants_start;
-        int chosen_instants_end;
-        int chosen_instants_step;
+        public bool constant_n_instants;
+        public int file_n_instants;
+        public int chosen_instants_start;
+        public int chosen_instants_end;
+        public int chosen_instants_step;
 
-        float spheresRadius;
-        float spheresAnimSpeed;
-        float spheresGlobalTime;
+        public float spheresRadius;
+        public float spheresAnimSpeed;
+        public float spheresGlobalTime;
 
-        AssetBundle[] assetBundles;
-        PathAttribute[] pathAttributes;
-        AtomAttribute[] atomAttributes;
+        public AssetBundle[] assetBundles;
+        public PathAttribute[] pathAttributes;
+        public AtomAttribute[] atomAttributes;
     };
 
     void LoadJSon() {
+        StreamReader r = new StreamReader(selectFile.field.text);
+        string json = r.ReadToEnd();
+        LoadingData loadingdata = JsonConvert.DeserializeObject<LoadingData>(json);
 
     }
 
