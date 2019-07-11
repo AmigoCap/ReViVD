@@ -29,15 +29,11 @@ public class SelectFile : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    private void OnEnable() {
         field.onValueChanged.AddListener(delegate { CheckForFile(); });
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    private void OnDisable() {
+        field.onValueChanged.RemoveAllListeners();
     }
 }

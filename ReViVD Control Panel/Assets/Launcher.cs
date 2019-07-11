@@ -17,7 +17,7 @@ public class Launcher : MonoBehaviour
     [SerializeField] Advanced advanced;
 #pragma warning restore 0649
 
-    public struct LoadingData {
+    public class LoadingData {
         public struct Vector3D {
             public float x;
             public float y;
@@ -29,7 +29,7 @@ public class Launcher : MonoBehaviour
             public float y;
         }
 
-        public struct AssetBundle {
+        public class AssetBundle {
             public string name;
             public string filename;
             public Vector3D position;
@@ -39,6 +39,7 @@ public class Launcher : MonoBehaviour
 
         public enum DataType {
             int32,
+            int64,
             float32,
             float64
         }
@@ -49,14 +50,16 @@ public class Launcher : MonoBehaviour
             other
         }
 
-        public struct PathAttribute {
+        public enum Color { //Warning : Keep this equal and in the same order to the color dropdowns in the launcher (enum to int conversions)
+            Red,
+            Green,
+            Blue
+        }
+
+        public class PathAttribute {
             public string name;
-            public DataType type;
-            public PathAttributeRole role;
-            public string colorStart;
-            public string colorEnd;
-            public float valueColorStart;
-            public float valueColorEnd;
+            public DataType type = DataType.int32;
+            public PathAttributeRole role = PathAttributeRole.other;
         }
 
         public enum AtomAttributeRole {
@@ -69,52 +72,60 @@ public class Launcher : MonoBehaviour
             other
         }
 
-        public struct AtomAttribute {
+        public class AtomAttribute {
             public string name;
-            public DataType type;
-            public AtomAttributeRole role;
-            public float sizeCoeff;
-            public bool valueColorUseMinMax;
-            public string colorStart;
-            public string colorEnd;
-            public float valueColorStart;
-            public float valueColorEnd;
+            public DataType type = DataType.int32;
+            public AtomAttributeRole role = AtomAttributeRole.other;
+            public float sizeCoeff = 1;
+            public bool valueColorUseMinMax = true;
+            public Color colorStart = Color.Blue;
+            public Color colorEnd = Color.Red;
+            public float valueColorStart = 0;
+            public float valueColorEnd = 1;
         }
 
+        public enum Endianness {
+            little,
+            big
+        }
 
         public string filename;
-        public bool severalFiles;
-        public int n_instants_per_file;
-        public string endianness;
-        public Vector3D districtSize;
-        public Vector3D lowerTruncature;
-        public Vector3D upperTruncature;
+        public bool severalFiles = false;
+        public int n_instants_per_file = 50;
+        public Endianness endianness = Endianness.little;
+        public Vector3D districtSize = new Vector3D { x = 20, y = 20, z = 20 };
+        public Vector3D lowerTruncature = new Vector3D { x = -1000, y = -1000, z = -1000 };
+        public Vector3D upperTruncature = new Vector3D { x = 1000, y = 1000, z = 1000 };
         public Vector2D gpsOrigin;
 
         public int file_n_paths;
-        public bool randomPaths;
-        public bool randomColorPaths;
-        public int chosen_n_paths;
-        public int chosen_paths_start;
-        public int chosen_paths_end;
-        public int chosen_paths_step;
+        public bool randomPaths = false;
+        public bool randomColorPaths = true;
+        public int chosen_n_paths = 500;
+        public int chosen_paths_start = 0;
+        public int chosen_paths_end = 500;
+        public int chosen_paths_step = 1;
 
         public bool constant_n_instants;
         public int file_n_instants;
-        public int chosen_instants_start;
-        public int chosen_instants_end;
-        public int chosen_instants_step;
+        public int chosen_instants_start = 0;
+        public int chosen_instants_end = 200;
+        public int chosen_instants_step = 2;
 
-        public float spheresRadius;
-        public float spheresAnimSpeed;
-        public float spheresGlobalTime;
-        public bool spheresDisplay;
+        public float spheresRadius = 2;
+        public float spheresAnimSpeed = 1;
+        public float spheresGlobalTime = 0;
+        public bool spheresDisplay = false;
 
-        public AssetBundle[] assetBundles;
-        public PathAttribute[] pathAttributes;
-        public AtomAttribute[] atomAttributes;
+        public AssetBundle[] assetBundles = new AssetBundle[0];
+        public PathAttribute[] pathAttributes = new PathAttribute[0];
+        public AtomAttribute[] atomAttributes = new AtomAttribute[0];
     };
 
+    private bool _dataLoaded = false;
+    public bool DataLoaded {
+        get => _dataLoaded;
+    }
     public LoadingData data;
 
     public void LoadJson() {
@@ -146,7 +157,7 @@ public class Launcher : MonoBehaviour
                 d.options.Add(option);
         }
 
-        //spheres.display.isOn = data.spheresDisplay;
+        spheres.display.isOn = data.spheresDisplay;
         spheres.globalTime.text = data.spheresGlobalTime.ToString();
         spheres.animSpeed.text = data.spheresAnimSpeed.ToString();
         spheres.radius.text = data.spheresRadius.ToString();
@@ -160,10 +171,41 @@ public class Launcher : MonoBehaviour
         advanced.upperTrunc_x.text = data.upperTruncature.x.ToString();
         advanced.upperTrunc_y.text = data.upperTruncature.y.ToString();
         advanced.upperTrunc_z.text = data.upperTruncature.z.ToString();
+
+        _dataLoaded = true;
+    }
+
+    public void SaveJson() {
+        data.randomPaths = sampling.randomPaths.isOn;
+        data.chosen_n_paths = Tools.ParseField_i(sampling.n_paths);
+        data.chosen_paths_start = Tools.ParseField_i(sampling.paths_start);
+        data.chosen_paths_end = Tools.ParseField_i(sampling.paths_end);
+        data.chosen_paths_step = Tools.ParseField_i(sampling.paths_step);
+        data.chosen_instants_start = Tools.ParseField_i(sampling.instants_start);
+        data.chosen_instants_end = Tools.ParseField_i(sampling.instants_end);
+        data.chosen_instants_step = Tools.ParseField_i(sampling.instants_step);
+
+        if (axisConf.xAxis.value != 0) {
+            data.atomAttributes[axisConf.xAxis.value - 1].sizeCoeff = Tools.ParseField_f(axisConf.xScale, 1f);
+        }
+
+        StreamWriter w = new StreamWriter("..\\ReViVD\\json\\export.json");
+        JsonSerializerSettings settings = new JsonSerializerSettings();
+        settings.FloatFormatHandling = FloatFormatHandling.String;
+        settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+        w.Write(JsonConvert.SerializeObject(data, Formatting.Indented, settings));
+        w.Close();
     }
 
     private void Start() {
-        selectFile.field.text = "..\\ReViVD\\json\\example.json";
+        selectFile.field.text = "..\\ReViVD\\json\\export.json";
+    }
+
+    private void OnDestroy() {
+        SaveJson();
+    }
+
+    private void Update() {
     }
 
     void Awake() {

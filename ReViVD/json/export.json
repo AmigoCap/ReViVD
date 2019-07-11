@@ -98,8 +98,8 @@
       "sizeCoeff": 1.0,
       "valueColorUseMinMax": true,
       "colorStart": "Blue",
-      "colorEnd": "Red",
-      "valueColorStart": 0.0,
+      "colorEnd": "Green",
+      "valueColorStart": 100.0,
       "valueColorEnd": 1.0
     },
     {
@@ -119,12 +119,12 @@
       "role": "z",
       "sizeCoeff": 1.0,
       "valueColorUseMinMax": true,
-      "colorStart": "Blue",
-      "colorEnd": "Red",
+      "colorStart": "Red",
+      "colorEnd": "Green",
       "valueColorStart": 0.0,
       "valueColorEnd": 1.0
     },
-	{
+    {
       "name": "t",
       "type": "float32",
       "role": "t",
@@ -157,16 +157,16 @@
       "valueColorStart": 0.0,
       "valueColorEnd": 1.0
     },
-	{
+    {
       "name": "power",
       "type": "float32",
       "role": "other",
       "sizeCoeff": 1.0,
       "valueColorUseMinMax": false,
-      "colorStart": "Red",
-      "colorEnd": "Green",
-      "valueColorStart": 0.0,
-      "valueColorEnd": 1.0
+      "colorStart": "Green",
+      "colorEnd": "Red",
+      "valueColorStart": 20.0,
+      "valueColorEnd": 800.0
     },
     {
       "name": "lat",
