@@ -44,12 +44,6 @@ public class Launcher : MonoBehaviour
             float64
         }
 
-        public enum PathAttributeRole {
-            n_atoms,
-            id,
-            other
-        }
-
         public enum Color { //Warning : Keep this equal and in the same order to the color dropdowns in the launcher (enum to int conversions)
             Red,
             Green,
@@ -59,21 +53,14 @@ public class Launcher : MonoBehaviour
         public class PathAttribute {
             public string name;
             public DataType type = DataType.int32;
-            public PathAttributeRole role = PathAttributeRole.other;
         }
 
-        public enum AtomAttributeRole {
-            x,
-            y,
-            z,
-            t,
-            other
-        }
+        string pathAttributeUsedAs_id = "id";
+        string pathAttributeUsedAs_n_atoms = "n_atoms";
 
         public class AtomAttribute {
             public string name;
             public DataType type = DataType.int32;
-            public AtomAttributeRole role = AtomAttributeRole.other;
             public float sizeCoeff = 1;
             public bool valueColorUseMinMax = true;
             public Color colorStart = Color.Blue;
@@ -81,6 +68,11 @@ public class Launcher : MonoBehaviour
             public float valueColorStart = 0;
             public float valueColorEnd = 1;
         }
+
+        string atomAttributeUsedAs_x = "x";
+        string atomAttributeUsedAs_y = "y";
+        string atomAttributeUsedAs_z = "z";
+        string atomAttributeUsedAs_t = "t";
 
         public enum Endianness {
             little,
@@ -156,12 +148,6 @@ public class Launcher : MonoBehaviour
             Dropdown.OptionData option = new Dropdown.OptionData(attr.name);
             foreach (Dropdown d in dropdowns)
                 d.options.Add(option);
-            if (attr.role == LoadingData.AtomAttributeRole.x)
-                axisConf.xAxis.value = i + 1;
-            else if (attr.role == LoadingData.AtomAttributeRole.y)
-                axisConf.yAxis.value = i + 1;
-            else if (attr.role == LoadingData.AtomAttributeRole.z)
-                axisConf.zAxis.value = i + 1;
         }
 
         spheres.display.isOn = data.spheresDisplay;

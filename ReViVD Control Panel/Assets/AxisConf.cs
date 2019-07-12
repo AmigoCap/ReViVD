@@ -32,7 +32,6 @@ public class AxisConf : MonoBehaviour
         xAxis.onValueChanged.AddListener(delegate { autofillScale(xAxis, ref prevValue_x, xScale); });
         yAxis.onValueChanged.AddListener(delegate { autofillScale(yAxis, ref prevValue_y, yScale); });
         zAxis.onValueChanged.AddListener(delegate { autofillScale(zAxis, ref prevValue_z, zScale); });
-        gps.onValueChanged.AddListener(delegate { })
     }
 
     private void OnDisable() {
