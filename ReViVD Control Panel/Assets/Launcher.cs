@@ -67,8 +67,6 @@ public class Launcher : MonoBehaviour
             y,
             z,
             t,
-            latitude,
-            longitude,
             other
         }
 
@@ -96,7 +94,6 @@ public class Launcher : MonoBehaviour
         public Vector3D districtSize = new Vector3D { x = 20, y = 20, z = 20 };
         public Vector3D lowerTruncature = new Vector3D { x = -1000, y = -1000, z = -1000 };
         public Vector3D upperTruncature = new Vector3D { x = 1000, y = 1000, z = 1000 };
-        public Vector2D gpsOrigin;
 
         public int file_n_paths;
         public bool randomPaths = false;
@@ -111,6 +108,9 @@ public class Launcher : MonoBehaviour
         public int chosen_instants_start = 0;
         public int chosen_instants_end = 200;
         public int chosen_instants_step = 2;
+
+        public bool useGPSCoords = false;
+        public Vector2D GPSOrigin = new Vector2D { x = 0, y = 0 };
 
         public float spheresRadius = 2;
         public float spheresAnimSpeed = 1;
@@ -151,10 +151,17 @@ public class Launcher : MonoBehaviour
             d.captionText.text = emptyOption.text;
         }
 
-        foreach (LoadingData.AtomAttribute attr in data.atomAttributes) {
+        for (int i = 0; i < data.atomAttributes.Length; i++) {
+            LoadingData.AtomAttribute attr = data.atomAttributes[i];
             Dropdown.OptionData option = new Dropdown.OptionData(attr.name);
             foreach (Dropdown d in dropdowns)
                 d.options.Add(option);
+            if (attr.role == LoadingData.AtomAttributeRole.x)
+                axisConf.xAxis.value = i + 1;
+            else if (attr.role == LoadingData.AtomAttributeRole.y)
+                axisConf.yAxis.value = i + 1;
+            else if (attr.role == LoadingData.AtomAttributeRole.z)
+                axisConf.zAxis.value = i + 1;
         }
 
         spheres.display.isOn = data.spheresDisplay;

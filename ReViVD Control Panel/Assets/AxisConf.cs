@@ -13,6 +13,8 @@ public class AxisConf : MonoBehaviour
     int prevValue_z = 0;
     public InputField zScale;
 
+    public Toggle gps;
+
     void autofillScale(Dropdown axis, ref int prevValue, InputField scale) {
         if (Launcher.Instance.DataLoaded) {
             if (prevValue != 0) {
@@ -30,6 +32,7 @@ public class AxisConf : MonoBehaviour
         xAxis.onValueChanged.AddListener(delegate { autofillScale(xAxis, ref prevValue_x, xScale); });
         yAxis.onValueChanged.AddListener(delegate { autofillScale(yAxis, ref prevValue_y, yScale); });
         zAxis.onValueChanged.AddListener(delegate { autofillScale(zAxis, ref prevValue_z, zScale); });
+        gps.onValueChanged.AddListener(delegate { })
     }
 
     private void OnDisable() {
