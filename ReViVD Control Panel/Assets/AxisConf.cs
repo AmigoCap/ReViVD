@@ -4,14 +4,20 @@ using UnityEngine;
 public class AxisConf : MonoBehaviour
 {
     public Dropdown xAxis;
-    int prevValue_x = 0;
+    public int prevValue_x = 0;
     public InputField xScale;
+
     public Dropdown yAxis;
-    int prevValue_y = 0;
+    public int prevValue_y = 0;
     public InputField yScale;
+
     public Dropdown zAxis;
-    int prevValue_z = 0;
+    public int prevValue_z = 0;
     public InputField zScale;
+
+    public Dropdown time;
+    public int prevValue_t = 0;
+    public InputField tScale;
 
     public Toggle gps;
 

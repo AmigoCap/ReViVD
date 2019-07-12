@@ -55,8 +55,8 @@ public class Launcher : MonoBehaviour
             public DataType type = DataType.int32;
         }
 
-        string pathAttributeUsedAs_id = "id";
-        string pathAttributeUsedAs_n_atoms = "n_atoms";
+        public string pathAttributeUsedAs_id = "id";
+        public string pathAttributeUsedAs_n_atoms = "n_atoms";
 
         public class AtomAttribute {
             public string name;
@@ -69,10 +69,10 @@ public class Launcher : MonoBehaviour
             public float valueColorEnd = 1;
         }
 
-        string atomAttributeUsedAs_x = "x";
-        string atomAttributeUsedAs_y = "y";
-        string atomAttributeUsedAs_z = "z";
-        string atomAttributeUsedAs_t = "t";
+        public string atomAttributeUsedAs_x = "x";
+        public string atomAttributeUsedAs_y = "y";
+        public string atomAttributeUsedAs_z = "z";
+        public string atomAttributeUsedAs_t = "t";
 
         public enum Endianness {
             little,
@@ -148,6 +148,15 @@ public class Launcher : MonoBehaviour
             Dropdown.OptionData option = new Dropdown.OptionData(attr.name);
             foreach (Dropdown d in dropdowns)
                 d.options.Add(option);
+            if (attr.name == data.atomAttributeUsedAs_x) {
+                axisConf.xAxis.value = i + 1;
+            }
+            else if (attr.name == data.atomAttributeUsedAs_y)
+                axisConf.yAxis.value = i + 1;
+            else if (attr.name == data.atomAttributeUsedAs_z)
+                axisConf.zAxis.value = i + 1;
+            else if (attr.name == data.atomAttributeUsedAs_t)
+                axisConf.time.value = i + 1;
         }
 
         spheres.display.isOn = data.spheresDisplay;
