@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 public class Launcher : MonoBehaviour
 {
@@ -21,6 +22,19 @@ public class Launcher : MonoBehaviour
     [SerializeField] Button export;
 #pragma warning restore 0649
 
+    public string revivdPath;
+    Process revivd;
+
+    public void Launch() {
+        revivd = new Process();
+        revivd.StartInfo = new ProcessStartInfo() {
+            FileName = revivdPath,
+            RedirectStandardInput = true,
+            UseShellExecute = false
+        };
+        revivd.Start();
+    }
+
     public class LoadingData {
         public struct Vector3D {
             public float x;
@@ -34,8 +48,9 @@ public class Launcher : MonoBehaviour
         }
 
         public class AssetBundle {
-            public string name;
-            public string filename;
+            public string name = "";
+            public string filename = "";
+            public bool overrideBundleTransform = false;
             public Vector3D position;
             public Vector3D rotation;
             public Vector3D scale;
@@ -59,8 +74,8 @@ public class Launcher : MonoBehaviour
             public DataType type = DataType.int32;
         }
 
-        public string pathAttributeUsedAs_id = "id";
-        public string pathAttributeUsedAs_n_atoms = "n_atoms";
+        public string pathAttributeUsedAs_id = "";
+        public string pathAttributeUsedAs_n_atoms = "";
 
         public class AtomAttribute {
             public string name;
@@ -73,9 +88,9 @@ public class Launcher : MonoBehaviour
             public float valueColorEnd = 1;
         }
 
-        public string atomAttributeUsedAs_x = "x";
-        public string atomAttributeUsedAs_y = "y";
-        public string atomAttributeUsedAs_z = "z";
+        public string atomAttributeUsedAs_x = "";
+        public string atomAttributeUsedAs_y = "";
+        public string atomAttributeUsedAs_z = "";
         public string atomAttributeUsedAs_t = "";
         public string atomAttributeUsedAs_color = "";
 
@@ -94,6 +109,8 @@ public class Launcher : MonoBehaviour
 
         public int file_n_paths = int.MaxValue;
         public bool randomPaths = false;
+        public bool allPaths = false;
+        public bool allInstants = false;
         public bool randomColorPaths = true;
         public int chosen_n_paths = 500;
         public int chosen_paths_start = 0;
@@ -127,6 +144,25 @@ public class Launcher : MonoBehaviour
     System.IO.FileInfo dataInfo;
 
     public void LoadJson() {
+        try {
+            dataInfo = new FileInfo(selectFile.field.text);
+            StreamReader r = new StreamReader(selectFile.field.text);
+            string json = r.ReadToEnd();
+            data = JsonConvert.DeserializeObject<LoadingData>(json);
+        }
+        catch (System.Exception e) {
+            LogError("Error while loading .json, make sure it is valid\n\n" + e.Message);
+            _dataLoaded = false;
+            sampling.gameObject.SetActive(false);
+            axisConf.gameObject.SetActive(false);
+            spheres.gameObject.SetActive(false);
+            style.gameObject.SetActive(false);
+            advanced.gameObject.SetActive(false);
+            launch.interactable = false;
+            export.interactable = false;
+            return;
+        }
+
         sampling.gameObject.SetActive(true);
         axisConf.gameObject.SetActive(true);
         spheres.gameObject.SetActive(true);
@@ -135,12 +171,9 @@ public class Launcher : MonoBehaviour
         launch.interactable = true;
         export.interactable = true;
 
-        dataInfo = new FileInfo(selectFile.field.text);
-        StreamReader r = new StreamReader(selectFile.field.text);
-        string json = r.ReadToEnd();
-        data = JsonConvert.DeserializeObject<LoadingData>(json);
-
         sampling.randomPaths.isOn = data.randomPaths;
+        sampling.allPaths.isOn = data.allPaths;
+        sampling.allInstants.isOn = data.allInstants;
         sampling.n_paths.text = data.chosen_n_paths.ToString();
         sampling.paths_start.text = data.chosen_paths_start.ToString();
         sampling.paths_end.text = data.chosen_paths_end.ToString();
@@ -213,7 +246,14 @@ public class Launcher : MonoBehaviour
     }
 
     public void SaveJson() {
+        if (!DataLoaded) {
+            LogError("Unexpected call to SaveJson() with non-loaded data");
+            return;
+        }
+
         data.randomPaths = sampling.randomPaths.isOn;
+        data.allPaths = sampling.allPaths.isOn;
+        data.allInstants = sampling.allInstants.isOn;
         data.chosen_n_paths = Tools.ParseField_i(sampling.n_paths, data.file_n_paths);
         data.chosen_paths_start = Tools.ParseField_i(sampling.paths_start, 0);
         data.chosen_paths_end = Tools.ParseField_i(sampling.paths_end, data.file_n_paths);
@@ -279,22 +319,28 @@ public class Launcher : MonoBehaviour
             w.Close();
         }
         catch (System.Exception e) {
-            GameObject error = Instantiate(errorWindow);
-            error.transform.SetParent(this.transform.parent, false);
-            error.GetComponent<ErrorWindow>().message.text = "Error exporting .json: ensure export.json is not being used by another process\n\n" + e.Message;
+            LogError("Error exporting .json: ensure export.json is not being used by another process\n\n" + e.Message);
         }
     }
 
+    public void LogError(string message) {
+        GameObject error = Instantiate(errorWindow);
+        error.transform.SetParent(this.transform.parent, false);
+        error.GetComponent<ErrorWindow>().message.text = message;
+    }
+
     private void Start() {
-        selectFile.field.text = "..\\ReViVD\\json\\export.json";
+        selectFile.field.text = "..\\..\\ReViVD\\json\\example.json";
     }
 
     private void OnEnable() {
         export.onClick.AddListener(SaveJson);
+        launch.onClick.AddListener(Launch);
     }
 
     private void OnDisable() {
         export.onClick.RemoveAllListeners();
+        launch.onClick.RemoveAllListeners();
     }
 
     void Awake() {
@@ -303,4 +349,5 @@ public class Launcher : MonoBehaviour
         }
         _instance = this;
     }
+
 }
