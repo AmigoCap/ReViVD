@@ -20,11 +20,11 @@ namespace Revivd {
         bool swiping_reset = false;
         bool swiping_logic = false;
 
-        public float dampener = 45;
-        public float pullSpeed = 3f;
+        public float pullupDampener = 40;
+        public float pullResetSpeed = 3f;
         public float pullThreshold = 0.7f;
         public float operationThreshold = 0.2f;
-        public float pullMaxStartPos = 0.45f;
+        public float pullMaxStartPos = 0.6f;
 
         public GameObject logicPulldown;
         public Sprite andPulldown;
@@ -151,12 +151,12 @@ namespace Revivd {
 
             if (SteamVR_ControllerManager.LeftController.padTouched) {
                 if (swiping_reset) {
-                    rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -rt.localPosition.y, 0.9f - rt.localPosition.y) / dampener, 0);
+                    rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -rt.localPosition.y, 0.9f - rt.localPosition.y) / pullupDampener, 0);
                     if (Mathf.Abs(GetComponent<RectTransform>().localPosition.y) > pullThreshold)
                         SteamVR_ControllerManager.LeftController.Vibrate();
                 }
                 if (swiping_logic) {
-                    rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -0.9f - rt.localPosition.y, -rt.localPosition.y) / dampener, 0);
+                    rt.Translate(0, Tools.Limit(SteamVR_ControllerManager.LeftController.Pad.y - prevFingerY, -0.9f - rt.localPosition.y, -rt.localPosition.y) / pullupDampener, 0);
                 }
 
                 if (!swiping_reset && !swiping_logic) {
@@ -171,12 +171,10 @@ namespace Revivd {
             else {
                 swiping_reset = false;
                 swiping_logic = false;
-                if (Mathf.Abs(-rt.localPosition.y) < pullSpeed * Time.deltaTime) {
-                    rt.localPosition = Vector3.zero;
-                }
-                else {
-                    rt.localPosition = new Vector3(0, rt.localPosition.y + Tools.Sign(-rt.localPosition.y) * pullSpeed * Time.deltaTime, 0);
-                }
+                float deltaY = -rt.localPosition.y;
+                deltaY = Mathf.Min(deltaY, pullResetSpeed * Time.deltaTime);
+                deltaY = Mathf.Max(deltaY, -pullResetSpeed * Time.deltaTime);
+                rt.localPosition = new Vector3(0, rt.localPosition.y + deltaY, 0);
             }
 
         }

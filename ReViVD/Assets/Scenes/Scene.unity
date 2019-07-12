@@ -2644,11 +2644,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d0144ec77d6cd64fabf216a8639d6ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dampener: 50
-  pullSpeed: 3
+  pullupDampener: 40
+  pullResetSpeed: 3
   pullThreshold: 0.7
   operationThreshold: 0.2
-  pullMaxStartPos: 0.45
+  pullMaxStartPos: 0.6
   logicPulldown: {fileID: 821265629}
   andPulldown: {fileID: 21300000, guid: db97d544ca6583f48884385312dc03ca, type: 3}
   orPulldown: {fileID: 21300000, guid: bf89574dd3bed36419d04a48bfe31762, type: 3}
@@ -4067,7 +4067,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77e5fd706bc612343903e410882783ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dampener: 60
+  swipeDampener: 50
   centeringSpeed: 3
 --- !u!1 &2004474616
 GameObject:
