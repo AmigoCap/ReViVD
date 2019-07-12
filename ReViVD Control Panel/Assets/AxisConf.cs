@@ -16,8 +16,6 @@ public class AxisConf : MonoBehaviour
     public InputField zScale;
 
     public Dropdown time;
-    public int prevValue_t = 0;
-    public InputField tScale;
 
     public Toggle gps;
 

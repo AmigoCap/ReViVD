@@ -30,11 +30,19 @@ public class Sampling : MonoBehaviour
         rangeLineTransform.localPosition = new Vector3(randomPaths.isOn ? xPosRandom : xPosStandard, rangeLineTransform.localPosition.y, 0);
     }
 
-    void CapInput(InputField field, int max) {
-        if (field.text == "")
+    void CapPaths() {
+        if (paths_end.text == "" || !Launcher.Instance.DataLoaded)
             return;
-        if (int.Parse(field.text) > max)
-            field.text = max.ToString();
+        if (Tools.ParseField_i(paths_end, Launcher.Instance.data.file_n_paths) >= Launcher.Instance.data.file_n_paths)
+            paths_end.text = Launcher.Instance.data.file_n_paths.ToString();
+    }
+
+    void CapInstants() {
+        if (instants_end.text == "" || !Launcher.Instance.DataLoaded)
+            return;
+
+        if (Tools.ParseField_i(instants_end, Launcher.Instance.data.file_n_instants) >= Launcher.Instance.data.file_n_instants)
+            instants_end.text = Launcher.Instance.data.file_n_instants.ToString();
     }
 
     void OnEnable() {
@@ -42,8 +50,8 @@ public class Sampling : MonoBehaviour
         xPosStandard = xPosRandom - 185;
         randomPaths.onValueChanged.AddListener(delegate { Switch(); });
 
-        paths_end.onValueChanged.AddListener(delegate { CapInput(paths_end, 1500); });
-        instants_end.onValueChanged.AddListener(delegate { CapInput(instants_end, 1000); });
+        paths_end.onValueChanged.AddListener(delegate { CapPaths(); });
+        instants_end.onValueChanged.AddListener(delegate { CapInstants(); });
     }
 
     private void OnDisable() {

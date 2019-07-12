@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 
 public class Launcher : MonoBehaviour
 {
+    public GameObject errorWindow;
+
     private static Launcher _instance;
     public static Launcher Instance { get { return _instance; } }
 
@@ -15,6 +17,8 @@ public class Launcher : MonoBehaviour
     [SerializeField] Spheres spheres;
     [SerializeField] Styles style;
     [SerializeField] Advanced advanced;
+    [SerializeField] Button launch;
+    [SerializeField] Button export;
 #pragma warning restore 0649
 
     public class LoadingData {
@@ -72,7 +76,8 @@ public class Launcher : MonoBehaviour
         public string atomAttributeUsedAs_x = "x";
         public string atomAttributeUsedAs_y = "y";
         public string atomAttributeUsedAs_z = "z";
-        public string atomAttributeUsedAs_t = "t";
+        public string atomAttributeUsedAs_t = "";
+        public string atomAttributeUsedAs_color = "";
 
         public enum Endianness {
             little,
@@ -87,7 +92,7 @@ public class Launcher : MonoBehaviour
         public Vector3D lowerTruncature = new Vector3D { x = -1000, y = -1000, z = -1000 };
         public Vector3D upperTruncature = new Vector3D { x = 1000, y = 1000, z = 1000 };
 
-        public int file_n_paths;
+        public int file_n_paths = int.MaxValue;
         public bool randomPaths = false;
         public bool randomColorPaths = true;
         public int chosen_n_paths = 500;
@@ -96,7 +101,7 @@ public class Launcher : MonoBehaviour
         public int chosen_paths_step = 1;
 
         public bool constant_n_instants;
-        public int file_n_instants;
+        public int file_n_instants = int.MaxValue;
         public int chosen_instants_start = 0;
         public int chosen_instants_end = 200;
         public int chosen_instants_step = 2;
@@ -119,8 +124,18 @@ public class Launcher : MonoBehaviour
         get => _dataLoaded;
     }
     public LoadingData data;
+    System.IO.FileInfo dataInfo;
 
     public void LoadJson() {
+        sampling.gameObject.SetActive(true);
+        axisConf.gameObject.SetActive(true);
+        spheres.gameObject.SetActive(true);
+        style.gameObject.SetActive(true);
+        advanced.gameObject.SetActive(true);
+        launch.interactable = true;
+        export.interactable = true;
+
+        dataInfo = new FileInfo(selectFile.field.text);
         StreamReader r = new StreamReader(selectFile.field.text);
         string json = r.ReadToEnd();
         data = JsonConvert.DeserializeObject<LoadingData>(json);
@@ -134,7 +149,8 @@ public class Launcher : MonoBehaviour
         sampling.instants_end.text = data.chosen_instants_end.ToString();
         sampling.instants_step.text = data.chosen_instants_step.ToString();
 
-        Dropdown[] dropdowns = { axisConf.xAxis, axisConf.yAxis, axisConf.zAxis, style.attribute };
+        axisConf.gps.isOn = data.useGPSCoords;
+        Dropdown[] dropdowns = { axisConf.xAxis, axisConf.yAxis, axisConf.zAxis, axisConf.time, style.attribute };
         Dropdown.OptionData emptyOption = new Dropdown.OptionData("<no attribute>");
         foreach (Dropdown d in dropdowns) {
             d.options.Clear();
@@ -145,18 +161,37 @@ public class Launcher : MonoBehaviour
 
         for (int i = 0; i < data.atomAttributes.Length; i++) {
             LoadingData.AtomAttribute attr = data.atomAttributes[i];
+            if (attr.name == null || attr.name == "")
+                attr.name = "unnamed";
             Dropdown.OptionData option = new Dropdown.OptionData(attr.name);
             foreach (Dropdown d in dropdowns)
                 d.options.Add(option);
             if (attr.name == data.atomAttributeUsedAs_x) {
                 axisConf.xAxis.value = i + 1;
+                axisConf.prevValue_x = i + 1;
+                axisConf.xScale.text = attr.sizeCoeff.ToString();
             }
-            else if (attr.name == data.atomAttributeUsedAs_y)
+            if (attr.name == data.atomAttributeUsedAs_y) {
                 axisConf.yAxis.value = i + 1;
-            else if (attr.name == data.atomAttributeUsedAs_z)
+                axisConf.prevValue_y = i + 1;
+                axisConf.yScale.text = attr.sizeCoeff.ToString();
+            }
+            if (attr.name == data.atomAttributeUsedAs_z) {
                 axisConf.zAxis.value = i + 1;
-            else if (attr.name == data.atomAttributeUsedAs_t)
+                axisConf.prevValue_z = i + 1;
+                axisConf.zScale.text = attr.sizeCoeff.ToString();
+            }
+            if (attr.name == data.atomAttributeUsedAs_t) {
                 axisConf.time.value = i + 1;
+            }
+            if (attr.name == data.atomAttributeUsedAs_color) {
+                style.attribute.value = i + 1;
+                style.startColor.value = (int)attr.colorStart;
+                style.endColor.value = (int)attr.colorEnd;
+                style.useMinMax.isOn = attr.valueColorUseMinMax;
+                style.startValue.text = attr.valueColorStart.ToString();
+                style.endValue.text = attr.valueColorEnd.ToString();
+            }
         }
 
         spheres.display.isOn = data.spheresDisplay;
@@ -179,35 +214,87 @@ public class Launcher : MonoBehaviour
 
     public void SaveJson() {
         data.randomPaths = sampling.randomPaths.isOn;
-        data.chosen_n_paths = Tools.ParseField_i(sampling.n_paths);
-        data.chosen_paths_start = Tools.ParseField_i(sampling.paths_start);
-        data.chosen_paths_end = Tools.ParseField_i(sampling.paths_end);
-        data.chosen_paths_step = Tools.ParseField_i(sampling.paths_step);
-        data.chosen_instants_start = Tools.ParseField_i(sampling.instants_start);
-        data.chosen_instants_end = Tools.ParseField_i(sampling.instants_end);
-        data.chosen_instants_step = Tools.ParseField_i(sampling.instants_step);
+        data.chosen_n_paths = Tools.ParseField_i(sampling.n_paths, data.file_n_paths);
+        data.chosen_paths_start = Tools.ParseField_i(sampling.paths_start, 0);
+        data.chosen_paths_end = Tools.ParseField_i(sampling.paths_end, data.file_n_paths);
+        data.chosen_paths_step = Tools.ParseField_i(sampling.paths_step, 1);
+        data.chosen_instants_start = Tools.ParseField_i(sampling.instants_start, 0);
+        data.chosen_instants_end = Tools.ParseField_i(sampling.instants_end, data.file_n_instants);
+        data.chosen_instants_step = Tools.ParseField_i(sampling.instants_step, 1);
 
+        data.useGPSCoords = axisConf.gps.isOn;
         if (axisConf.xAxis.value != 0) {
-            data.atomAttributes[axisConf.xAxis.value - 1].sizeCoeff = Tools.ParseField_f(axisConf.xScale, 1f);
+            LoadingData.AtomAttribute attr = data.atomAttributes[axisConf.xAxis.value - 1];
+            attr.sizeCoeff = Tools.ParseField_f(axisConf.xScale, 1f);
+            data.atomAttributeUsedAs_x = attr.name;
+        }
+        if (axisConf.yAxis.value != 0) {
+            LoadingData.AtomAttribute attr = data.atomAttributes[axisConf.yAxis.value - 1];
+            attr.sizeCoeff = Tools.ParseField_f(axisConf.yScale, 1f);
+            data.atomAttributeUsedAs_y = attr.name;
+        }
+        if (axisConf.zAxis.value != 0) {
+            LoadingData.AtomAttribute attr = data.atomAttributes[axisConf.zAxis.value - 1];
+            attr.sizeCoeff = Tools.ParseField_f(axisConf.zScale, 1f);
+            data.atomAttributeUsedAs_z = attr.name;
+        }
+        if (axisConf.time.value != 0) {
+            data.atomAttributeUsedAs_t = data.atomAttributes[axisConf.time.value - 1].name;
         }
 
-        StreamWriter w = new StreamWriter("..\\ReViVD\\json\\export.json");
-        JsonSerializerSettings settings = new JsonSerializerSettings();
-        settings.FloatFormatHandling = FloatFormatHandling.String;
-        settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-        w.Write(JsonConvert.SerializeObject(data, Formatting.Indented, settings));
-        w.Close();
+        data.spheresDisplay = spheres.display.isOn;
+        data.spheresGlobalTime = Tools.ParseField_f(spheres.globalTime, 0);
+        data.spheresAnimSpeed = Tools.ParseField_f(spheres.animSpeed, 1);
+        data.spheresRadius = Tools.ParseField_f(spheres.radius, 2);
+
+        if (style.attribute.value != 0) {
+            LoadingData.AtomAttribute attr = data.atomAttributes[style.attribute.value - 1];
+            attr.colorStart = (LoadingData.Color)style.startColor.value;
+            attr.colorEnd = (LoadingData.Color)style.endColor.value;
+            attr.valueColorStart = Tools.ParseField_f(style.startValue, 0f);
+            attr.valueColorEnd = Tools.ParseField_f(style.endValue, 1f);
+            attr.valueColorUseMinMax = style.useMinMax.isOn;
+            data.atomAttributeUsedAs_color = attr.name;
+        }
+
+        data.districtSize.x = Tools.ParseField_f(advanced.districtSize_x, 20);
+        data.districtSize.y = Tools.ParseField_f(advanced.districtSize_y, 20);
+        data.districtSize.z = Tools.ParseField_f(advanced.districtSize_z, 20);
+
+        data.lowerTruncature.x = Tools.ParseField_f(advanced.lowerTrunc_x, -1000);
+        data.lowerTruncature.y = Tools.ParseField_f(advanced.lowerTrunc_y, -1000);
+        data.lowerTruncature.z = Tools.ParseField_f(advanced.lowerTrunc_z, -1000);
+
+        data.upperTruncature.x = Tools.ParseField_f(advanced.upperTrunc_x, 1000);
+        data.upperTruncature.y = Tools.ParseField_f(advanced.upperTrunc_y, 1000);
+        data.upperTruncature.z = Tools.ParseField_f(advanced.upperTrunc_z, 1000);
+
+        try {
+            dataInfo.Directory.Create();
+            StreamWriter w = new StreamWriter(dataInfo.DirectoryName + "\\export.json");
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.FloatFormatHandling = FloatFormatHandling.String;
+            settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+            w.Write(JsonConvert.SerializeObject(data, Formatting.Indented, settings));
+            w.Close();
+        }
+        catch (System.Exception e) {
+            GameObject error = Instantiate(errorWindow);
+            error.transform.SetParent(this.transform.parent, false);
+            error.GetComponent<ErrorWindow>().message.text = "Error exporting .json: ensure export.json is not being used by another process\n\n" + e.Message;
+        }
     }
 
     private void Start() {
         selectFile.field.text = "..\\ReViVD\\json\\export.json";
     }
 
-    private void OnDestroy() {
-        SaveJson();
+    private void OnEnable() {
+        export.onClick.AddListener(SaveJson);
     }
 
-    private void Update() {
+    private void OnDisable() {
+        export.onClick.RemoveAllListeners();
     }
 
     void Awake() {

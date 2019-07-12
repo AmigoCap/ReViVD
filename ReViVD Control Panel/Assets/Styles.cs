@@ -33,12 +33,14 @@ public class Styles : MonoBehaviour
                 prev_attr.colorEnd = (Launcher.LoadingData.Color)endColor.value;
                 prev_attr.valueColorStart = Tools.ParseField_f(startValue, 0f);
                 prev_attr.valueColorEnd = Tools.ParseField_f(endValue, 1f);
+                prev_attr.valueColorUseMinMax = useMinMax.isOn;
             }
             if (attribute.value == 0) {
                 startColor.value = 0;
                 endColor.value = 2;
                 startValue.text = "";
                 endValue.text = "";
+                useMinMax.isOn = true;
             }
             else {
                 var attr = Launcher.Instance.data.atomAttributes[attribute.value - 1];
@@ -46,6 +48,7 @@ public class Styles : MonoBehaviour
                 endColor.value = (int)attr.colorEnd;
                 startValue.text = attr.valueColorStart.ToString();
                 endValue.text = attr.valueColorEnd.ToString();
+                useMinMax.isOn = attr.valueColorUseMinMax;
             }
 
             previousValue = attribute.value;
