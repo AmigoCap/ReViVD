@@ -52,8 +52,9 @@ namespace Revivd {
             }
 
             public class AssetBundle {
-                public string name;
-                public string filename;
+                public string name = "";
+                public string filename = "";
+                public bool overrideBundleTransform = false;                
                 public Vector3D position;
                 public Vector3D rotation;
                 public Vector3D scale;
@@ -77,8 +78,8 @@ namespace Revivd {
                 public DataType type = DataType.int32;
             }
 
-            string pathAttributeUsedAs_id = "id";
-            string pathAttributeUsedAs_n_atoms = "n_atoms";
+            public string pathAttributeUsedAs_id = "";
+            public string pathAttributeUsedAs_n_atoms = "";
 
             public class AtomAttribute {
                 public string name;
@@ -91,10 +92,11 @@ namespace Revivd {
                 public float valueColorEnd = 1;
             }
 
-            string atomAttributeUsedAs_x = "x";
-            string atomAttributeUsedAs_y = "y";
-            string atomAttributeUsedAs_z = "z";
-            string atomAttributeUsedAs_t = "t";
+            public string atomAttributeUsedAs_x = "";
+            public string atomAttributeUsedAs_y = "";
+            public string atomAttributeUsedAs_z = "";
+            public string atomAttributeUsedAs_t = "";
+            public string atomAttributeUsedAs_color = "";
 
             public enum Endianness {
                 little,
@@ -109,18 +111,18 @@ namespace Revivd {
             public Vector3D lowerTruncature = new Vector3D { x = -1000, y = -1000, z = -1000 };
             public Vector3D upperTruncature = new Vector3D { x = 1000, y = 1000, z = 1000 };
 
-            public int file_n_paths;
+            public int file_n_paths = int.MaxValue;
             public bool randomPaths = false;
+            public bool allPaths = false;
+            public bool allInstants = false;
             public bool randomColorPaths = true;
-            public bool all_paths_to_display = true;
-            public bool all_instants_to_display = true;
             public int chosen_n_paths = 500;
             public int chosen_paths_start = 0;
             public int chosen_paths_end = 500;
             public int chosen_paths_step = 1;
 
             public bool constant_n_instants;
-            public int file_n_instants;
+            public int file_n_instants = int.MaxValue;
             public int chosen_instants_start = 0;
             public int chosen_instants_end = 200;
             public int chosen_instants_step = 2;
@@ -146,8 +148,18 @@ namespace Revivd {
             return new Vector2(vector2D.x, vector2D.y);
         }
 
+        
+
         public void Reset() {
             districtSize = Vector3dToVector3(data.districtSize);
+        }
+
+        private enum PathAttributeRole {
+            Length, ID, Other
+        }
+
+        private enum AtomAttributeRole {
+            X, Y, Z, T, Color, Other
         }
 
         protected override bool LoadFromFile() {
@@ -155,25 +167,66 @@ namespace Revivd {
             Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
             Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature); // ok 
 
-            int n_of_bytes_per_atom = 0;   //number of bytes that x, y, z ... attributes take per atom
-            int n_of_atom_attributes = data.atomAttributes.Length;
-            int n_of_path_attributes = data.pathAttributes.Length;
+            int n_of_bytes_per_atom = 0;   //number of bytes that atom attributes take per atom
+            int n_of_atomAttributes = data.atomAttributes.Length;
+            int n_of_pathAttributes = data.pathAttributes.Length;
 
-            for (int i = 0; i < n_of_atom_attributes; i++) { //ok
+            for (int i = 0; i < n_of_atomAttributes; i++) { //ok
                 if (data.atomAttributes[i].type == LoadingData.DataType.int32 || data.atomAttributes[i].type == LoadingData.DataType.float32)
                     n_of_bytes_per_atom += 4;
                 else
                     n_of_bytes_per_atom += 8;
             }
 
-            int chosen_n_paths = (data.all_paths_to_display) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start + 1) / data.chosen_paths_step; // int division
-            int chosen_n_instants = (data.all_instants_to_display) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start + 1) / data.chosen_instants_step; // int division
+            Dictionary<string, int> attributes_position_for_atoms = new Dictionary<string, int>();
+            Dictionary<string, int> attributes_position_for_paths = new Dictionary<string, int>();
+
+            PathAttributeRole[] PathAttributesRoleOrder = new PathAttributeRole[n_of_pathAttributes];
+            AtomAttributeRole[] AtomAttributesRoleOrder = new AtomAttributeRole[n_of_atomAttributes];
+
+            for (int i = 0; i < n_of_pathAttributes; i++) {
+                attributes_position_for_paths.Add(data.pathAttributes[i].name, i);
+                if (data.pathAttributes[i].name == data.pathAttributeUsedAs_id) {
+                    PathAttributesRoleOrder[i] = PathAttributeRole.ID;
+                }
+                else if (data.pathAttributes[i].name == data.pathAttributeUsedAs_n_atoms) {
+                    PathAttributesRoleOrder[i] = PathAttributeRole.Length;
+                }
+                else {
+                    PathAttributesRoleOrder[i] = PathAttributeRole.Other;
+                }
+            }
+
+            for (int i=0; i < n_of_atomAttributes; i++) {
+                attributes_position_for_atoms.Add(data.atomAttributes[i].name, i);
+                if (data.atomAttributes[i].name == data.atomAttributeUsedAs_x) {
+                    AtomAttributesRoleOrder[i] = AtomAttributeRole.X;
+                }
+                else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_y) {
+                    AtomAttributesRoleOrder[i] = AtomAttributeRole.Y;
+                }
+                else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_z) {
+                    AtomAttributesRoleOrder[i] = AtomAttributeRole.Z;
+                }
+                else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_t) {
+                    AtomAttributesRoleOrder[i] = AtomAttributeRole.T;
+                }
+                else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_color) {
+                    AtomAttributesRoleOrder[i] = AtomAttributeRole.Color;
+                }
+                else {
+                    AtomAttributesRoleOrder[i] = AtomAttributeRole.Other;
+                }
+            }
+
+            int chosen_n_paths = (data.allPaths) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start + 1) / data.chosen_paths_step; // int division
+            int chosen_n_instants = (data.allInstants) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start + 1) / data.chosen_instants_step; // int division
 
             int[] keptPaths = new int[chosen_n_paths]; // ok
             int chosen_instant_step = Math.Max(data.chosen_instants_step, 1); // ok
 
             if (data.randomPaths) { // ok
-                SortedSet<int> chosenRandomPaths = new SortedSet<int>(); //keptPaths should always be sorted
+                SortedSet<int> chosenRandomPaths = new SortedSet<int>(); // because keptPaths should always be sorted
                 System.Random rnd = new System.Random();
                 for (int i = 0; i < chosen_n_paths; i++) {
                     while (!chosenRandomPaths.Add(rnd.Next(data.file_n_paths))) { }
@@ -188,28 +241,88 @@ namespace Revivd {
 
             paths = new List<GlobalPath>(chosen_n_paths); // ok
 
-            // deal with asset bundles here
+
+            // Load Assets Bundles
+            int n_of_assetBundles = data.assetBundles.Length;
+            for (int i = 0; i< n_of_assetBundles; i++) {
+                var myLoadedAssetBundle = AssetBundle.LoadFromFile(System.IO.Path.Combine(Application.streamingAssetsPath, data.assetBundles[i].filename));
+                if (myLoadedAssetBundle == null) {
+                    Debug.Log("Failed to load AssetBundle!");
+                    break;
+                }
+                var prefab = myLoadedAssetBundle.LoadAsset<GameObject>(data.assetBundles[i].name);
+
+                if (data.assetBundles[i].overrideBundleTransform) {
+                    prefab.transform.position = Vector3dToVector3(data.assetBundles[i].position);
+                    prefab.transform.eulerAngles = Vector3dToVector3(data.assetBundles[i].rotation);
+                    prefab.transform.localScale = Vector3dToVector3(data.assetBundles[i].scale);
+                }
+                Instantiate(prefab);
+                myLoadedAssetBundle.Unload(false);
+            }
+            Tools.AddClockStop("Loaded assetBundles");
+
 
             if (!data.severalFiles) { // if only one file so all visu except naso
-                // if big endian / little endian
 
-                BinaryReader br = new BinaryReader(File.Open(data.filename, FileMode.Open)); // /!\ only works for Little endian now
+                BinaryReader br; // br big-endian or little-endian
+                if (data.endianness == LoadingData.Endianness.big) {
+                    br = new BinaryReader_BigEndian(File.Open(data.filename, FileMode.Open)); 
+                }
+                else {
+                    br = new BinaryReader(File.Open(data.filename, FileMode.Open)); 
+                }
                 Tools.AddClockStop("Loaded data file");
 
                 int currentPath = 0;
                 for (int i = 0; i < keptPaths.Length; i++) { // ok
-                    if (br.BaseStream.Position == br.BaseStream.Length) {
+                    if (br.BaseStream.Position >= br.BaseStream.Length) {
                         Debug.Log("Reached EoF on loading paths after " + paths.Count + " paths");
                         break;
                     }
 
-                    int pathLength = br.ReadInt32(); // path attribute to check, not always in the dataset
-                    // read id if there is one
+                    int pathLength = 0;
+                    int pathID = 0;
+
+                    bool is32(LoadingData.DataType type) {
+                        return (type == LoadingData.DataType.float32) || (type == LoadingData.DataType.int32);
+                    }
+
+                    float ReadFloat_p(LoadingData.PathAttribute attr) {
+                        return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
+                    }
+
+                    float ReadFloat_a(LoadingData.AtomAttribute attr) {
+                        return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
+                    }
+
+                    int ReadInt_p(LoadingData.PathAttribute attr) {
+                        return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
+                    }
+
+                    int ReadInt_a(LoadingData.AtomAttribute attr) {
+                        return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
+                    }
+
+                    void ReadPathAttributes() {
+                        for (int j = 0; j < n_of_pathAttributes; j++) {
+                            if (PathAttributesRoleOrder[j] == PathAttributeRole.ID) {
+                                pathID = ReadInt_p(data.pathAttributes[j]);
+                            }
+                            else if (PathAttributesRoleOrder[j] == PathAttributeRole.Length) {
+                                pathLength = ReadInt_p(data.pathAttributes[j]);
+                            }
+                            else {
+                                br.BaseStream.Position += is32(data.pathAttributes[j].type) ? 4 : 8;
+                            }
+                        }
+                    }
+
+                    ReadPathAttributes();
 
                     while (currentPath < keptPaths[i]) {
-                        br.BaseStream.Position += pathLength * 3 * 4; // change 3 and 4 --> different selon visu
-                        pathLength = br.ReadInt32();
-                        // read id if there is one
+                        br.BaseStream.Position += pathLength * n_of_bytes_per_atom;
+                        ReadPathAttributes();
                         currentPath++;
                     }
 
@@ -217,7 +330,7 @@ namespace Revivd {
                         continue;
                     int true_n_instants = Math.Min(data.file_n_instants, pathLength - data.chosen_instants_start); // ok
 
-                    // ok if paths do not have id
+                    // ok if paths do not have id else put the id as the name of the Game Objet
                     GameObject go = new GameObject(keptPaths[i].ToString());
                     go.transform.parent = transform;
                     GlobalPath p = go.AddComponent<GlobalPath>();
@@ -237,7 +350,6 @@ namespace Revivd {
                             Tools.SetGPSOrigin(Vector2dToVector2(data.GPSOrigin));
 
                             //point = Tools.GPSToXYZ(new Vector2(data.atomAttributes)).. * size coeff
-
 
                         }
                         else {
