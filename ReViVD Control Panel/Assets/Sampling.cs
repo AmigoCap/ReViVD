@@ -7,12 +7,15 @@ using UnityEngine.UI;
 public class Sampling : MonoBehaviour
 {
 #pragma warning disable 0649
-    [SerializeField] GameObject randomLine;
-    [SerializeField] GameObject standardLine;
-    [SerializeField] RectTransform rangeLineTransform;
+    [SerializeField] GameObject randomPathsLine;
+    [SerializeField] GameObject standardPathsLine;
+    [SerializeField] GameObject rangePathsLine;
+    [SerializeField] GameObject instantsLine;
 #pragma warning restore 0649
 
     public Toggle randomPaths;
+    public Toggle allPaths;
+    public Toggle allInstants;
     public InputField n_paths;
     public InputField paths_start;
     public InputField paths_end;
@@ -21,13 +24,30 @@ public class Sampling : MonoBehaviour
     public InputField instants_end;
     public InputField instants_step;
 
-    float xPosRandom;
-    float xPosStandard;
+    void RandomSwitch(bool isOn) {
+        randomPathsLine.SetActive(isOn);
+        standardPathsLine.SetActive(!isOn);
+        rangePathsLine.GetComponent<RectTransform>().anchoredPosition = new Vector2(isOn ? 607 : 422, rangePathsLine.GetComponent<RectTransform>().anchoredPosition.y);
+    }
 
-    void Switch() {
-        randomLine.SetActive(randomPaths.isOn);
-        standardLine.SetActive(!randomPaths.isOn);
-        rangeLineTransform.localPosition = new Vector3(randomPaths.isOn ? xPosRandom : xPosStandard, rangeLineTransform.localPosition.y, 0);
+    void AllPathsSwitch(bool isOn) {
+        randomPaths.interactable = !isOn;
+        randomPathsLine.SetActive(!isOn && randomPaths.isOn);
+        standardPathsLine.SetActive(!isOn && !randomPaths.isOn);
+        rangePathsLine.SetActive(!isOn);
+        instantsLine.GetComponent<RectTransform>().anchoredPosition = new Vector2(instantsLine.GetComponent<RectTransform>().anchoredPosition.x, isOn ? -95 : -125);
+        GetComponent<RectTransform>().sizeDelta = new Vector2(GetComponent<RectTransform>().sizeDelta.x, 140 - ((isOn ? 1 : 0) + (allInstants.isOn ? 1 : 0)) * 30);
+        VerticalLayoutGroup lg = ScrollbarContent.Instance.GetComponent<VerticalLayoutGroup>();
+        lg.spacing = lg.spacing + 1; //Forcing update of the layout group
+        lg.spacing = lg.spacing - 1;
+    }
+
+    void AllInstantsSwitch(bool isOn) {
+        instantsLine.SetActive(!isOn);
+        GetComponent<RectTransform>().sizeDelta = new Vector2(GetComponent<RectTransform>().sizeDelta.x, 140 - ((isOn ? 1 : 0) + (allInstants.isOn ? 1 : 0)) * 30);
+        VerticalLayoutGroup lg = ScrollbarContent.Instance.GetComponent<VerticalLayoutGroup>();
+        lg.spacing = lg.spacing + 1; //Forcing update of the layout group
+        lg.spacing = lg.spacing - 1;
     }
 
     void CapPaths() {
@@ -46,12 +66,13 @@ public class Sampling : MonoBehaviour
     }
 
     void OnEnable() {
-        xPosRandom = rangeLineTransform.localPosition.x;
-        xPosStandard = xPosRandom - 185;
-        randomPaths.onValueChanged.AddListener(delegate { Switch(); });
+        randomPaths.onValueChanged.AddListener(RandomSwitch);
 
         paths_end.onValueChanged.AddListener(delegate { CapPaths(); });
         instants_end.onValueChanged.AddListener(delegate { CapInstants(); });
+
+        allPaths.onValueChanged.AddListener(AllPathsSwitch);
+        allInstants.onValueChanged.AddListener(AllInstantsSwitch);
     }
 
     private void OnDisable() {
