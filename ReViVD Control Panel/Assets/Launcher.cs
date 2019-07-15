@@ -3,6 +3,7 @@ using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public class Launcher : MonoBehaviour
 {
@@ -26,13 +27,34 @@ public class Launcher : MonoBehaviour
     Process revivd;
 
     public void Launch() {
+        if (!DataLoaded) {
+            LogError("Attempted to launch main program without data being loaded properly");
+            return;
+        }
+
         revivd = new Process();
         revivd.StartInfo = new ProcessStartInfo() {
             FileName = revivdPath,
             RedirectStandardInput = true,
             UseShellExecute = false
         };
-        revivd.Start();
+        try {
+            revivd.Start();
+        }
+        catch (System.Exception e) {
+            LogError("Failed to launch main program\n\n" + e.Message);
+            return;
+        }
+
+        BinaryFormatter formatter = new BinaryFormatter();
+
+        try {
+            formatter.Serialize(revivd.StandardInput.BaseStream, data);
+        }
+        catch (System.Exception e) {
+            LogError("Failed to serialize data.\n\n" + e.Message);
+            return;
+        }
     }
 
     public class LoadingData {
@@ -345,7 +367,7 @@ public class Launcher : MonoBehaviour
 
     void Awake() {
         if (_instance != null) {
-            Debug.LogWarning("Multiple instances of launcher singleton");
+            UnityEngine.Debug.LogWarning("Multiple instances of launcher singleton");
         }
         _instance = this;
     }
