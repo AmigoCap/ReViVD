@@ -184,11 +184,13 @@ namespace Revivd {
 
             PathAttributeRole[] PathAttributesRoleOrder = new PathAttributeRole[n_of_pathAttributes];
             AtomAttributeRole[] AtomAttributesRoleOrder = new AtomAttributeRole[n_of_atomAttributes];
+            bool pathIDinData = false;
 
             for (int i = 0; i < n_of_pathAttributes; i++) {
                 attributes_position_for_paths.Add(data.pathAttributes[i].name, i);
                 if (data.pathAttributes[i].name == data.pathAttributeUsedAs_id) {
                     PathAttributesRoleOrder[i] = PathAttributeRole.ID;
+                    pathIDinData = true;
                 }
                 else if (data.pathAttributes[i].name == data.pathAttributeUsedAs_n_atoms) {
                     PathAttributesRoleOrder[i] = PathAttributeRole.Length;
@@ -284,8 +286,7 @@ namespace Revivd {
 
                     int pathLength = 0;
                     int pathID = 0;
-
-   
+                    
 
                     float ReadFloat_p(LoadingData.PathAttribute attr) {
                         return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
@@ -317,6 +318,21 @@ namespace Revivd {
                         }
                     }
 
+                    /*void ReadAtomAttributes() {
+                        for (int j = 0; j < n_of_atomAttributes; j++) {
+                            if (AtomAttributesRoleOrder[j] == AtomAttributeRole.X) {
+                                pathID = ReadInt_a(data.atomAttributes[j]);
+                            }
+                            else if (AtomAttributesRoleOrder[j] == AtomAttributeRole.Y) {
+                                pathLength = ReadInt_a(data.atomAttributes[j]);
+                            }
+                            else {
+                                br.BaseStream.Position += is32(data.atomAttributes[j].type) ? 4 : 8; // in case that there are other path attributes
+                            }
+                        }
+                    }*/ // TODO: create a function to read attributes of atoms
+
+
                     ReadPathAttributes();
 
                     while (currentPath < keptPaths[i]) {
@@ -329,18 +345,22 @@ namespace Revivd {
                         continue;
                     int true_n_instants = Math.Min(data.file_n_instants, pathLength - data.chosen_instants_start); // ok
 
-                    // ok if paths do not have id else put the id as the name of the Game Objet
-                    GameObject go = new GameObject(keptPaths[i].ToString());
+                    GameObject go;
+                    if (pathIDinData) { //if ID given in dataset, otherwise, position of the path
+                        go = new GameObject(pathID.ToString());
+                    }
+                    else {
+                        go = new GameObject(keptPaths[i].ToString());
+                    }
+                    
                     go.transform.parent = transform;
                     GlobalPath p = go.AddComponent<GlobalPath>();
-                    p.atoms = new List<GlobalAtom>(true_n_instants);
-                    // ok
+                    p.atoms = new List<GlobalAtom>(true_n_instants); // ok
 
-                    Color32 color = UnityEngine.Random.ColorHSV(); // deal with colors
+                    Color32 color = UnityEngine.Random.ColorHSV(); // TODO: deal with colors
 
-                    long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom;
-
-                    br.BaseStream.Position += data.chosen_instants_start * n_of_bytes_per_atom;
+                    long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom; //ok
+                    br.BaseStream.Position += data.chosen_instants_start * n_of_bytes_per_atom; //ok
 
                     for (int j = 0; j < true_n_instants; j += chosen_instant_step) {
 
