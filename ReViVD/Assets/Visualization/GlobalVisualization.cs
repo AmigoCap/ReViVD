@@ -38,7 +38,6 @@ namespace Revivd {
             }
         }
 
-
         public class LoadingData {
             public struct Vector3D {
                 public float x;
@@ -148,8 +147,6 @@ namespace Revivd {
             return new Vector2(vector2D.x, vector2D.y);
         }
 
-        
-
         public void Reset() {
             districtSize = Vector3dToVector3(data.districtSize);
         }
@@ -162,6 +159,10 @@ namespace Revivd {
             X, Y, Z, T, Color, Other
         }
 
+        private bool is32(LoadingData.DataType type) {
+            return (type == LoadingData.DataType.float32) || (type == LoadingData.DataType.int32);
+        }
+
         protected override bool LoadFromFile() {
             Tools.StartClock();
             Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
@@ -172,7 +173,7 @@ namespace Revivd {
             int n_of_pathAttributes = data.pathAttributes.Length;
 
             for (int i = 0; i < n_of_atomAttributes; i++) { //ok
-                if (data.atomAttributes[i].type == LoadingData.DataType.int32 || data.atomAttributes[i].type == LoadingData.DataType.float32)
+                if (is32(data.atomAttributes[i].type))
                     n_of_bytes_per_atom += 4;
                 else
                     n_of_bytes_per_atom += 8;
@@ -219,11 +220,11 @@ namespace Revivd {
                 }
             }
 
-            int chosen_n_paths = (data.allPaths) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start + 1) / data.chosen_paths_step; // int division
-            int chosen_n_instants = (data.allInstants) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start + 1) / data.chosen_instants_step; // int division
-
-            int[] keptPaths = new int[chosen_n_paths]; // ok
+            int chosen_path_step = Math.Max(data.chosen_paths_step, 1); // ok
             int chosen_instant_step = Math.Max(data.chosen_instants_step, 1); // ok
+            int chosen_n_paths = (data.allPaths) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start + 1) /chosen_path_step; // int division
+            int chosen_n_instants = (data.allInstants) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start + 1) / chosen_instant_step; // int division
+            int[] keptPaths = new int[chosen_n_paths]; // ok
 
             if (data.randomPaths) { // ok
                 SortedSet<int> chosenRandomPaths = new SortedSet<int>(); // because keptPaths should always be sorted
@@ -234,8 +235,8 @@ namespace Revivd {
                 chosenRandomPaths.CopyTo(keptPaths);
             }
             else { //ok
-                for (int i = 0; i < chosen_n_paths && data.chosen_paths_start + data.chosen_paths_step * i < data.file_n_paths; i++)
-                    keptPaths[i] = data.chosen_paths_start + data.chosen_paths_step * i;
+                for (int i = 0; i < chosen_n_paths && data.chosen_paths_start + chosen_path_step * i < data.file_n_paths; i++)
+                    keptPaths[i] = data.chosen_paths_start + chosen_path_step * i;
             }
             Tools.AddClockStop("generated paths array");
 
@@ -284,9 +285,7 @@ namespace Revivd {
                     int pathLength = 0;
                     int pathID = 0;
 
-                    bool is32(LoadingData.DataType type) {
-                        return (type == LoadingData.DataType.float32) || (type == LoadingData.DataType.int32);
-                    }
+   
 
                     float ReadFloat_p(LoadingData.PathAttribute attr) {
                         return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
