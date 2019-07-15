@@ -312,7 +312,7 @@ namespace Revivd {
                                 pathLength = ReadInt_p(data.pathAttributes[j]);
                             }
                             else {
-                                br.BaseStream.Position += is32(data.pathAttributes[j].type) ? 4 : 8;
+                                br.BaseStream.Position += is32(data.pathAttributes[j].type) ? 4 : 8; // in case that there are other path attributes
                             }
                         }
                     }
