@@ -3,7 +3,6 @@ using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Runtime.Serialization.Formatters.Binary;
 
 public class Launcher : MonoBehaviour
 {
@@ -46,7 +45,7 @@ public class Launcher : MonoBehaviour
             return;
         }
 
-        BinaryFormatter formatter = new BinaryFormatter();
+        
 
         try {
             formatter.Serialize(revivd.StandardInput.BaseStream, data);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Revivd {
     public class GlobalVisualization : TimeVisualization {
@@ -38,18 +39,22 @@ namespace Revivd {
             }
         }
 
+        [Serializable]
         public class LoadingData {
+            [Serializable]
             public struct Vector3D {
                 public float x;
                 public float y;
                 public float z;
             }
 
+            [Serializable]
             public struct Vector2D {
                 public float x;
                 public float y;
             }
 
+            [Serializable]
             public class AssetBundle {
                 public string name = "";
                 public string filename = "";
@@ -59,6 +64,7 @@ namespace Revivd {
                 public Vector3D scale;
             }
 
+            [Serializable]
             public enum DataType {
                 int32,
                 int64,
@@ -66,12 +72,14 @@ namespace Revivd {
                 float64
             }
 
+            [Serializable]
             public enum Color { //Warning : Keep this equal and in the same order to the color dropdowns in the launcher (enum to int conversions)
                 Red,
                 Green,
                 Blue
             }
 
+            [Serializable]
             public class PathAttribute {
                 public string name;
                 public DataType type = DataType.int32;
@@ -80,6 +88,7 @@ namespace Revivd {
             public string pathAttributeUsedAs_id = "";
             public string pathAttributeUsedAs_n_atoms = "";
 
+            [Serializable]
             public class AtomAttribute {
                 public string name;
                 public DataType type = DataType.int32;
@@ -97,6 +106,7 @@ namespace Revivd {
             public string atomAttributeUsedAs_t = "";
             public string atomAttributeUsedAs_color = "";
 
+            [Serializable]
             public enum Endianness {
                 little,
                 big
@@ -165,6 +175,19 @@ namespace Revivd {
 
         protected override bool LoadFromFile() {
             Tools.StartClock();
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            try {
+                data = (LoadingData)formatter.Deserialize(Console.OpenStandardInput());
+            }
+            catch (System.Exception e) {
+                Debug.Log("Error deserializing data: " + e.Message);
+            }
+
+            Debug.Log(data.file_n_paths);
+
+            return false;
+
             Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
             Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature); // ok 
 
