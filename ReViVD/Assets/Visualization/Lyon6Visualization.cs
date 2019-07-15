@@ -87,7 +87,7 @@ namespace Revivd {
                     if (YAxis == enumYAxis.vehiculeDist)
                         point.y = dist;
                     else if (YAxis == enumYAxis.vehiculeSpeed)
-                        point.y = velocity;
+                        point.y = velocity * 3;
                     else
                         point.y = 0.5f;
 
@@ -106,9 +106,9 @@ namespace Revivd {
                     };
 
                     if (ColorAttribute == enumColorAttribute.vehiculeSpeed)
-                        a.BaseColor = Color.Lerp(Color.blue, Color.red, a.speed);
+                        a.BaseColor = Color.Lerp(Color.blue, Color.red, a.speed / 15f);
                     else if (ColorAttribute == enumColorAttribute.vehiculeDist)
-                        a.BaseColor = Color32.Lerp(Color.blue, Color.red, a.dist);
+                        a.BaseColor = Color.Lerp(Color.blue, Color.red, (a.dist - 2.5f) / (90f - 2.5f));
                     else
                         a.BaseColor = pathColors[i];
                     

@@ -779,9 +779,9 @@ MonoBehaviour:
   clearDistrictsToHighlight: 0
   displayTimeSpheres: 0
   globalTime: 0
-  useGlobalTime: 1
+  useGlobalTime: 0
   doSphereDrop: 0
-  timeSphereRadius: 1
+  timeSphereRadius: 5
   doTimeSphereAnimation: 0
   timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
@@ -789,7 +789,7 @@ MonoBehaviour:
   nb_vehicules: 6121
   filename: External Data/Traffic_Lyon_6/lyon6
   yAxis: 1
-  colorAttribute: 0
+  colorAttribute: 2
   maxPoint: {x: 100, y: 200, z: 2000}
   minPoint: {x: -2000, y: -100, z: -100}
 --- !u!1 &522378953
