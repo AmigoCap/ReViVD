@@ -13785,7 +13785,7 @@ MonoBehaviour:
   advanced: {fileID: 917043485}
   launch: {fileID: 1405352958}
   export: {fileID: 333080443}
-  revivdPath: 
+  revivdPath: C:\Users\PAr_ReViVD\Documents\Unity projects\ReViVD\ReViVD\Builds\ReViVD.exe
 --- !u!4 &1350154219
 Transform:
   m_ObjectHideFlags: 0

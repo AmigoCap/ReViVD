@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using Newtonsoft.Json;
 
 namespace Revivd {
     public class GlobalVisualization : TimeVisualization {
@@ -165,6 +166,18 @@ namespace Revivd {
 
         protected override bool LoadFromFile() {
             Tools.StartClock();
+
+            try {
+                data = JsonConvert.DeserializeObject<LoadingData>(Console.ReadLine());
+            }
+            catch (System.Exception e) {
+                Debug.Log("Error deserializing data: " + e.Message);
+            }
+
+            Debug.Log(data.file_n_paths);
+
+            return false;
+
             Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
             Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature); // ok 
 

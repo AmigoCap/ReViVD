@@ -3,7 +3,6 @@ using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Runtime.Serialization.Formatters.Binary;
 
 public class Launcher : MonoBehaviour
 {
@@ -22,40 +21,6 @@ public class Launcher : MonoBehaviour
     [SerializeField] Button launch;
     [SerializeField] Button export;
 #pragma warning restore 0649
-
-    public string revivdPath;
-    Process revivd;
-
-    public void Launch() {
-        if (!DataLoaded) {
-            LogError("Attempted to launch main program without data being loaded properly");
-            return;
-        }
-
-        revivd = new Process();
-        revivd.StartInfo = new ProcessStartInfo() {
-            FileName = revivdPath,
-            RedirectStandardInput = true,
-            UseShellExecute = false
-        };
-        try {
-            revivd.Start();
-        }
-        catch (System.Exception e) {
-            LogError("Failed to launch main program\n\n" + e.Message);
-            return;
-        }
-
-        BinaryFormatter formatter = new BinaryFormatter();
-
-        try {
-            formatter.Serialize(revivd.StandardInput.BaseStream, data);
-        }
-        catch (System.Exception e) {
-            LogError("Failed to serialize data.\n\n" + e.Message);
-            return;
-        }
-    }
 
     public class LoadingData {
         public struct Vector3D {
@@ -267,9 +232,9 @@ public class Launcher : MonoBehaviour
         _dataLoaded = true;
     }
 
-    public void SaveJson() {
+    void UpdateData() { //Polls the UI for changes to the data class
         if (!DataLoaded) {
-            LogError("Unexpected call to SaveJson() with non-loaded data");
+            LogError("Unexpected call to UpdateData() with non-loaded data");
             return;
         }
 
@@ -330,6 +295,10 @@ public class Launcher : MonoBehaviour
         data.upperTruncature.x = Tools.ParseField_f(advanced.upperTrunc_x, 1000);
         data.upperTruncature.y = Tools.ParseField_f(advanced.upperTrunc_y, 1000);
         data.upperTruncature.z = Tools.ParseField_f(advanced.upperTrunc_z, 1000);
+    }
+
+    public void SaveJson() {
+        UpdateData();
 
         try {
             dataInfo.Directory.Create();
@@ -343,6 +312,50 @@ public class Launcher : MonoBehaviour
         catch (System.Exception e) {
             LogError("Error exporting .json: ensure export.json is not being used by another process\n\n" + e.Message);
         }
+    }
+
+    public string revivdPath;
+    Process revivd;
+
+    public void Launch() {
+        if (!DataLoaded) {
+            LogError("Attempted to launch main program without data being loaded properly");
+            return;
+        }
+
+        revivd = new Process {
+            StartInfo = new ProcessStartInfo() {
+                FileName = revivdPath,
+                RedirectStandardInput = true,
+                UseShellExecute = false
+            }
+        };
+        try {
+            revivd.Start();
+        }
+        catch (System.Exception e) {
+            LogError("Failed to launch main program\n\n" + e.Message);
+            return;
+        }
+
+
+
+        string json;
+        try {
+            json = JsonConvert.SerializeObject(data, Formatting.None);
+        }
+        catch (System.Exception e) {
+            LogError("Error serializing data for IPC\n\n" + e.Message);
+            return;
+        }
+
+        try {
+            revivd.StandardInput.WriteLine(json);
+        }
+        catch (System.Exception e) {
+            LogError("Error during IPC\n\n" + e.Message);
+        }
+
     }
 
     public void LogError(string message) {
