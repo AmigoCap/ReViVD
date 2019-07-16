@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using Newtonsoft.Json;
 
 namespace Revivd {
     public class GlobalVisualization : TimeVisualization {
@@ -70,32 +71,36 @@ namespace Revivd {
             return (type == IPCReceiver.LoadingData.DataType.float32) || (type == IPCReceiver.LoadingData.DataType.int32);
         }
 
+        void CleanupData(IPCReceiver.LoadingData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
+
+        }
+
         IPCReceiver.LoadingData data;
+        public bool manualLoading = false;
+        public string jsonPath = "";
         protected override bool LoadFromFile() {
             Tools.StartClock();
-
-            try {
-                StreamReader json = new StreamReader("C:\\Users\\ReViVD\\Documents\\Unity_projects\\ReViVD\\ReViVD\\json\\bogey.json");
-                data = JsonConvert.DeserializeObject< IPCReceiver.LoadingData>(json.ReadToEnd());
+            
+            if (!manualLoading) {
+                IPCReceiver.Instance.CatchData();
+                data = IPCReceiver.Instance.data;
+                Tools.AddClockStop("Received json data");
             }
-            catch (System.Exception e) {
-                Debug.Log("Error deserializing data: " + e.Message);
+            else {
+                StreamReader reader = new StreamReader(jsonPath);
+                data = JsonConvert.DeserializeObject<IPCReceiver.LoadingData>(reader.ReadToEnd());
+                Tools.AddClockStop("Loaded json data");
             }
+            CleanupData(data);
 
-            //TODO : Wait for receiver to receive data
-            //data = IPCReceiver.Instance.data;
-            return false;
-
-
-            Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
-            Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature); // ok 
-
+            Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature);
+            Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature);
 
             int n_of_bytes_per_atom = 0;   //number of bytes that atom attributes take per atom
             int n_of_atomAttributes = data.atomAttributes.Length;
             int n_of_pathAttributes = data.pathAttributes.Length;
 
-            for (int i = 0; i < n_of_atomAttributes; i++) { //ok
+            for (int i = 0; i < n_of_atomAttributes; i++) {
                 if (Is32(data.atomAttributes[i].type))
                     n_of_bytes_per_atom += 4;
                 else
@@ -130,8 +135,6 @@ namespace Revivd {
             bool colorInData = false;
             Color startColor = Color.blue;
             Color endColor = Color.red;
-
-
 
             for (int i=0; i < n_of_atomAttributes; i++) {
                 attributes_position_for_atoms.Add(data.atomAttributes[i].name, i);
@@ -172,7 +175,7 @@ namespace Revivd {
                 SortedSet<int> chosenRandomPaths = new SortedSet<int>(); // because keptPaths should always be sorted
                 System.Random rnd = new System.Random();
                 for (int i = 0; i < data.chosen_n_paths; i++) {// todo change chosen_n_paths
-                    while (!chosenRandomPaths.Add(rnd.Next(data.file_n_paths))) { }
+                    while (!chosenRandomPaths.Add(rnd.Next(data.chosen_paths_start, data.chosen_paths_end))) { }
                 }
                 chosenRandomPaths.CopyTo(keptPaths);
             }

@@ -117,8 +117,6 @@ namespace Revivd {
             catch (System.Exception e) {
                 Debug.Log("Error deserializing data: " + e.Message);
             }
-
-            Debug.Log(data.file_n_paths);
         }
 
         Task receiverTask;
