@@ -316,6 +316,7 @@ public class Launcher : MonoBehaviour
 
     public string revivdPath;
     Process revivd;
+    bool started = false;
 
     public void Launch() {
         if (!DataLoaded) {
@@ -338,7 +339,7 @@ public class Launcher : MonoBehaviour
             return;
         }
 
-
+        started = true;
 
         string json;
         try {
@@ -368,6 +369,8 @@ public class Launcher : MonoBehaviour
     }
 
     public void TransmitCommand(Command c) {
+        if (!started)
+            return;
         try {
             revivd.StandardInput.Write((int)c);
         }
@@ -377,6 +380,8 @@ public class Launcher : MonoBehaviour
     }
 
     public void TransmitCommand<T>(Command c, T value) {
+        if (!started)
+            return;
         try {
             revivd.StandardInput.Write((int)c);
             revivd.StandardInput.WriteLine(value);
