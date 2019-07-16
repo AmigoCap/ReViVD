@@ -148,6 +148,15 @@ namespace Revivd {
             return new Vector2(vector2D.x, vector2D.y);
         }
 
+        private Color LoadingDataColorToColor(LoadingData.Color color) {
+            if ((int)color == 0)
+                return Color.red;
+            else if ((int)color == 1)
+                return Color.green;
+            else
+                return Color.blue;
+        }
+
         public void Reset() {
             districtSize = Vector3dToVector3(data.districtSize);
         }
@@ -167,7 +176,7 @@ namespace Revivd {
         protected override bool LoadFromFile() {
             Tools.StartClock();
 
-            try {
+           /* try {
                 data = JsonConvert.DeserializeObject<LoadingData>(Console.ReadLine());
             }
             catch (System.Exception e) {
@@ -176,7 +185,7 @@ namespace Revivd {
 
             Debug.Log(data.file_n_paths);
 
-            return false;
+            return false;*/
 
             Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
             Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature); // ok 
@@ -197,11 +206,13 @@ namespace Revivd {
 
             PathAttributeRole[] PathAttributesRoleOrder = new PathAttributeRole[n_of_pathAttributes];
             AtomAttributeRole[] AtomAttributesRoleOrder = new AtomAttributeRole[n_of_atomAttributes];
+            bool pathIDinData = false;
 
             for (int i = 0; i < n_of_pathAttributes; i++) {
                 attributes_position_for_paths.Add(data.pathAttributes[i].name, i);
                 if (data.pathAttributes[i].name == data.pathAttributeUsedAs_id) {
                     PathAttributesRoleOrder[i] = PathAttributeRole.ID;
+                    pathIDinData = true;
                 }
                 else if (data.pathAttributes[i].name == data.pathAttributeUsedAs_n_atoms) {
                     PathAttributesRoleOrder[i] = PathAttributeRole.Length;
@@ -211,22 +222,39 @@ namespace Revivd {
                 }
             }
 
+            float sizeCoeffX = 1;
+            float sizeCoeffY = 1;
+            float sizeCoeffZ = 1;
+            bool timeInData = false;
+            bool colorInData = false;
+            Color startColor = Color.blue;
+            Color endColor = Color.red;
+
+
+
             for (int i=0; i < n_of_atomAttributes; i++) {
                 attributes_position_for_atoms.Add(data.atomAttributes[i].name, i);
                 if (data.atomAttributes[i].name == data.atomAttributeUsedAs_x) {
                     AtomAttributesRoleOrder[i] = AtomAttributeRole.X;
+                    sizeCoeffX = data.atomAttributes[i].sizeCoeff;
                 }
                 else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_y) {
                     AtomAttributesRoleOrder[i] = AtomAttributeRole.Y;
+                    sizeCoeffY = data.atomAttributes[i].sizeCoeff;
                 }
                 else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_z) {
                     AtomAttributesRoleOrder[i] = AtomAttributeRole.Z;
+                    sizeCoeffZ = data.atomAttributes[i].sizeCoeff;
                 }
                 else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_t) {
                     AtomAttributesRoleOrder[i] = AtomAttributeRole.T;
+                    timeInData = true;
                 }
                 else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_color) {
                     AtomAttributesRoleOrder[i] = AtomAttributeRole.Color;
+                    colorInData = true;
+                    startColor = LoadingDataColorToColor(data.atomAttributes[i].colorStart);
+                    endColor = LoadingDataColorToColor(data.atomAttributes[i].colorEnd);
                 }
                 else {
                     AtomAttributesRoleOrder[i] = AtomAttributeRole.Other;
@@ -288,6 +316,10 @@ namespace Revivd {
                 }
                 Tools.AddClockStop("Loaded data file");
 
+                float minColor = 100000;
+                float maxColor = -100000;
+                
+
                 int currentPath = 0;
                 for (int i = 0; i < keptPaths.Length; i++) { // ok
                     if (br.BaseStream.Position >= br.BaseStream.Length) {
@@ -298,11 +330,17 @@ namespace Revivd {
                     int pathLength = 0;
                     int pathID = 0;
 
-   
+                    float xAttribute = 0;
+                    float yAttribute = 0;
+                    float zAttribute = 0;
+                    float tAttribute = 0;
+                    float colorAttribute = 0;
+                    
+                    
 
-                    float ReadFloat_p(LoadingData.PathAttribute attr) {
+                    /*float ReadFloat_p(LoadingData.PathAttribute attr) {
                         return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
-                    }
+                    }*/
 
                     float ReadFloat_a(LoadingData.AtomAttribute attr) {
                         return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
@@ -312,9 +350,9 @@ namespace Revivd {
                         return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
                     }
 
-                    int ReadInt_a(LoadingData.AtomAttribute attr) {
+                    /*int ReadInt_a(LoadingData.AtomAttribute attr) {
                         return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
-                    }
+                    }*/
 
                     void ReadPathAttributes() {
                         for (int j = 0; j < n_of_pathAttributes; j++) {
@@ -326,6 +364,31 @@ namespace Revivd {
                             }
                             else {
                                 br.BaseStream.Position += is32(data.pathAttributes[j].type) ? 4 : 8; // in case that there are other path attributes
+                            }
+                        }
+                    }
+
+                    void ReadAtomAttributes() {
+                        for (int k = 0; k < n_of_atomAttributes; k++) {
+                            if (AtomAttributesRoleOrder[k] == AtomAttributeRole.X) {
+                                xAttribute = ReadFloat_a(data.atomAttributes[k]);
+                            }
+                            else if (AtomAttributesRoleOrder[k] == AtomAttributeRole.Y) {
+                                yAttribute = ReadFloat_a(data.atomAttributes[k]);
+                            }
+                            else if (AtomAttributesRoleOrder[k] == AtomAttributeRole.Z) {
+                                zAttribute = ReadFloat_a(data.atomAttributes[k]);
+                            }
+                            else if (AtomAttributesRoleOrder[k] == AtomAttributeRole.T) {
+                                tAttribute = ReadFloat_a(data.atomAttributes[k]);
+                            }
+                            else if (AtomAttributesRoleOrder[k] == AtomAttributeRole.Color) {
+                                colorAttribute = ReadFloat_a(data.atomAttributes[k]);
+                                minColor = Mathf.Min(minColor, colorAttribute);
+                                maxColor = Mathf.Max(maxColor, colorAttribute);
+                            }
+                            else {
+                                br.BaseStream.Position += is32(data.atomAttributes[k].type) ? 4 : 8; // in case that there are other path attributes
                             }
                         }
                     }
@@ -342,18 +405,25 @@ namespace Revivd {
                         continue;
                     int true_n_instants = Math.Min(data.file_n_instants, pathLength - data.chosen_instants_start); // ok
 
-                    // ok if paths do not have id else put the id as the name of the Game Objet
-                    GameObject go = new GameObject(keptPaths[i].ToString());
+                    GameObject go;
+                    if (pathIDinData) { //if ID given in dataset
+                        go = new GameObject(pathID.ToString());
+                    }
+                    else { //, otherwise, position of the path
+                        go = new GameObject(keptPaths[i].ToString());
+                    }
+                    
                     go.transform.parent = transform;
                     GlobalPath p = go.AddComponent<GlobalPath>();
-                    p.atoms = new List<GlobalAtom>(true_n_instants);
-                    // ok
+                    p.atoms = new List<GlobalAtom>(true_n_instants); // ok
 
-                    Color32 color = UnityEngine.Random.ColorHSV(); // deal with colors
+                    Color32 color = UnityEngine.Random.ColorHSV();
+                    if (data.randomColorPaths) {
+                        color = UnityEngine.Random.ColorHSV(); // random color for the path
+                    }
 
-                    long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom;
-
-                    br.BaseStream.Position += data.chosen_instants_start * n_of_bytes_per_atom;
+                    long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom; //ok
+                    br.BaseStream.Position += data.chosen_instants_start * n_of_bytes_per_atom; //ok
 
                     for (int j = 0; j < true_n_instants; j += chosen_instant_step) {
 
@@ -361,33 +431,64 @@ namespace Revivd {
                         if (data.useGPSCoords) {
                             Tools.SetGPSOrigin(Vector2dToVector2(data.GPSOrigin));
 
-                            //point = Tools.GPSToXYZ(new Vector2(data.atomAttributes)).. * size coeff
+                            ReadAtomAttributes();
+                            point = Tools.GPSToXYZ(new Vector2(xAttribute, zAttribute));
+                            point.y = yAttribute;
 
                         }
                         else {
-                            point.x = br.ReadSingle();// * sizeCoeff;
-                            point.y = br.ReadSingle();// * sizeCoeff; //size coeff de l'attribut
-                            point.z = br.ReadSingle();// * sizeCoeff;
+                            ReadAtomAttributes();
+                            point.x = xAttribute;
+                            point.y = yAttribute;
+                            point.z = zAttribute;
                         }
+
+                        point.x *= sizeCoeffX;
+                        point.y *= sizeCoeffY;
+                        point.z *= sizeCoeffZ;
 
                         point = Vector3.Max(point, lowerTruncature); // ok
                         point = Vector3.Min(point, upperTruncature); // ok 
 
-                        p.atoms.Add(new GlobalAtom() {
-                            time = (float)(j + data.chosen_instants_start), // how to deal with time and other attributes
-                            point = point, 
-                            path = p, // ok
-                            indexInPath = j / chosen_instant_step,
-                            BaseColor = color // deal with color
-                        });
+                        if (!timeInData) {
+                            tAttribute = (float)(j + data.chosen_instants_start);
+                        }
 
-                        br.BaseStream.Position += (chosen_instant_step - 1) * n_of_bytes_per_atom;
+                        if (!colorInData) {
+                            p.atoms.Add(new GlobalAtom() {
+                                time = tAttribute,
+                                point = point,
+                                path = p,
+                                indexInPath = j / chosen_instant_step,
+                                BaseColor = color // randomColor of the Path
+                            });
+                        }
+                        else {
+                            p.atoms.Add(new GlobalAtom() {
+                                time = tAttribute,
+                                point = point,
+                                path = p,
+                                color = colorAttribute,
+                                indexInPath = j / chosen_instant_step
+                            });
+                        }
+
+                        br.BaseStream.Position += (chosen_instant_step - 1) * n_of_bytes_per_atom;//ok
                     }
 
-                    br.BaseStream.Position = nextPathPosition;
+                    br.BaseStream.Position = nextPathPosition;//ok
 
                     paths.Add(p);
                     currentPath++;
+                }
+
+                if (colorInData) {
+                    for (int j=0; j < paths.Count; j++) {
+                        for (int i=0; i < paths[j].atoms.Count; i++) {
+                            GlobalAtom a = paths[j].atoms[i];
+                            a.BaseColor = Color32.Lerp(startColor, endColor, (a.color - minColor) / (maxColor - minColor));
+                        }
+                    }
                 }
 
                 Tools.EndClock("Loaded paths");
@@ -406,10 +507,11 @@ namespace Revivd {
             public List<GlobalAtom> atoms = new List<GlobalAtom>();
             public override IReadOnlyList<Atom> AtomsAsBase { get { return atoms; } }
             public override IReadOnlyList<TimeAtom> AtomsAsTime { get { return atoms; } }
+
         }
 
         public class GlobalAtom : TimeAtom {
-            // add attributes here : speded, acceleration .. 
+            public float color;
         }
 
 
