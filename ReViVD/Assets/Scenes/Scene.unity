@@ -3967,7 +3967,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   districtSize: {x: 15, y: 15, z: 15}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
-  debugMode: 0
+  debugMode: 1
   clearDistrictsToHighlight: 0
   displayTimeSpheres: 0
   globalTime: 0
@@ -3978,37 +3978,6 @@ MonoBehaviour:
   timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
-  data:
-    pathAttributeUsedAs_id: 
-    pathAttributeUsedAs_n_atoms: 
-    atomAttributeUsedAs_x: 
-    atomAttributeUsedAs_y: 
-    atomAttributeUsedAs_z: 
-    atomAttributeUsedAs_t: 
-    atomAttributeUsedAs_color: 
-    filename: 
-    severalFiles: 0
-    n_instants_per_file: 50
-    endianness: 0
-    file_n_paths: 2147483647
-    randomPaths: 0
-    allPaths: 0
-    allInstants: 0
-    randomColorPaths: 1
-    chosen_n_paths: 500
-    chosen_paths_start: 0
-    chosen_paths_end: 500
-    chosen_paths_step: 1
-    constant_n_instants: 0
-    file_n_instants: 2147483647
-    chosen_instants_start: 0
-    chosen_instants_end: 200
-    chosen_instants_step: 2
-    useGPSCoords: 0
-    spheresRadius: 2
-    spheresAnimSpeed: 1
-    spheresGlobalTime: 0
-    spheresDisplay: 0
 --- !u!1 &2084646546
 GameObject:
   m_ObjectHideFlags: 0

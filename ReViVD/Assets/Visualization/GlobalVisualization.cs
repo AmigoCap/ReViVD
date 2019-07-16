@@ -74,12 +74,22 @@ namespace Revivd {
         protected override bool LoadFromFile() {
             Tools.StartClock();
 
+            try {
+                StreamReader json = new StreamReader("C:\\Users\\ReViVD\\Documents\\Unity_projects\\ReViVD\\ReViVD\\json\\bogey.json");
+                data = JsonConvert.DeserializeObject< IPCReceiver.LoadingData>(json.ReadToEnd());
+            }
+            catch (System.Exception e) {
+                Debug.Log("Error deserializing data: " + e.Message);
+            }
+
             //TODO : Wait for receiver to receive data
             //data = IPCReceiver.Instance.data;
             return false;
 
+
             Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
             Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature); // ok 
+
 
             int n_of_bytes_per_atom = 0;   //number of bytes that atom attributes take per atom
             int n_of_atomAttributes = data.atomAttributes.Length;
@@ -154,14 +164,14 @@ namespace Revivd {
 
             int chosen_path_step = Math.Max(data.chosen_paths_step, 1); // ok
             int chosen_instant_step = Math.Max(data.chosen_instants_step, 1); // ok
-            int chosen_n_paths = (data.allPaths) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start + 1) /chosen_path_step; // int division
-            int chosen_n_instants = (data.allInstants) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start + 1) / chosen_instant_step; // int division
+            int chosen_n_paths = (data.allPaths) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start) /chosen_path_step; // int division
+            int chosen_n_instants = (data.allInstants) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start) / chosen_instant_step; // int division
             int[] keptPaths = new int[chosen_n_paths]; // ok
 
             if (data.randomPaths) { // ok
                 SortedSet<int> chosenRandomPaths = new SortedSet<int>(); // because keptPaths should always be sorted
                 System.Random rnd = new System.Random();
-                for (int i = 0; i < chosen_n_paths; i++) {
+                for (int i = 0; i < data.chosen_n_paths; i++) {// todo change chosen_n_paths
                     while (!chosenRandomPaths.Add(rnd.Next(data.file_n_paths))) { }
                 }
                 chosenRandomPaths.CopyTo(keptPaths);
@@ -334,6 +344,7 @@ namespace Revivd {
                             point.z = zAttribute;
                         }
 
+                        //Tools.AddSubClockStop(point.x.ToString());
                         point.x *= sizeCoeffX;
                         point.y *= sizeCoeffY;
                         point.z *= sizeCoeffZ;
@@ -383,13 +394,15 @@ namespace Revivd {
                 }
 
                 Tools.EndClock("Loaded paths");
+
+                Debug.Log(paths.Count);
+
                 return true;
             }
             else {
                 // if several files  as naso visualisation
                 return false;
             }
-
         }
 
         public class GlobalPath : TimePath {
@@ -401,6 +414,10 @@ namespace Revivd {
 
         public class GlobalAtom : TimeAtom {
             public float color;
+        }
+
+        private void Start() {
+ 
         }
 
 

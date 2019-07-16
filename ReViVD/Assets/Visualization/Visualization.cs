@@ -95,7 +95,10 @@ namespace Revivd {
             _instance = this;
 
             if (!LoadFromFile())
-                return;
+                Debug.LogError("Failed loading from file");
+            else {
+                Debug.Log("Successfully loaded file");
+            }
 
             CreateDistricts();
         }
