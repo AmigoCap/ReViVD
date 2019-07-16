@@ -39,116 +39,14 @@ namespace Revivd {
             }
         }
 
-        public class LoadingData {
-            public struct Vector3D {
-                public float x;
-                public float y;
-                public float z;
-            }
-
-            public struct Vector2D {
-                public float x;
-                public float y;
-            }
-
-            public class AssetBundle {
-                public string name = "";
-                public string filename = "";
-                public bool overrideBundleTransform = false;                
-                public Vector3D position;
-                public Vector3D rotation;
-                public Vector3D scale;
-            }
-
-            public enum DataType {
-                int32,
-                int64,
-                float32,
-                float64
-            }
-
-            public enum Color { //Warning : Keep this equal and in the same order to the color dropdowns in the launcher (enum to int conversions)
-                Red,
-                Green,
-                Blue
-            }
-
-            public class PathAttribute {
-                public string name;
-                public DataType type = DataType.int32;
-            }
-
-            public string pathAttributeUsedAs_id = "";
-            public string pathAttributeUsedAs_n_atoms = "";
-
-            public class AtomAttribute {
-                public string name;
-                public DataType type = DataType.int32;
-                public float sizeCoeff = 1;
-                public bool valueColorUseMinMax = true;
-                public Color colorStart = Color.Blue;
-                public Color colorEnd = Color.Red;
-                public float valueColorStart = 0;
-                public float valueColorEnd = 1;
-            }
-
-            public string atomAttributeUsedAs_x = "";
-            public string atomAttributeUsedAs_y = "";
-            public string atomAttributeUsedAs_z = "";
-            public string atomAttributeUsedAs_t = "";
-            public string atomAttributeUsedAs_color = "";
-
-            public enum Endianness {
-                little,
-                big
-            }
-
-            public string filename;
-            public bool severalFiles = false;
-            public int n_instants_per_file = 50;
-            public Endianness endianness = Endianness.little;
-            public Vector3D districtSize = new Vector3D { x = 20, y = 20, z = 20 };
-            public Vector3D lowerTruncature = new Vector3D { x = -1000, y = -1000, z = -1000 };
-            public Vector3D upperTruncature = new Vector3D { x = 1000, y = 1000, z = 1000 };
-
-            public int file_n_paths = int.MaxValue;
-            public bool randomPaths = false;
-            public bool allPaths = false;
-            public bool allInstants = false;
-            public bool randomColorPaths = true;
-            public int chosen_n_paths = 500;
-            public int chosen_paths_start = 0;
-            public int chosen_paths_end = 500;
-            public int chosen_paths_step = 1;
-
-            public bool constant_n_instants;
-            public int file_n_instants = int.MaxValue;
-            public int chosen_instants_start = 0;
-            public int chosen_instants_end = 200;
-            public int chosen_instants_step = 2;
-
-            public bool useGPSCoords = false;
-            public Vector2D GPSOrigin = new Vector2D { x = 0, y = 0 };
-
-            public float spheresRadius = 2;
-            public float spheresAnimSpeed = 1;
-            public float spheresGlobalTime = 0;
-            public bool spheresDisplay = false;
-
-            public AssetBundle[] assetBundles = new AssetBundle[0];
-            public PathAttribute[] pathAttributes = new PathAttribute[0];
-            public AtomAttribute[] atomAttributes = new AtomAttribute[0];
-        };
-        public LoadingData data;
-
-        private Vector3 Vector3dToVector3(LoadingData.Vector3D vector3D) {
+        private Vector3 Vector3dToVector3(IPCReceiver.LoadingData.Vector3D vector3D) {
             return new Vector3(vector3D.x, vector3D.y, vector3D.z);
         }
-        private Vector2 Vector2dToVector2(LoadingData.Vector2D vector2D) {
+        private Vector2 Vector2dToVector2(IPCReceiver.LoadingData.Vector2D vector2D) {
             return new Vector2(vector2D.x, vector2D.y);
         }
 
-        private Color LoadingDataColorToColor(LoadingData.Color color) {
+        private Color LoadingDataColorToColor(IPCReceiver.LoadingData.Color color) {
             if ((int)color == 0)
                 return Color.red;
             else if ((int)color == 1)
@@ -169,23 +67,16 @@ namespace Revivd {
             X, Y, Z, T, Color, Other
         }
 
-        private bool is32(LoadingData.DataType type) {
-            return (type == LoadingData.DataType.float32) || (type == LoadingData.DataType.int32);
+        private bool Is32(IPCReceiver.LoadingData.DataType type) {
+            return (type == IPCReceiver.LoadingData.DataType.float32) || (type == IPCReceiver.LoadingData.DataType.int32);
         }
 
+        IPCReceiver.LoadingData data;
         protected override bool LoadFromFile() {
             Tools.StartClock();
 
-           /* try {
-                data = JsonConvert.DeserializeObject<LoadingData>(Console.ReadLine());
-            }
-            catch (System.Exception e) {
-                Debug.Log("Error deserializing data: " + e.Message);
-            }
-
-            Debug.Log(data.file_n_paths);
-
-            return false;*/
+            //TODO : Wait for receiver to receive data
+            //data = IPCReceiver.Instance.data;
 
             Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
             Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature); // ok 
@@ -195,7 +86,7 @@ namespace Revivd {
             int n_of_pathAttributes = data.pathAttributes.Length;
 
             for (int i = 0; i < n_of_atomAttributes; i++) { //ok
-                if (is32(data.atomAttributes[i].type))
+                if (Is32(data.atomAttributes[i].type))
                     n_of_bytes_per_atom += 4;
                 else
                     n_of_bytes_per_atom += 8;
@@ -308,7 +199,7 @@ namespace Revivd {
             if (!data.severalFiles) { // if only one file so all visu except naso
 
                 BinaryReader br; // br big-endian or little-endian
-                if (data.endianness == LoadingData.Endianness.big) {
+                if (data.endianness == IPCReceiver.LoadingData.Endianness.big) {
                     br = new BinaryReader_BigEndian(File.Open(data.filename, FileMode.Open)); 
                 }
                 else {
@@ -338,19 +229,19 @@ namespace Revivd {
                     
                     
 
-                    /*float ReadFloat_p(LoadingData.PathAttribute attr) {
+                    /*float ReadFloat_p(IPCReceiver.LoadingData.PathAttribute attr) {
                         return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
                     }*/
 
-                    float ReadFloat_a(LoadingData.AtomAttribute attr) {
-                        return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
+                    float ReadFloat_a(IPCReceiver.LoadingData.AtomAttribute attr) {
+                        return Is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
                     }
 
-                    int ReadInt_p(LoadingData.PathAttribute attr) {
-                        return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
+                    int ReadInt_p(IPCReceiver.LoadingData.PathAttribute attr) {
+                        return Is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
                     }
 
-                    /*int ReadInt_a(LoadingData.AtomAttribute attr) {
+                    /*int ReadInt_a(IPCReceiver.LoadingData.AtomAttribute attr) {
                         return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
                     }*/
 
@@ -363,7 +254,7 @@ namespace Revivd {
                                 pathLength = ReadInt_p(data.pathAttributes[j]);
                             }
                             else {
-                                br.BaseStream.Position += is32(data.pathAttributes[j].type) ? 4 : 8; // in case that there are other path attributes
+                                br.BaseStream.Position += Is32(data.pathAttributes[j].type) ? 4 : 8; // in case that there are other path attributes
                             }
                         }
                     }
@@ -388,7 +279,7 @@ namespace Revivd {
                                 maxColor = Mathf.Max(maxColor, colorAttribute);
                             }
                             else {
-                                br.BaseStream.Position += is32(data.atomAttributes[k].type) ? 4 : 8; // in case that there are other path attributes
+                                br.BaseStream.Position += Is32(data.atomAttributes[k].type) ? 4 : 8; // in case that there are other path attributes
                             }
                         }
                     }
@@ -500,8 +391,6 @@ namespace Revivd {
             }
 
         }
-
-
 
         public class GlobalPath : TimePath {
             public List<GlobalAtom> atoms = new List<GlobalAtom>();
