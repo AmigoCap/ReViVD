@@ -148,6 +148,15 @@ namespace Revivd {
             return new Vector2(vector2D.x, vector2D.y);
         }
 
+        private Color LoadingDataColorToColor(LoadingData.Color color) {
+            if ((int)color == 0)
+                return Color.red;
+            else if ((int)color == 1)
+                return Color.green;
+            else
+                return Color.blue;
+        }
+
         public void Reset() {
             districtSize = Vector3dToVector3(data.districtSize);
         }
@@ -244,8 +253,8 @@ namespace Revivd {
                 else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_color) {
                     AtomAttributesRoleOrder[i] = AtomAttributeRole.Color;
                     colorInData = true;
-                    //startColor = (Color) data.atomAttributes[i].colorStart;
-                    //endColor = (Color) data.atomAttributes[i].colorEnd;
+                    startColor = LoadingDataColorToColor(data.atomAttributes[i].colorStart);
+                    endColor = LoadingDataColorToColor(data.atomAttributes[i].colorEnd);
                 }
                 else {
                     AtomAttributesRoleOrder[i] = AtomAttributeRole.Other;
@@ -329,9 +338,9 @@ namespace Revivd {
                     
                     
 
-                    float ReadFloat_p(LoadingData.PathAttribute attr) {
+                    /*float ReadFloat_p(LoadingData.PathAttribute attr) {
                         return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
-                    }
+                    }*/
 
                     float ReadFloat_a(LoadingData.AtomAttribute attr) {
                         return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
@@ -341,9 +350,9 @@ namespace Revivd {
                         return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
                     }
 
-                    int ReadInt_a(LoadingData.AtomAttribute attr) {
+                    /*int ReadInt_a(LoadingData.AtomAttribute attr) {
                         return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
-                    }
+                    }*/
 
                     void ReadPathAttributes() {
                         for (int j = 0; j < n_of_pathAttributes; j++) {
@@ -397,10 +406,10 @@ namespace Revivd {
                     int true_n_instants = Math.Min(data.file_n_instants, pathLength - data.chosen_instants_start); // ok
 
                     GameObject go;
-                    if (pathIDinData) { //if ID given in dataset, otherwise, position of the path
+                    if (pathIDinData) { //if ID given in dataset
                         go = new GameObject(pathID.ToString());
                     }
-                    else {
+                    else { //, otherwise, position of the path
                         go = new GameObject(keptPaths[i].ToString());
                     }
                     
@@ -410,7 +419,7 @@ namespace Revivd {
 
                     Color32 color = UnityEngine.Random.ColorHSV();
                     if (data.randomColorPaths) {
-                        color = UnityEngine.Random.ColorHSV(); // random color
+                        color = UnityEngine.Random.ColorHSV(); // random color for the path
                     }
 
                     long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom; //ok
@@ -477,15 +486,10 @@ namespace Revivd {
                     for (int j=0; j < paths.Count; j++) {
                         for (int i=0; i < paths[j].atoms.Count; i++) {
                             GlobalAtom a = paths[j].atoms[i];
-
-                            a.BaseColor = Color32.Lerp(Color.blue, Color.red, (a.color - minColor) / (maxColor - minColor));
-
+                            a.BaseColor = Color32.Lerp(startColor, endColor, (a.color - minColor) / (maxColor - minColor));
                         }
-
                     }
                 }
-
-                //parcourir tous les paths et changer leur couleur
 
                 Tools.EndClock("Loaded paths");
                 return true;
