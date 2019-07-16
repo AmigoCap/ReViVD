@@ -364,8 +364,10 @@ public class Launcher : MonoBehaviour
         AnimSpheres,            //bool
         DropSpheres,            //void
         SetSpheresGlobalTime,   //float
+        UseGlobalTime,          //void
         SetSpheresAnimSpeed,    //float
-        SetSpheresRadius        //float
+        SetSpheresRadius,       //float
+        Stop                    //void
     }
 
     public void TransmitCommand(Command c) {

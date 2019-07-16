@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
-using Newtonsoft.Json;
 
 namespace Revivd {
     public class GlobalVisualization : TimeVisualization {
@@ -77,6 +76,7 @@ namespace Revivd {
 
             //TODO : Wait for receiver to receive data
             //data = IPCReceiver.Instance.data;
+            return false;
 
             Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature); // ok 
             Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature); // ok 
