@@ -358,6 +358,34 @@ public class Launcher : MonoBehaviour
 
     }
 
+    public enum Command {
+        DisplaySpheres = 0,     //bool
+        AnimSpheres,            //bool
+        DropSpheres,            //void
+        SetSpheresGlobalTime,   //float
+        SetSpheresAnimSpeed,    //float
+        SetSpheresRadius        //float
+    }
+
+    public void TransmitCommand(Command c) {
+        try {
+            revivd.StandardInput.Write((int)c);
+        }
+        catch (System.Exception e) {
+            LogError("Error durring live IPC, command " + (int)c + "\n\n" + e.Message);
+        }
+    }
+
+    public void TransmitCommand<T>(Command c, T value) {
+        try {
+            revivd.StandardInput.Write((int)c);
+            revivd.StandardInput.WriteLine(value);
+        }
+        catch (System.Exception e) {
+            LogError("Error durring live IPC, command " + (int)c + "\n\n" + e.Message);
+        }
+    }
+
     public void LogError(string message) {
         GameObject error = Instantiate(errorWindow);
         error.transform.SetParent(this.transform.parent, false);
