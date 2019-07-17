@@ -114,15 +114,22 @@ namespace Revivd {
                 return false;
             }
 
-            //randomColorPaths
-
             if (!data.allPaths) {
                 CheckIntValue(data.chosen_paths_start, data.chosen_paths_start < 0, 0, "Negative value for chosen_paths_start");
-                CheckIntValue(data.chosen_paths_end, data.chosen_paths_end <= data.file_n_paths, 500, "Chosen paths end bigger than number of paths");
+                CheckIntValue(data.chosen_paths_start, data.chosen_paths_start > data.file_n_paths, 0, "Chosen_paths_start value bigger than number of paths");
+
+                CheckIntValue(data.chosen_paths_end, data.chosen_paths_end < 0, 500, "Negative value for chosen_paths_end");
+                CheckIntValue(data.chosen_paths_end, data.chosen_paths_end > data.file_n_paths, 500, "Chosen paths end bigger than number of paths");
+
+                CheckIntValue(data.chosen_paths_start, data.chosen_paths_start > data.chosen_paths_end, 0, "Chosen paths start bigger than chosen paths end");
+                CheckIntValue(data.chosen_paths_end, data.chosen_paths_start > data.chosen_paths_end, 500, "Chosen paths start bigger than chosen paths end");
+
+
                 CheckIntValue(data.chosen_paths_step, data.chosen_paths_step < 1, 1, "Incorrect value for chosen_paths_step");
 
                 if (data.randomPaths) {
                     CheckIntValue(data.chosen_n_paths, data.chosen_n_paths <= 0, 500, "Negative value for chosen_n_paths");
+                    CheckIntValue(data.chosen_n_paths, data.chosen_n_paths > data.file_n_paths, 500, "Chosen_n_paths value bigger than number of paths");
                 }
             }
            
@@ -134,18 +141,24 @@ namespace Revivd {
             }
             if (!data.allInstants) {
                 CheckIntValue(data.chosen_instants_start, data.chosen_instants_start < 0, 0, "Negative value for chosen_instants_start");
-                CheckIntValue(data.chosen_instants_end, data.chosen_instants_end <= data.file_n_instants, 200, "Chosen instants end bigger than number of instants");
+                CheckIntValue(data.chosen_instants_start, data.chosen_instants_start > data.file_n_instants, 0, "Chosen_instants_start value bigger than number of instants");
+
+                CheckIntValue(data.chosen_instants_end, data.chosen_instants_end < 0, 200, "Negative value for chosen_instants_end");
+                CheckIntValue(data.chosen_instants_end, data.chosen_instants_end > data.file_n_instants, 200, "Chosen instants end bigger than number of instants");
+
+                CheckIntValue(data.chosen_instants_start, data.chosen_instants_start > data.chosen_instants_end, 0, "Chosen instants start bigger than chosen instants end");
+                CheckIntValue(data.chosen_instants_end, data.chosen_instants_start > data.chosen_instants_end, 200, "Chosen instants start bigger than chosen instants end");
+
                 CheckIntValue(data.chosen_instants_step, data.chosen_instants_step < 1, 2, "Incorrect value for chosen_instants_step");
             }
 
             if (data.useGPSCoords) {
                 CheckFloatValue(data.GPSOrigin.x, Mathf.Abs(data.GPSOrigin.x) > 90, 0, "latitude in decimal degree out of range +-90°");
-                CheckFloatValue(data.GPSOrigin.y, Mathf.Abs(data.GPSOrigin.y) > 180, 0, "longitude in decimal degree out of range +-90°");
+                CheckFloatValue(data.GPSOrigin.y, Mathf.Abs(data.GPSOrigin.y) > 180, 0, "longitude in decimal degree out of range +-180°");
             }
 
             CheckFloatValue(data.spheresRadius, data.spheresRadius < 0, 2, "Negative Value for spheresRadius");
-            CheckFloatValue(data.spheresAnimSpeed, data.spheresAnimSpeed < 0, 1, "Negative Value for spheresAnimSpeed");
-
+            //spheresAnimSpeed --> can be negative
             // spheresGlobalTime --> can either be negative or positive
             // spheresDisplay
             //assetBundles --> we already check if file exists while opening it
@@ -300,8 +313,8 @@ namespace Revivd {
             }
 
            
-            int chosen_n_paths = (data.allPaths) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start) /chosen_path_step; // int division
-            int chosen_n_instants = (data.allInstants) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start) / chosen_instant_step; // int division
+            int chosen_n_paths = (data.allPaths) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start) /data.chosen_paths_step; // int division
+            int chosen_n_instants = (data.allInstants) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start) / data.chosen_instants_step; // int division
             int[] keptPaths = new int[chosen_n_paths]; // ok
 
             if (data.randomPaths) { // ok
@@ -313,8 +326,8 @@ namespace Revivd {
                 chosenRandomPaths.CopyTo(keptPaths);
             }
             else { //ok
-                for (int i = 0; i < chosen_n_paths && data.chosen_paths_start + chosen_path_step * i < data.file_n_paths; i++)
-                    keptPaths[i] = data.chosen_paths_start + chosen_path_step * i;
+                for (int i = 0; i < chosen_n_paths && data.chosen_paths_start + data.chosen_paths_step * i < data.file_n_paths; i++)
+                    keptPaths[i] = data.chosen_paths_start + data.chosen_paths_step * i;
             }
             Tools.AddClockStop("generated paths array");
 
@@ -438,7 +451,7 @@ namespace Revivd {
                         currentPath++;
                     }
 
-                    if (data.chosen_instants_start + chosen_instant_step >= pathLength) // ok
+                    if (data.chosen_instants_start + data.chosen_instants_step >= pathLength) // ok
                         continue;
                     int true_n_instants = Math.Min(data.file_n_instants, pathLength - data.chosen_instants_start); // ok
 
@@ -462,7 +475,7 @@ namespace Revivd {
                     long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom; //ok
                     br.BaseStream.Position += data.chosen_instants_start * n_of_bytes_per_atom; //ok
 
-                    for (int j = 0; j < true_n_instants; j += chosen_instant_step) {
+                    for (int j = 0; j < true_n_instants; j += data.chosen_instants_step) {
 
                         Vector3 point = new Vector3();
                         if (data.useGPSCoords) {
@@ -497,7 +510,7 @@ namespace Revivd {
                                 time = tAttribute,
                                 point = point,
                                 path = p,
-                                indexInPath = j / chosen_instant_step,
+                                indexInPath = j / data.chosen_instants_step,
                                 BaseColor = color // randomColor of the Path
                             });
                         }
@@ -507,11 +520,11 @@ namespace Revivd {
                                 point = point,
                                 path = p,
                                 color = colorAttribute,
-                                indexInPath = j / chosen_instant_step
+                                indexInPath = j / data.chosen_instants_step
                             });
                         }
 
-                        br.BaseStream.Position += (chosen_instant_step - 1) * n_of_bytes_per_atom;//ok
+                        br.BaseStream.Position += (data.chosen_instants_step - 1) * n_of_bytes_per_atom;//ok
                     }
 
                     br.BaseStream.Position = nextPathPosition;//ok
