@@ -37,8 +37,8 @@
   "constant_n_instants": true,
   "file_n_instants": 10000,
   "chosen_instants_start": 0,
-  "chosen_instants_end": 0,
-  "chosen_instants_step": 4,
+  "chosen_instants_end": 1000000,
+  "chosen_instants_step": 5,
   "useGPSCoords": false,
   "GPSOrigin": {
     "x": 0.0,

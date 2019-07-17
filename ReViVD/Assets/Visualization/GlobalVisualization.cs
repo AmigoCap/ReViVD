@@ -39,36 +39,22 @@ namespace Revivd {
             }
         }
 
-        private Vector3 Vector3dToVector3(IPCReceiver.LoadingData.Vector3D vector3D) {
+        private Vector3 LDVector3_to_Vector3(IPCReceiver.LoadingData.Vector3D vector3D) {
             return new Vector3(vector3D.x, vector3D.y, vector3D.z);
         }
-        private Vector2 Vector2dToVector2(IPCReceiver.LoadingData.Vector2D vector2D) {
+        private Vector2 LDVector2_to_Vector2(IPCReceiver.LoadingData.Vector2D vector2D) {
             return new Vector2(vector2D.x, vector2D.y);
         }
 
-        private Color LoadingDataColorToColor(IPCReceiver.LoadingData.Color color) {
-            if ((int)color == 0)
-                return Color.red;
-            else if ((int)color == 1)
-                return Color.green;
-            else
-                return Color.blue;
-        }
-
-        public void Reset() {
-            districtSize = Vector3dToVector3(data.districtSize);
-        }
-
-        private enum PathAttributeRole {
-            Length, ID, Other
-        }
-
-        private enum AtomAttributeRole {
-            X, Y, Z, T, Color, Other
-        }
-
-        private bool Is32(IPCReceiver.LoadingData.DataType type) {
-            return (type == IPCReceiver.LoadingData.DataType.float32) || (type == IPCReceiver.LoadingData.DataType.int32);
+        private Color LDColor_to_Color(IPCReceiver.LoadingData.Color color) {
+            switch (color) {
+                case IPCReceiver.LoadingData.Color.Blue:
+                    return Color.blue;
+                case IPCReceiver.LoadingData.Color.Green:
+                    return Color.green;
+                default:
+                    return Color.red;
+            }
         }
 
         void CleanupData(IPCReceiver.LoadingData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
@@ -93,99 +79,132 @@ namespace Revivd {
             }
             CleanupData(data);
 
-            Vector3 lowerTruncature = Vector3dToVector3(data.lowerTruncature);
-            Vector3 upperTruncature = Vector3dToVector3(data.upperTruncature);
-
             int n_of_bytes_per_atom = 0;   //number of bytes that atom attributes take per atom
             int n_of_atomAttributes = data.atomAttributes.Length;
             int n_of_pathAttributes = data.pathAttributes.Length;
 
             for (int i = 0; i < n_of_atomAttributes; i++) {
-                if (Is32(data.atomAttributes[i].type))
+                if (data.atomAttributes[i].type == IPCReceiver.LoadingData.DataType.float32 || data.atomAttributes[i].type == IPCReceiver.LoadingData.DataType.int32)
                     n_of_bytes_per_atom += 4;
                 else
                     n_of_bytes_per_atom += 8;
             }
 
-            Dictionary<string, int> attributes_position_for_atoms = new Dictionary<string, int>();
-            Dictionary<string, int> attributes_position_for_paths = new Dictionary<string, int>();
+            float AllTimeMinimumOfColorAttribute = float.PositiveInfinity;
+            float AllTimeMaximumOfColorAttribute = float.NegativeInfinity;
 
-            PathAttributeRole[] PathAttributesRoleOrder = new PathAttributeRole[n_of_pathAttributes];
-            AtomAttributeRole[] AtomAttributesRoleOrder = new AtomAttributeRole[n_of_atomAttributes];
-            bool pathIDinData = false;
+            float ReadAttribute_f(BinaryReader reader, IPCReceiver.LoadingData.DataType type) {
+                switch (type) {
+                    case IPCReceiver.LoadingData.DataType.float32:
+                        return reader.ReadSingle();
+                    case IPCReceiver.LoadingData.DataType.float64:
+                        return (float)reader.ReadDouble();
+                    case IPCReceiver.LoadingData.DataType.int32:
+                        return (float)reader.ReadInt32();
+                    case IPCReceiver.LoadingData.DataType.int64:
+                        return (float)reader.ReadInt64();
+                    default: //Never happens.
+                        return 0f;
+                }
+            }
+
+            int ReadAttribute_i(BinaryReader reader, IPCReceiver.LoadingData.DataType type) {
+                switch (type) {
+                    case IPCReceiver.LoadingData.DataType.float32:
+                        return (int)reader.ReadSingle();
+                    case IPCReceiver.LoadingData.DataType.float64:
+                        return (int)reader.ReadDouble();
+                    case IPCReceiver.LoadingData.DataType.int32:
+                        return reader.ReadInt32();
+                    case IPCReceiver.LoadingData.DataType.int64:
+                        return (int)reader.ReadInt64();
+                    default: //Never happens.
+                        return 0;
+                }
+            }
+
+            int N_RoleIndex = -1, ID_RoleIndex = -1;
 
             for (int i = 0; i < n_of_pathAttributes; i++) {
-                attributes_position_for_paths.Add(data.pathAttributes[i].name, i);
-                if (data.pathAttributes[i].name == data.pathAttributeUsedAs_id) {
-                    PathAttributesRoleOrder[i] = PathAttributeRole.ID;
-                    pathIDinData = true;
+                var attr = data.pathAttributes[i];
+                if (attr.name == data.pathAttributeUsedAs_n_atoms) {
+                    N_RoleIndex = i;
                 }
-                else if (data.pathAttributes[i].name == data.pathAttributeUsedAs_n_atoms) {
-                    PathAttributesRoleOrder[i] = PathAttributeRole.Length;
-                }
-                else {
-                    PathAttributesRoleOrder[i] = PathAttributeRole.Other;
+                if (attr.name == data.pathAttributeUsedAs_id) {
+                    ID_RoleIndex = i;
                 }
             }
 
-            float sizeCoeffX = 1;
-            float sizeCoeffY = 1;
-            float sizeCoeffZ = 1;
-            bool timeInData = false;
-            bool colorInData = false;
-            Color startColor = Color.blue;
-            Color endColor = Color.red;
+            float[] atomAttributeValuesBuffer = new float[n_of_atomAttributes];
+            int X_RoleIndex = -1, Y_RoleIndex = -1, Z_RoleIndex = -1, T_RoleIndex = -1, Color_RoleIndex = -1;
 
-            for (int i=0; i < n_of_atomAttributes; i++) {
-                attributes_position_for_atoms.Add(data.atomAttributes[i].name, i);
-                if (data.atomAttributes[i].name == data.atomAttributeUsedAs_x) {
-                    AtomAttributesRoleOrder[i] = AtomAttributeRole.X;
-                    sizeCoeffX = data.atomAttributes[i].sizeCoeff;
+            for (int i = 0; i < n_of_atomAttributes; i++) {
+                var attr = data.atomAttributes[i];
+                if (attr.name == data.atomAttributeUsedAs_x) {
+                    X_RoleIndex = i;
                 }
-                else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_y) {
-                    AtomAttributesRoleOrder[i] = AtomAttributeRole.Y;
-                    sizeCoeffY = data.atomAttributes[i].sizeCoeff;
+                if (attr.name == data.atomAttributeUsedAs_y) {
+                    Y_RoleIndex = i;
                 }
-                else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_z) {
-                    AtomAttributesRoleOrder[i] = AtomAttributeRole.Z;
-                    sizeCoeffZ = data.atomAttributes[i].sizeCoeff;
+                if (attr.name == data.atomAttributeUsedAs_z) {
+                    Z_RoleIndex = i;
                 }
-                else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_t) {
-                    AtomAttributesRoleOrder[i] = AtomAttributeRole.T;
-                    timeInData = true;
+                if (attr.name == data.atomAttributeUsedAs_t) {
+                    T_RoleIndex = i;
                 }
-                else if (data.atomAttributes[i].name == data.atomAttributeUsedAs_color) {
-                    AtomAttributesRoleOrder[i] = AtomAttributeRole.Color;
-                    colorInData = true;
-                    startColor = LoadingDataColorToColor(data.atomAttributes[i].colorStart);
-                    endColor = LoadingDataColorToColor(data.atomAttributes[i].colorEnd);
-                }
-                else {
-                    AtomAttributesRoleOrder[i] = AtomAttributeRole.Other;
+                if (attr.name == data.atomAttributeUsedAs_color) {
+                    Color_RoleIndex = i;
                 }
             }
 
-            int chosen_path_step = Math.Max(data.chosen_paths_step, 1); // ok
-            int chosen_instant_step = Math.Max(data.chosen_instants_step, 1); // ok
-            int chosen_n_paths = (data.allPaths) ? data.file_n_paths : (data.chosen_paths_end - data.chosen_paths_start) /chosen_path_step; // int division
-            int chosen_n_instants = (data.allInstants) ? data.file_n_instants : (data.chosen_instants_end - data.chosen_instants_start) / chosen_instant_step; // int division
-            int[] keptPaths = new int[chosen_n_paths]; // ok
+            //Conversions done here instead of being done everytime for the same value for each atom
+            Color32 startColor = Color.blue;
+            Color32 endColor = Color.red;
+            if (Color_RoleIndex != -1) {
+                startColor = LDColor_to_Color(data.atomAttributes[Color_RoleIndex].colorStart);
+                endColor = LDColor_to_Color(data.atomAttributes[Color_RoleIndex].colorEnd);
+            }
 
-            if (data.randomPaths) { // ok
-                SortedSet<int> chosenRandomPaths = new SortedSet<int>(); // because keptPaths should always be sorted
+            Vector3 lowerTruncature = LDVector3_to_Vector3(data.lowerTruncature);
+            Vector3 upperTruncature = LDVector3_to_Vector3(data.upperTruncature);
+
+            if (data.useGPSCoords)
+                Tools.SetGPSOrigin(LDVector2_to_Vector2(data.GPSOrigin));
+
+            if (data.allPaths) {
+                data.chosen_n_paths = data.file_n_paths;
+                data.chosen_paths_start = 0;
+                data.chosen_paths_end = data.file_n_paths;
+                data.chosen_paths_step = 1;
+            }
+
+            int final_n_paths = 0; //Number of paths that will be loaded in fine
+            if (data.randomPaths) {
+                final_n_paths = data.chosen_n_paths;
+            }
+            else {
+                final_n_paths = (data.chosen_paths_end - data.chosen_paths_start) / data.chosen_paths_step;
+            }
+            
+            int[] keptPaths = new int[final_n_paths];
+
+            if (data.randomPaths) {
+                SortedSet<int> chosenRandomPaths = new SortedSet<int>(); // SortedSet because keptPaths should always be sorted
                 System.Random rnd = new System.Random();
-                for (int i = 0; i < data.chosen_n_paths; i++) {// todo change chosen_n_paths
+                for (int i = 0; i < final_n_paths; i++) {
                     while (!chosenRandomPaths.Add(rnd.Next(data.chosen_paths_start, data.chosen_paths_end))) { }
                 }
                 chosenRandomPaths.CopyTo(keptPaths);
             }
-            else { //ok
-                for (int i = 0; i < chosen_n_paths && data.chosen_paths_start + chosen_path_step * i < data.file_n_paths; i++)
-                    keptPaths[i] = data.chosen_paths_start + chosen_path_step * i;
+            else {
+                for (int i = 0; i < final_n_paths; i++) {
+                    keptPaths[i] = data.chosen_paths_start + i * data.chosen_paths_step;
+                }
             }
-            Tools.AddClockStop("generated paths array");
 
-            paths = new List<GlobalPath>(chosen_n_paths); // ok
+            paths = new List<GlobalPath>(final_n_paths); // ok
+
+            Tools.AddClockStop("Generated paths array");
 
 
             // Load Assets Bundles
@@ -193,219 +212,174 @@ namespace Revivd {
             for (int i = 0; i< n_of_assetBundles; i++) {
                 var myLoadedAssetBundle = AssetBundle.LoadFromFile(System.IO.Path.Combine(Application.streamingAssetsPath, data.assetBundles[i].filename));
                 if (myLoadedAssetBundle == null) {
-                    Debug.Log("Failed to load AssetBundle!");
-                    break;
+                    Debug.LogWarning("Failed to load AssetBundle " + data.assetBundles[i].name);
+                    continue;
                 }
                 var prefab = myLoadedAssetBundle.LoadAsset<GameObject>(data.assetBundles[i].name);
 
                 if (data.assetBundles[i].overrideBundleTransform) {
-                    prefab.transform.position = Vector3dToVector3(data.assetBundles[i].position);
-                    prefab.transform.eulerAngles = Vector3dToVector3(data.assetBundles[i].rotation);
-                    prefab.transform.localScale = Vector3dToVector3(data.assetBundles[i].scale);
+                    prefab.transform.position = LDVector3_to_Vector3(data.assetBundles[i].position);
+                    prefab.transform.eulerAngles = LDVector3_to_Vector3(data.assetBundles[i].rotation);
+                    prefab.transform.localScale = LDVector3_to_Vector3(data.assetBundles[i].scale);
                 }
                 Instantiate(prefab);
                 myLoadedAssetBundle.Unload(false);
             }
             Tools.AddClockStop("Loaded assetBundles");
 
+            string currentFileName = data.filename;
+            if (data.severalFiles) {
+                //TODO: starting filename for severalFiles
+            }
 
-            if (!data.severalFiles) { // if only one file so all visu except naso
-
-                BinaryReader br; // br big-endian or little-endian
-                if (data.endianness == IPCReceiver.LoadingData.Endianness.big) {
-                    br = new BinaryReader_BigEndian(File.Open(data.filename, FileMode.Open)); 
+            BinaryReader br;
+            if (data.endianness == IPCReceiver.LoadingData.Endianness.big) {
+                br = new BinaryReader_BigEndian(File.Open(data.filename, FileMode.Open)); 
+            }
+            else {
+                br = new BinaryReader(File.Open(data.filename, FileMode.Open)); 
+            }
+            Tools.AddClockStop("Loaded data file");
+            
+            int currentPath = 0;
+            for (int i = 0; i < final_n_paths; i++) { // ok
+                if (br.BaseStream.Position >= br.BaseStream.Length) {
+                    Debug.LogError("Reached EoF on loading paths after " + paths.Count + " paths");
+                    break;
                 }
-                else {
-                    br = new BinaryReader(File.Open(data.filename, FileMode.Open)); 
+
+                if (data.severalFiles && false) {
+                    //TODO : switch to new file if necessary
                 }
-                Tools.AddClockStop("Loaded data file");
 
-                float minColor = 100000;
-                float maxColor = -100000;
-                
-
-                int currentPath = 0;
-                for (int i = 0; i < keptPaths.Length; i++) { // ok
-                    if (br.BaseStream.Position >= br.BaseStream.Length) {
-                        Debug.Log("Reached EoF on loading paths after " + paths.Count + " paths");
-                        break;
-                    }
-
-                    int pathLength = 0;
-                    int pathID = 0;
-
-                    float xAttribute = 0;
-                    float yAttribute = 0;
-                    float zAttribute = 0;
-                    float tAttribute = 0;
-                    float colorAttribute = 0;
+                int pathLength = 0;
+                int pathID = 0;
                     
-                    
+                void ReadPathAttributes() {
+                    //Default values
+                    pathLength = data.file_n_instants;
+                    pathID = keptPaths[i];
 
-                    /*float ReadFloat_p(IPCReceiver.LoadingData.PathAttribute attr) {
-                        return is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
-                    }*/
+                    for (int j = 0; j < n_of_pathAttributes; j++) {
+                        if (j == N_RoleIndex || j == ID_RoleIndex) {
+                            int attributeValue = ReadAttribute_i(br, data.pathAttributes[j].type);
 
-                    float ReadFloat_a(IPCReceiver.LoadingData.AtomAttribute attr) {
-                        return Is32(attr.type) ? br.ReadSingle() : (float)br.ReadDouble();
-                    }
-
-                    int ReadInt_p(IPCReceiver.LoadingData.PathAttribute attr) {
-                        return Is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
-                    }
-
-                    /*int ReadInt_a(IPCReceiver.LoadingData.AtomAttribute attr) {
-                        return is32(attr.type) ? br.ReadInt32() : (int)br.ReadInt64();
-                    }*/
-
-                    void ReadPathAttributes() {
-                        for (int j = 0; j < n_of_pathAttributes; j++) {
-                            if (PathAttributesRoleOrder[j] == PathAttributeRole.ID) {
-                                pathID = ReadInt_p(data.pathAttributes[j]);
-                            }
-                            else if (PathAttributesRoleOrder[j] == PathAttributeRole.Length) {
-                                pathLength = ReadInt_p(data.pathAttributes[j]);
-                            }
-                            else {
-                                br.BaseStream.Position += Is32(data.pathAttributes[j].type) ? 4 : 8; // in case that there are other path attributes
-                            }
+                            if (j == N_RoleIndex)
+                                pathLength = attributeValue;
+                            if (j == ID_RoleIndex)
+                                pathID = attributeValue;
+                        }
+                        else {
+                            ReadAttribute_f(br, data.pathAttributes[j].type);
                         }
                     }
+                }
 
-                    void ReadAtomAttributes() {
-                        for (int k = 0; k < n_of_atomAttributes; k++) {
-                            if (AtomAttributesRoleOrder[k] == AtomAttributeRole.X) {
-                                xAttribute = ReadFloat_a(data.atomAttributes[k]);
-                            }
-                            else if (AtomAttributesRoleOrder[k] == AtomAttributeRole.Y) {
-                                yAttribute = ReadFloat_a(data.atomAttributes[k]);
-                            }
-                            else if (AtomAttributesRoleOrder[k] == AtomAttributeRole.Z) {
-                                zAttribute = ReadFloat_a(data.atomAttributes[k]);
-                            }
-                            else if (AtomAttributesRoleOrder[k] == AtomAttributeRole.T) {
-                                tAttribute = ReadFloat_a(data.atomAttributes[k]);
-                            }
-                            else if (AtomAttributesRoleOrder[k] == AtomAttributeRole.Color) {
-                                colorAttribute = ReadFloat_a(data.atomAttributes[k]);
-                                minColor = Mathf.Min(minColor, colorAttribute);
-                                maxColor = Mathf.Max(maxColor, colorAttribute);
-                            }
-                            else {
-                                br.BaseStream.Position += Is32(data.atomAttributes[k].type) ? 4 : 8; // in case that there are other path attributes
-                            }
-                        }
-                    }
+                ReadPathAttributes();
+                if (data.allInstants) {
+                    data.chosen_instants_start = 0;
+                    data.chosen_instants_end = pathLength;
+                    data.chosen_instants_step = 1;
+                }
 
+                while (currentPath < keptPaths[i]) {
+                    br.BaseStream.Position += pathLength * n_of_bytes_per_atom;
                     ReadPathAttributes();
-
-                    while (currentPath < keptPaths[i]) {
-                        br.BaseStream.Position += pathLength * n_of_bytes_per_atom;
-                        ReadPathAttributes();
-                        currentPath++;
-                    }
-
-                    if (data.chosen_instants_start + chosen_instant_step >= pathLength) // ok
-                        continue;
-                    int true_n_instants = Math.Min(data.file_n_instants, pathLength - data.chosen_instants_start); // ok
-
-                    GameObject go;
-                    if (pathIDinData) { //if ID given in dataset
-                        go = new GameObject(pathID.ToString());
-                    }
-                    else { //, otherwise, position of the path
-                        go = new GameObject(keptPaths[i].ToString());
-                    }
-                    
-                    go.transform.parent = transform;
-                    GlobalPath p = go.AddComponent<GlobalPath>();
-                    p.atoms = new List<GlobalAtom>(true_n_instants); // ok
-
-                    Color32 color = UnityEngine.Random.ColorHSV();
-                    if (data.randomColorPaths) {
-                        color = UnityEngine.Random.ColorHSV(); // random color for the path
-                    }
-
-                    long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom; //ok
-                    br.BaseStream.Position += data.chosen_instants_start * n_of_bytes_per_atom; //ok
-
-                    for (int j = 0; j < true_n_instants; j += chosen_instant_step) {
-
-                        Vector3 point = new Vector3();
-                        if (data.useGPSCoords) {
-                            Tools.SetGPSOrigin(Vector2dToVector2(data.GPSOrigin));
-
-                            ReadAtomAttributes();
-                            point = Tools.GPSToXYZ(new Vector2(xAttribute, zAttribute));
-                            point.y = yAttribute;
-
-                        }
-                        else {
-                            ReadAtomAttributes();
-                            point.x = xAttribute;
-                            point.y = yAttribute;
-                            point.z = zAttribute;
-                        }
-
-                        //Tools.AddSubClockStop(point.x.ToString());
-                        point.x *= sizeCoeffX;
-                        point.y *= sizeCoeffY;
-                        point.z *= sizeCoeffZ;
-
-                        point = Vector3.Max(point, lowerTruncature); // ok
-                        point = Vector3.Min(point, upperTruncature); // ok 
-
-                        if (!timeInData) {
-                            tAttribute = (float)(j + data.chosen_instants_start);
-                        }
-
-                        if (!colorInData) {
-                            p.atoms.Add(new GlobalAtom() {
-                                time = tAttribute,
-                                point = point,
-                                path = p,
-                                indexInPath = j / chosen_instant_step,
-                                BaseColor = color // randomColor of the Path
-                            });
-                        }
-                        else {
-                            p.atoms.Add(new GlobalAtom() {
-                                time = tAttribute,
-                                point = point,
-                                path = p,
-                                color = colorAttribute,
-                                indexInPath = j / chosen_instant_step
-                            });
-                        }
-
-                        br.BaseStream.Position += (chosen_instant_step - 1) * n_of_bytes_per_atom;//ok
-                    }
-
-                    br.BaseStream.Position = nextPathPosition;//ok
-
-                    paths.Add(p);
                     currentPath++;
                 }
 
-                if (colorInData) {
-                    for (int j=0; j < paths.Count; j++) {
-                        for (int i=0; i < paths[j].atoms.Count; i++) {
-                            GlobalAtom a = paths[j].atoms[i];
-                            a.BaseColor = Color32.Lerp(startColor, endColor, (a.color - minColor) / (maxColor - minColor));
+                if (data.chosen_instants_start + data.chosen_instants_step >= pathLength) //Don't bother if the path is not long enough to have at least two atoms in it
+                    continue;
+
+                int final_n_instants = Math.Min((data.chosen_instants_end - data.chosen_instants_start) / data.chosen_instants_step, (pathLength - data.chosen_instants_start) / data.chosen_instants_step);
+                //Number of instants that will be loaded in fine
+
+                GameObject go;
+                go = new GameObject(pathID.ToString());
+                go.transform.parent = transform;
+                GlobalPath p = go.AddComponent<GlobalPath>();
+                p.atoms = new List<GlobalAtom>(final_n_instants);
+
+                Color32 pathColor = UnityEngine.Random.ColorHSV(); //Used if no atom attribute is used for coloring
+
+                long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom;
+                br.BaseStream.Position += data.chosen_instants_start * n_of_bytes_per_atom;
+
+                for (int j = 0; j < final_n_instants; j++) {
+                    GlobalAtom a = new GlobalAtom {
+                        path = p,
+                        indexInPath = j
+                    };
+
+                    for (int k = 0; k < n_of_atomAttributes; k++) {
+                        atomAttributeValuesBuffer[k] = ReadAttribute_f(br, data.atomAttributes[k].type); 
+                    }
+
+                    if (data.useGPSCoords) {
+                        if (X_RoleIndex != -1 && Z_RoleIndex != -1) {
+                            a.point = Tools.GPSToXYZ(new Vector2(atomAttributeValuesBuffer[X_RoleIndex], atomAttributeValuesBuffer[Z_RoleIndex]));
+                            a.point.x *= data.atomAttributes[X_RoleIndex].sizeCoeff;
+                            a.point.z *= data.atomAttributes[Z_RoleIndex].sizeCoeff;
                         }
                     }
+                    else {
+                        if (X_RoleIndex != -1)
+                            a.point.x = atomAttributeValuesBuffer[X_RoleIndex] * data.atomAttributes[X_RoleIndex].sizeCoeff;
+                        if (Z_RoleIndex != -1)
+                            a.point.z = atomAttributeValuesBuffer[Z_RoleIndex] * data.atomAttributes[Z_RoleIndex].sizeCoeff;
+                    }
+                    if (Y_RoleIndex != -1)
+                        a.point.y = atomAttributeValuesBuffer[Y_RoleIndex] * data.atomAttributes[Y_RoleIndex].sizeCoeff;
+
+                    a.point = Vector3.Max(a.point, lowerTruncature);
+                    a.point = Vector3.Min(a.point, upperTruncature);
+
+                    if (T_RoleIndex != -1)
+                        a.time = atomAttributeValuesBuffer[T_RoleIndex];
+                    else
+                        a.time = (float)(data.chosen_instants_start + j * data.chosen_instants_step);
+
+                    if (Color_RoleIndex != -1) {
+                        a.colorValue = atomAttributeValuesBuffer[Color_RoleIndex];
+                        if (data.atomAttributes[Color_RoleIndex].valueColorUseMinMax) {
+                            AllTimeMinimumOfColorAttribute = Mathf.Min(AllTimeMinimumOfColorAttribute, a.colorValue);
+                            AllTimeMaximumOfColorAttribute = Mathf.Max(AllTimeMaximumOfColorAttribute, a.colorValue);
+                        }
+                        else {
+                            IPCReceiver.LoadingData.AtomAttribute attr = data.atomAttributes[Color_RoleIndex];
+                            a.BaseColor = Color32.Lerp(startColor, endColor, (a.colorValue - attr.valueColorStart) / (attr.valueColorEnd - attr.valueColorStart));
+                        }
+                    }
+                    else {
+                        a.BaseColor = pathColor;
+                    }
+
+                    p.atoms.Add(a);
+
+                    br.BaseStream.Position += (data.chosen_instants_step - 1) * n_of_bytes_per_atom; //Skips atoms if necessary
                 }
+                Tools.AddSubClockStop(p.atoms.Count.ToString());
 
-                Tools.EndClock("Loaded paths");
+                br.BaseStream.Position = nextPathPosition;
 
-                Debug.Log(paths.Count);
-
-                return true;
+                paths.Add(p);
+                currentPath++;
             }
-            else {
-                // if several files  as naso visualisation
-                return false;
+
+            if (Color_RoleIndex != -1 && data.atomAttributes[Color_RoleIndex].valueColorUseMinMax) {
+                for (int j=0; j < paths.Count; j++) {
+                    for (int i=0; i < paths[j].atoms.Count; i++) {
+                        GlobalAtom a = paths[j].atoms[i];
+                        a.BaseColor = Color32.Lerp(startColor, endColor, (a.colorValue - AllTimeMinimumOfColorAttribute) / (AllTimeMinimumOfColorAttribute - AllTimeMinimumOfColorAttribute));
+                    }
+                }
             }
+
+            Tools.EndClock("Loaded paths");
+
+            Debug.Log(paths.Count);
+
+            return true;
         }
 
         public class GlobalPath : TimePath {
@@ -416,13 +390,8 @@ namespace Revivd {
         }
 
         public class GlobalAtom : TimeAtom {
-            public float color;
+            public float colorValue;
         }
-
-        private void Start() {
- 
-        }
-
 
         protected override float InterpretTime(string word) {
             return 0;
