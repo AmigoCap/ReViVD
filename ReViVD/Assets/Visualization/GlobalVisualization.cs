@@ -154,11 +154,9 @@ namespace Revivd {
 
             if (data.pathAttributeUsedAs_id != "" && !CheckIfPathAttributeExists(data.pathAttributeUsedAs_id, data.pathAttributes)) {
                 Debug.LogError("The path attribute to use as id doesn't exist");
-                return false;
             }
             if (data.pathAttributeUsedAs_n_atoms != "" && !CheckIfPathAttributeExists(data.pathAttributeUsedAs_n_atoms, data.pathAttributes)) {
                 Debug.LogError("The path attribute to use as n_atoms doesn't exist");
-                return false;
             }
 
             //atomAttributes
@@ -167,6 +165,11 @@ namespace Revivd {
                     if (atomAttributes[i].name == attribute)
                         return true;
                 }
+                return false;
+            }
+
+            if (data.atomAttributeUsedAs_x == "" && data.atomAttributeUsedAs_y == "" && data.atomAttributeUsedAs_z == "") {
+                Debug.Log("No attributes used for any of the 3 dimensions");
                 return false;
             }
 
