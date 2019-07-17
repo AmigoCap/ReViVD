@@ -29,8 +29,8 @@ namespace Revivd {
         }
 
 
-        public Vector3 maxPoint = new Vector3(500, 500, 500);
-        public Vector3 minPoint = new Vector3(-500, -500, -500);
+        public Vector3 maxPoint = new Vector3(500, 700, 500);
+        public Vector3 minPoint = new Vector3(-500, -700, -500);
 
 
         protected override bool LoadFromFile() {
@@ -64,7 +64,7 @@ namespace Revivd {
                     p.baseRadius = 0.2f;
                 }
 
-                Vector3 point =  new Vector3(1000 * y, 1000 * x, 1000 * z);
+                Vector3 point =  new Vector3(1000 * y, 1000 * x - 150, 1000 * z);
                 point = Vector3.Max(point, minPoint);
                 point = Vector3.Min(point, maxPoint);
 

@@ -7,7 +7,7 @@ namespace Revivd {
         float prevFingerX = 0;
         bool swiping = false;
 
-        public float dampener = 50;
+        public float swipeDampener = 50;
         public float centeringSpeed = 3f;
 
         int color;
@@ -26,18 +26,16 @@ namespace Revivd {
                 if (!swiping)
                     swiping = true;
                 else {
-                    rt.Translate(Tools.Limit(SteamVR_ControllerManager.RightController.Pad.x - prevFingerX, -2.5f - rt.localPosition.x, 2.5f - rt.localPosition.x) / dampener, 0, 0);
+                    rt.Translate(Tools.Limit(SteamVR_ControllerManager.RightController.Pad.x - prevFingerX, -2.5f - rt.localPosition.x, 2.5f - rt.localPosition.x) / swipeDampener, 0, 0);
                 }
                 prevFingerX = SteamVR_ControllerManager.RightController.Pad.x;
             }
             else {
                 swiping = false;
-                if (Mathf.Abs(2.5f - color - rt.localPosition.x) < centeringSpeed * Time.deltaTime) {
-                    rt.localPosition = new Vector3(2.5f - color, 0, 0);
-                }
-                else {
-                    rt.localPosition = new Vector3(rt.localPosition.x + Tools.Sign(2.5f - color - rt.localPosition.x) * centeringSpeed * Time.deltaTime, 0, 0);
-                }
+                float deltaX = 2.5f - color - rt.localPosition.x;
+                deltaX = Mathf.Min(deltaX, centeringSpeed * Time.deltaTime);
+                deltaX = Mathf.Max(deltaX, -centeringSpeed * Time.deltaTime);
+                rt.localPosition = new Vector3(rt.localPosition.x + deltaX, 0, 0);
             }
 
             color = Mathf.FloorToInt(3f - rt.localPosition.x);

@@ -47,25 +47,22 @@ namespace Revivd {
 
             length += length * SteamVR_ControllerManager.LeftController.Joystick.y * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
 
-            if (SelectorManager.Instance.InverseMode) {
-                if (SteamVR_ControllerManager.LeftController.padPressed) {
-                    radius = initialRadius;
-                    length = initialLength;
-                }
-
-                if (SteamVR_ControllerManager.RightController.padPressed) {
-                    handOffset = initialHandOffset;
-                }
-            }
-            else {
-                if (SteamVR_ControllerManager.RightController.padPressed) {
-                    handOffset.z += (SteamVR_ControllerManager.RightController.Pad.y >= 0 ? 1 : -1) * Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
-                }
-                if (SteamVR_ControllerManager.LeftController.padPressed) {
-                    length += (SteamVR_ControllerManager.LeftController.Pad.y >= 0 ? 1 : -1) * length * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
-                }
+            if (SteamVR_ControllerManager.LeftController.gripped) {
+                radius = initialRadius;
+                length = initialLength;
             }
 
+            if (SteamVR_ControllerManager.RightController.gripped) {
+                handOffset = initialHandOffset;
+            }
+
+            if (SteamVR_ControllerManager.RightController.padPressed) {
+                handOffset.z += (SteamVR_ControllerManager.RightController.Pad.y >= 0 ? 1 : -1) * Mathf.Max(Mathf.Abs(handOffset.z), SelectorManager.Instance.minCreationMovement) * SelectorManager.Instance.creationMovementCoefficient * Time.deltaTime;
+            }
+
+            if (SteamVR_ControllerManager.LeftController.padPressed) {
+                length += (SteamVR_ControllerManager.LeftController.Pad.y >= 0 ? 1 : -1) * length * SelectorManager.Instance.creationGrowthCoefficient * Time.deltaTime;
+            }
         }
 
         protected override void ParseRibbonsToCheck() {
