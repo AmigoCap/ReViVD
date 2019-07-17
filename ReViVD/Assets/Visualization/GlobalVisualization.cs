@@ -57,8 +57,160 @@ namespace Revivd {
             }
         }
 
-        void CleanupData(IPCReceiver.LoadingData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
+        bool CleanupData(IPCReceiver.LoadingData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
+        
+            if (data.severalFiles) {
+                return false; //TODO : review json to deal with several files, deal with n_instants per file
+            }
+            else {
+                if (!File.Exists(data.filename)) {
+                    Debug.LogError("Data file not found");
+                    return false;
+                }
+            }
 
+
+            void CheckFloatValue(ref float value, bool condition, float defaultvalue, string log) {
+                if (condition) {
+                    Debug.LogWarning(log);
+                    value = defaultvalue;
+                }
+            }
+
+            void CheckIntValue(ref int value, bool condition, int defaultvalue, string log) {
+                if (condition) {
+                    Debug.LogWarning(log);
+                    value = defaultvalue;
+                }
+            }
+
+            CheckFloatValue(ref data.districtSize.x, data.districtSize.x <= 0, 20, "Negative X value in District Size");
+            CheckFloatValue(ref data.districtSize.y, data.districtSize.y <= 0, 20, "Negative Y value in District Size");
+            CheckFloatValue(ref data.districtSize.z, data.districtSize.z <= 0, 20, "Negative Z value in District Size");
+
+            CheckFloatValue(ref data.lowerTruncature.x, data.lowerTruncature.x > data.upperTruncature.x, -1000, "X value of lowerTruncature is bigger than the corresponding value of upperTruncature");
+            CheckFloatValue(ref data.lowerTruncature.y, data.lowerTruncature.y > data.upperTruncature.y, -1000, "Y value of lowerTruncature is bigger than the corresponding value of upperTruncature");
+            CheckFloatValue(ref data.lowerTruncature.z, data.lowerTruncature.z > data.upperTruncature.z, -1000, "Z value of lowerTruncature is bigger than the corresponding value of upperTruncature");
+
+            CheckFloatValue(ref data.upperTruncature.x, data.lowerTruncature.x > data.upperTruncature.x, 1000, "X value of lowerTruncature is bigger than the corresponding value of upperTruncature");
+            CheckFloatValue(ref data.upperTruncature.y, data.lowerTruncature.y > data.upperTruncature.y, 1000, "Y value of lowerTruncature is bigger than the corresponding value of upperTruncature");
+            CheckFloatValue(ref data.upperTruncature.z, data.lowerTruncature.z > data.upperTruncature.z, 1000, "Z value of lowerTruncature is bigger than the corresponding value of upperTruncature");
+
+            if (data.file_n_paths <= 0) {
+                Debug.LogError("Negative number of paths");
+                return false;
+            }
+
+            if (!data.allPaths) {
+                CheckIntValue(ref data.chosen_paths_start, data.chosen_paths_start < 0, 0, "Negative value for chosen_paths_start");
+                CheckIntValue(ref data.chosen_paths_start, data.chosen_paths_start > data.file_n_paths, 0, "Chosen_paths_start value bigger than number of paths");
+
+                CheckIntValue(ref data.chosen_paths_end, data.chosen_paths_end < 0, 500, "Negative value for chosen_paths_end");
+                CheckIntValue(ref data.chosen_paths_end, data.chosen_paths_end > data.file_n_paths, 500, "Chosen paths end bigger than number of paths");
+
+                CheckIntValue(ref data.chosen_paths_start, data.chosen_paths_start > data.chosen_paths_end, 0, "Chosen paths start bigger than chosen paths end");
+                CheckIntValue(ref data.chosen_paths_end, data.chosen_paths_start > data.chosen_paths_end, 500, "Chosen paths start bigger than chosen paths end");
+
+
+                CheckIntValue(ref data.chosen_paths_step, data.chosen_paths_step < 1, 1, "Incorrect value for chosen_paths_step");
+
+                if (data.randomPaths) {
+                    CheckIntValue(ref data.chosen_n_paths, data.chosen_n_paths <= 0, 500, "Negative value for chosen_n_paths");
+                    CheckIntValue(ref data.chosen_n_paths, data.chosen_n_paths > data.file_n_paths, 500, "Chosen_n_paths value bigger than number of paths");
+                }
+            }
+           
+            //constant_n_instants
+
+            if (data.file_n_instants <= 0) {
+                Debug.LogError("Negative number of instants");
+                return false;
+            }
+            if (!data.allInstants) {
+                CheckIntValue(ref data.chosen_instants_start, data.chosen_instants_start < 0, 0, "Negative value for chosen_instants_start");
+                CheckIntValue(ref data.chosen_instants_start, data.chosen_instants_start > data.file_n_instants, 0, "Chosen_instants_start value bigger than number of instants");
+
+                CheckIntValue(ref data.chosen_instants_end, data.chosen_instants_end < 0, 200, "Negative value for chosen_instants_end");
+                CheckIntValue(ref data.chosen_instants_end, data.chosen_instants_end > data.file_n_instants, 200, "Chosen instants end bigger than number of instants");
+
+                CheckIntValue(ref data.chosen_instants_start, data.chosen_instants_start > data.chosen_instants_end, 0, "Chosen instants start bigger than chosen instants end");
+                CheckIntValue(ref data.chosen_instants_end, data.chosen_instants_start > data.chosen_instants_end, 200, "Chosen instants start bigger than chosen instants end");
+
+                CheckIntValue(ref data.chosen_instants_step, data.chosen_instants_step < 1, 2, "Incorrect value for chosen_instants_step");
+            }
+
+            if (data.useGPSCoords) {
+                CheckFloatValue(ref data.GPSOrigin.x, Mathf.Abs(data.GPSOrigin.x) > 90, 0, "latitude in decimal degree out of range +-90°");
+                CheckFloatValue(ref data.GPSOrigin.y, Mathf.Abs(data.GPSOrigin.y) > 180, 0, "longitude in decimal degree out of range +-180°");
+            }
+
+            CheckFloatValue(ref data.spheresRadius, data.spheresRadius < 0, 2, "Negative Value for spheresRadius");
+            //spheresAnimSpeed --> can be negative
+            // spheresGlobalTime --> can either be negative or positive
+            // spheresDisplay
+            //assetBundles --> we already check if file exists while opening it
+
+            //pathAttributes
+            bool CheckIfPathAttributeExists(string attribute, IPCReceiver.LoadingData.PathAttribute[] pathAttributes) {
+                bool knownPathAttribute = false;
+                for (int i = 0; i < pathAttributes.Length; i++) {
+                    if (pathAttributes[i].name == attribute)
+                        knownPathAttribute = true;
+                }
+                return knownPathAttribute;
+            }
+
+            if (data.pathAttributeUsedAs_id != "" && !CheckIfPathAttributeExists(data.pathAttributeUsedAs_id, data.pathAttributes)) {
+                Debug.LogError("The path attribute to use as id doesn't exist");
+                return false;
+            }
+            if (data.pathAttributeUsedAs_n_atoms != "" && !CheckIfPathAttributeExists(data.pathAttributeUsedAs_n_atoms, data.pathAttributes)) {
+                Debug.LogError("The path attribute to use as n_atoms doesn't exist");
+                return false;
+            }
+
+            //atomAttributes
+            bool CheckIfAtomAttributeExists(string attribute, IPCReceiver.LoadingData.AtomAttribute[] atomAttributes) {
+                for (int i = 0; i < atomAttributes.Length; i++) {
+                    if (atomAttributes[i].name == attribute)
+                        return true;
+                }
+                return false;
+            }
+
+            if (data.atomAttributeUsedAs_x != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_x, data.atomAttributes)) {
+                Debug.LogError("The atom attribute to use as x doesn't exist");
+                return false;
+            }
+            if (data.atomAttributeUsedAs_y != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_y, data.atomAttributes)) {
+                Debug.LogError("The atom attribute to use as y doesn't exist");
+                return false;
+            }
+            if (data.atomAttributeUsedAs_z != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_z, data.atomAttributes)) {
+                Debug.LogError("The atom attribute to use as z doesn't exist");
+                return false;
+            }
+            if (data.atomAttributeUsedAs_t != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_t, data.atomAttributes)) {
+                Debug.LogError("The atom attribute to use as t doesn't exist");
+                return false;
+            }
+            if (data.atomAttributeUsedAs_color != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_color, data.atomAttributes)) {
+                Debug.LogError("The atom attribute to use as color doesn't exist");
+                return false;
+            }
+
+            for (int i=0; i < data.atomAttributes.Length; i++) {
+                CheckFloatValue(ref data.atomAttributes[i].sizeCoeff, data.atomAttributes[i].sizeCoeff < 0, 1, "The size coeff of atom attribute " + data.atomAttributes[i].name + " is negative");
+
+                if (data.atomAttributes[i].valueColorEnd < data.atomAttributes[i].valueColorStart) {
+                    Debug.LogWarning("valuecolorStart is bigger than valuecolorEnd for atom attribute " + data.atomAttributes[i].name);
+                    float temp = data.atomAttributes[i].valueColorEnd;
+                    data.atomAttributes[i].valueColorEnd = data.atomAttributes[i].valueColorStart;
+                    data.atomAttributes[i].valueColorStart = temp;
+                }
+            }
+
+            return true;
         }
 
         IPCReceiver.LoadingData data;
@@ -77,7 +229,9 @@ namespace Revivd {
                 data = JsonConvert.DeserializeObject<IPCReceiver.LoadingData>(reader.ReadToEnd());
                 Tools.AddClockStop("Loaded json data");
             }
-            CleanupData(data);
+
+            if (!CleanupData(data))
+                return false;
 
             int n_of_bytes_per_atom = 0;   //number of bytes that atom attributes take per atom
             int n_of_atomAttributes = data.atomAttributes.Length;
@@ -299,7 +453,7 @@ namespace Revivd {
                 go.transform.parent = transform;
                 GlobalPath p = go.AddComponent<GlobalPath>();
                 p.atoms = new List<GlobalAtom>(final_n_instants);
-
+                
                 Color32 pathColor = UnityEngine.Random.ColorHSV(); //Used if no atom attribute is used for coloring
 
                 long nextPathPosition = br.BaseStream.Position + pathLength * n_of_bytes_per_atom;
