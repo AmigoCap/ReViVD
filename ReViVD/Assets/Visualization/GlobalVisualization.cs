@@ -91,10 +91,8 @@ namespace Revivd {
 
             if (data.file_n_paths <= 0) {
                 Debug.LogError("Negative number of paths");
-                return false;
             }
-
-            if (!data.allPaths) {
+            else if (!data.allPaths) {
                 CheckValue(ref data.chosen_paths_start, data.chosen_paths_start < 0, 0, "Negative value for chosen_paths_start");
                 CheckValue(ref data.chosen_paths_start, data.chosen_paths_start > data.file_n_paths, 0, "Chosen_paths_start value bigger than number of paths");
 
@@ -117,9 +115,8 @@ namespace Revivd {
 
             if (data.file_n_instants <= 0) {
                 Debug.LogError("Negative number of instants");
-                return false;
             }
-            if (!data.allInstants) {
+            else if (!data.allInstants) {
                 CheckValue(ref data.chosen_instants_start, data.chosen_instants_start < 0, 0, "Negative value for chosen_instants_start");
                 CheckValue(ref data.chosen_instants_start, data.chosen_instants_start > data.file_n_instants, 0, "Chosen_instants_start value bigger than number of instants");
 
@@ -157,11 +154,9 @@ namespace Revivd {
 
             if (data.pathAttributeUsedAs_id != "" && !CheckIfPathAttributeExists(data.pathAttributeUsedAs_id, data.pathAttributes)) {
                 Debug.LogError("The path attribute to use as id doesn't exist");
-                return false;
             }
             if (data.pathAttributeUsedAs_n_atoms != "" && !CheckIfPathAttributeExists(data.pathAttributeUsedAs_n_atoms, data.pathAttributes)) {
                 Debug.LogError("The path attribute to use as n_atoms doesn't exist");
-                return false;
             }
 
             //atomAttributes
@@ -173,32 +168,32 @@ namespace Revivd {
                 return false;
             }
 
+            if (data.atomAttributeUsedAs_x == "" && data.atomAttributeUsedAs_y == "" && data.atomAttributeUsedAs_z == "") {
+                Debug.Log("No attributes used for any of the 3 dimensions");
+                return false;
+            }
+
             if (data.atomAttributeUsedAs_x != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_x, data.atomAttributes)) {
                 Debug.LogError("The atom attribute to use as x doesn't exist");
-                return false;
             }
             if (data.atomAttributeUsedAs_y != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_y, data.atomAttributes)) {
                 Debug.LogError("The atom attribute to use as y doesn't exist");
-                return false;
             }
             if (data.atomAttributeUsedAs_z != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_z, data.atomAttributes)) {
                 Debug.LogError("The atom attribute to use as z doesn't exist");
-                return false;
             }
             if (data.atomAttributeUsedAs_t != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_t, data.atomAttributes)) {
                 Debug.LogError("The atom attribute to use as t doesn't exist");
-                return false;
             }
             if (data.atomAttributeUsedAs_color != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_color, data.atomAttributes)) {
                 Debug.LogError("The atom attribute to use as color doesn't exist");
-                return false;
             }
 
             for (int i=0; i < data.atomAttributes.Length; i++) {
                 CheckValue(ref data.atomAttributes[i].sizeCoeff, data.atomAttributes[i].sizeCoeff < 0, 1, "The size coeff of atom attribute " + data.atomAttributes[i].name + " is negative");
 
                 if (data.atomAttributes[i].valueColorEnd < data.atomAttributes[i].valueColorStart) {
-                    Debug.LogWarning("valuecolorStart is bigger than valuecolorEnd for atom attribute " + data.atomAttributes[i].name);
+                    Debug.LogWarning("valueColorStart is bigger than valuecolorEnd for atom attribute " + data.atomAttributes[i].name);
                     float temp = data.atomAttributes[i].valueColorEnd;
                     data.atomAttributes[i].valueColorEnd = data.atomAttributes[i].valueColorStart;
                     data.atomAttributes[i].valueColorStart = temp;
@@ -225,8 +220,10 @@ namespace Revivd {
                 Tools.AddClockStop("Loaded json data");
             }
 
-            if (!CleanupData(data))
+            if (!CleanupData(data)) {
+                Debug.LogError("Fatal error during data cleanup, go fix your json");
                 return false;
+            }
 
             int n_of_bytes_per_atom = 0;   //number of bytes that atom attributes take per atom
             int n_of_atomAttributes = data.atomAttributes.Length;
