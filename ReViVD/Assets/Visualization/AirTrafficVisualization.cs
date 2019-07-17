@@ -69,6 +69,8 @@ namespace Revivd {
                 p.atoms.Add(a);
             }
 
+            Debug.Log(paths.Count);
+
             AirTrafficPath p60 = pathsDict["60"];
             int c = p60.AtomsAsBase.Count;
             for (int i = 0; i < c; i += 2)

@@ -1,0 +1,125 @@
+{
+  "pathAttributeUsedAs_id": "id",
+  "pathAttributeUsedAs_n_atoms": "n",
+  "atomAttributeUsedAs_x": "x",
+  "atomAttributeUsedAs_y": "altitude",
+  "atomAttributeUsedAs_z": "z",
+  "atomAttributeUsedAs_t": "t",
+  "atomAttributeUsedAs_color": "altitude",
+  "filename": "External Data/AirTraffic/aviation",
+  "severalFiles": false,
+  "n_instants_per_file": 50,
+  "endianness": "little",
+  "districtSize": {
+    "x": 40.0,
+    "y": 40.0,
+    "z": 4.0
+  },
+  "lowerTruncature": {
+    "x": -10000.0,
+    "y": -10000.0,
+    "z": -10000.0
+  },
+  "upperTruncature": {
+    "x": 10000.0,
+    "y": 10000.0,
+    "z": 10000.0
+  },
+  "file_n_paths": 4309,
+  "randomPaths": false,
+  "allPaths": true,
+  "allInstants": true,
+  "randomColorPaths": false,
+  "chosen_n_paths": 4309,
+  "chosen_paths_start": 0,
+  "chosen_paths_end": 4309,
+  "chosen_paths_step": 1,
+  "constant_n_instants": false,
+  "file_n_instants": 100000,
+  "chosen_instants_start": 0,
+  "chosen_instants_end": 200,
+  "chosen_instants_step": 1,
+  "useGPSCoords": false,
+  "GPSOrigin": {
+    "x": 0.0,
+    "y": 0.0
+  },
+  "spheresRadius": 2.0,
+  "spheresAnimSpeed": 1.0,
+  "spheresGlobalTime": 0.0,
+  "spheresDisplay": false,
+  "assetBundles": [
+    {
+      "name": "airtraffic_map",
+      "filename": "External Data/AirTraffic/airtraffic_map",
+      "overrideBundleTransform": false,
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "scale": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "pathAttributes": [
+    {
+      "name": "id",
+      "type": "int32"
+    },
+    {
+      "name": "n",
+      "type": "int32"
+    }
+  ],
+  "atomAttributes": [
+      {
+      "name": "t",
+      "type": "float32",
+      "sizeCoeff": 1.0,
+      "valueColorUseMinMax": false,
+      "colorStart": "Blue",
+      "colorEnd": "Red",
+      "valueColorStart": 0.0,
+      "valueColorEnd": 1.0
+    },
+    {
+      "name": "x",
+      "type": "float32",
+      "sizeCoeff": 1.0,
+      "valueColorUseMinMax": true,
+      "colorStart": "Blue",
+      "colorEnd": "Red",
+      "valueColorStart": 0.0,
+      "valueColorEnd": 1.0
+    },
+    {
+      "name": "z",
+      "type": "float32",
+      "sizeCoeff": 1.0,
+      "valueColorUseMinMax": true,
+      "colorStart": "Blue",
+      "colorEnd": "Red",
+      "valueColorStart": 0.0,
+      "valueColorEnd": 1.0
+    },
+	{
+      "name": "altitude",
+      "type": "float32",
+      "sizeCoeff": 1.0,
+      "valueColorUseMinMax": true,
+      "colorStart": "Blue",
+      "colorEnd": "Red",
+      "valueColorStart": 0.0,
+      "valueColorEnd": 1.0
+    }
+  ]
+}

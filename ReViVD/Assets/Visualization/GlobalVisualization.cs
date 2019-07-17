@@ -358,21 +358,25 @@ namespace Revivd {
 
             // Load Assets Bundles
             int n_of_assetBundles = data.assetBundles.Length;
-            for (int i = 0; i< n_of_assetBundles; i++) {
-                var myLoadedAssetBundle = AssetBundle.LoadFromFile(System.IO.Path.Combine(Application.streamingAssetsPath, data.assetBundles[i].filename));
-                if (myLoadedAssetBundle == null) {
+            for (int i = 0; i < n_of_assetBundles; i++) {
+                AssetBundle ab = AssetBundle.LoadFromFile(data.assetBundles[i].filename);
+                if (ab == null) {
                     Debug.LogWarning("Failed to load AssetBundle " + data.assetBundles[i].name);
                     continue;
                 }
-                var prefab = myLoadedAssetBundle.LoadAsset<GameObject>(data.assetBundles[i].name);
 
-                if (data.assetBundles[i].overrideBundleTransform) {
-                    prefab.transform.position = LDVector3_to_Vector3(data.assetBundles[i].position);
-                    prefab.transform.eulerAngles = LDVector3_to_Vector3(data.assetBundles[i].rotation);
-                    prefab.transform.localScale = LDVector3_to_Vector3(data.assetBundles[i].scale);
+                GameObject[] prefabs = ab.LoadAllAssets<GameObject>();
+                
+                foreach (GameObject prefab in prefabs) {
+                    if (data.assetBundles[i].overrideBundleTransform) {
+                        prefab.transform.position = LDVector3_to_Vector3(data.assetBundles[i].position);
+                        prefab.transform.eulerAngles = LDVector3_to_Vector3(data.assetBundles[i].rotation);
+                        prefab.transform.localScale = LDVector3_to_Vector3(data.assetBundles[i].scale);
+                    }
+                    Instantiate(prefab);
                 }
-                Instantiate(prefab);
-                myLoadedAssetBundle.Unload(false);
+
+                ab.Unload(false);
             }
             Tools.AddClockStop("Loaded assetBundles");
 
