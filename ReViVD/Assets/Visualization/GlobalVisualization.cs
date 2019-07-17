@@ -358,7 +358,6 @@ namespace Revivd {
 
                     br.BaseStream.Position += (data.chosen_instants_step - 1) * n_of_bytes_per_atom; //Skips atoms if necessary
                 }
-                Tools.AddSubClockStop(p.atoms.Count.ToString());
 
                 br.BaseStream.Position = nextPathPosition;
 
@@ -370,14 +369,12 @@ namespace Revivd {
                 for (int j=0; j < paths.Count; j++) {
                     for (int i=0; i < paths[j].atoms.Count; i++) {
                         GlobalAtom a = paths[j].atoms[i];
-                        a.BaseColor = Color32.Lerp(startColor, endColor, (a.colorValue - AllTimeMinimumOfColorAttribute) / (AllTimeMinimumOfColorAttribute - AllTimeMinimumOfColorAttribute));
+                        a.BaseColor = Color32.Lerp(startColor, endColor, (a.colorValue - AllTimeMinimumOfColorAttribute) / (AllTimeMaximumOfColorAttribute - AllTimeMinimumOfColorAttribute));
                     }
                 }
             }
 
             Tools.EndClock("Loaded paths");
-
-            Debug.Log(paths.Count);
 
             return true;
         }
