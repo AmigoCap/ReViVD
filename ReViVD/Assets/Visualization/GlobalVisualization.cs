@@ -215,6 +215,14 @@ namespace Revivd {
 
             for (int i=0; i < data.atomAttributes.Length; i++) {
                 CheckFloatValue(data.atomAttributes[i].sizeCoeff, data.atomAttributes[i].sizeCoeff < 0, 1, "One size coeff of an atom attribute is negative");
+
+                if (data.atomAttributes[i].valueColorEnd < data.atomAttributes[i].valueColorStart) {
+                    Debug.LogWarning("valuecolorStart is bigger than valuecolorEnd for an attribute");
+                    float temp = data.atomAttributes[i].valueColorEnd;
+                    data.atomAttributes[i].valueColorEnd = data.atomAttributes[i].valueColorStart;
+                    data.atomAttributes[i].valueColorStart = temp;
+                }
+
             }
 
             return true;

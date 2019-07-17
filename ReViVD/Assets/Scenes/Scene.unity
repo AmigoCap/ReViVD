@@ -3979,7 +3979,7 @@ MonoBehaviour:
   traceTimeSpheres: 0
   paths: []
   manualLoading: 1
-  jsonPath: json/export.json
+  jsonPath: json/bogey.json
 --- !u!1 &2084646546
 GameObject:
   m_ObjectHideFlags: 0
