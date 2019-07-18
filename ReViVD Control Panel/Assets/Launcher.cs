@@ -67,10 +67,11 @@ public class Launcher : MonoBehaviour
         public class AtomAttribute {
             public string name;
             public DataType type = DataType.int32;
+            public float positionOffset = 0;
             public float sizeCoeff = 1;
-            public bool valueColorUseMinMax = true;
             public Color colorStart = Color.Blue;
             public Color colorEnd = Color.Red;
+            public bool valueColorUseMinMax = true;
             public float valueColorStart = 0;
             public float valueColorEnd = 1;
         }
@@ -87,25 +88,27 @@ public class Launcher : MonoBehaviour
         }
 
         public string filename;
-        public bool severalFiles = false;
-        public int n_instants_per_file = 50;
+        public bool severalFiles_splitInstants = false;
+        public int splitInstants_instantsPerFile = 50;
+        //public bool severalFiles_splitPaths = false;
+        //public int splitPaths_pathsPerFile = 1000;
+        public string severalFiles_firstFileSuffix = "0001";
+
         public Endianness endianness = Endianness.little;
         public Vector3D districtSize = new Vector3D { x = 20, y = 20, z = 20 };
         public Vector3D lowerTruncature = new Vector3D { x = -1000, y = -1000, z = -1000 };
         public Vector3D upperTruncature = new Vector3D { x = 1000, y = 1000, z = 1000 };
 
-        public int file_n_paths = int.MaxValue;
-        public bool randomPaths = false;
+        public int dataset_n_paths = int.MaxValue;
         public bool allPaths = false;
-        public bool allInstants = false;
-        public bool randomColorPaths = true;
+        public bool randomPaths = false;
         public int chosen_n_paths = 500;
         public int chosen_paths_start = 0;
         public int chosen_paths_end = 500;
         public int chosen_paths_step = 1;
 
-        public bool constant_n_instants;
-        public int file_n_instants = int.MaxValue;
+        public int dataset_n_instants = int.MaxValue;
+        public bool allInstants = false;
         public int chosen_instants_start = 0;
         public int chosen_instants_end = 200;
         public int chosen_instants_step = 2;
@@ -241,12 +244,12 @@ public class Launcher : MonoBehaviour
         data.randomPaths = sampling.randomPaths.isOn;
         data.allPaths = sampling.allPaths.isOn;
         data.allInstants = sampling.allInstants.isOn;
-        data.chosen_n_paths = Tools.ParseField_i(sampling.n_paths, data.file_n_paths);
+        data.chosen_n_paths = Tools.ParseField_i(sampling.n_paths, data.dataset_n_paths);
         data.chosen_paths_start = Tools.ParseField_i(sampling.paths_start, 0);
-        data.chosen_paths_end = Tools.ParseField_i(sampling.paths_end, data.file_n_paths);
+        data.chosen_paths_end = Tools.ParseField_i(sampling.paths_end, data.dataset_n_paths);
         data.chosen_paths_step = Tools.ParseField_i(sampling.paths_step, 1);
         data.chosen_instants_start = Tools.ParseField_i(sampling.instants_start, 0);
-        data.chosen_instants_end = Tools.ParseField_i(sampling.instants_end, data.file_n_instants);
+        data.chosen_instants_end = Tools.ParseField_i(sampling.instants_end, data.dataset_n_instants);
         data.chosen_instants_step = Tools.ParseField_i(sampling.instants_step, 1);
 
         data.useGPSCoords = axisConf.gps.isOn;
