@@ -53,16 +53,16 @@ public class Sampling : MonoBehaviour
     void CapPaths() {
         if (paths_end.text == "" || !Launcher.Instance.DataLoaded)
             return;
-        if (Tools.ParseField_i(paths_end, Launcher.Instance.data.file_n_paths) >= Launcher.Instance.data.file_n_paths)
-            paths_end.text = Launcher.Instance.data.file_n_paths.ToString();
+        if (Tools.ParseField_i(paths_end, Launcher.Instance.data.dataset_n_paths) >= Launcher.Instance.data.dataset_n_paths)
+            paths_end.text = Launcher.Instance.data.dataset_n_paths.ToString();
     }
 
     void CapInstants() {
         if (instants_end.text == "" || !Launcher.Instance.DataLoaded)
             return;
 
-        if (Tools.ParseField_i(instants_end, Launcher.Instance.data.file_n_instants) >= Launcher.Instance.data.file_n_instants)
-            instants_end.text = Launcher.Instance.data.file_n_instants.ToString();
+        if (Tools.ParseField_i(instants_end, Launcher.Instance.data.dataset_n_instants) >= Launcher.Instance.data.dataset_n_instants)
+            instants_end.text = Launcher.Instance.data.dataset_n_instants.ToString();
     }
 
     void OnEnable() {
