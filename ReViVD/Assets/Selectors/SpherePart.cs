@@ -54,7 +54,7 @@ namespace Revivd {
             foreach (Atom a in ribbonsToCheck) {
                 if (!a.path.specialRadii.TryGetValue(a.indexInPath, out float ribbonRadius))
                     ribbonRadius = a.path.baseRadius;
-                if (DistancePointSegment(sphereCenter, a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point)) < radius + ribbonRadius) {
+                if (DistancePointSegment(sphereCenter, a.path.transform.TransformPoint(a.point), a.path.transform.TransformPoint(a.path.atoms[a.indexInPath + 1].point)) < radius + ribbonRadius) {
                     touchedRibbons.Add(a);
                 }
             }

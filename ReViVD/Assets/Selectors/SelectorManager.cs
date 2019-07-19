@@ -176,8 +176,8 @@ namespace Revivd {
             Visualization viz = Visualization.Instance;
 
             if (InverseMode) { // Invert displayed ribbons
-                foreach (Path p in viz.PathsAsBase) {
-                    foreach (Atom a in p.AtomsAsBase)
+                foreach (Path p in viz.paths) {
+                    foreach (Atom a in p.atoms)
                         a.ShouldDisplayBecauseSelected = !a.ShouldDisplayBecauseSelected;
                 }
 
@@ -213,11 +213,11 @@ namespace Revivd {
                 }
             }
 
-            HashSet<Path> pathsToRemove = new HashSet<Path>(viz.PathsAsBase);
+            HashSet<Path> pathsToRemove = new HashSet<Path>(viz.paths);
             pathsToRemove.ExceptWith(pathsToKeep);
 
             foreach (Path p in pathsToRemove) {
-                foreach (Atom a in p.AtomsAsBase)
+                foreach (Atom a in p.atoms)
                     a.ShouldDisplayBecauseSelected = false;
             }
 
@@ -269,6 +269,9 @@ namespace Revivd {
         }
 
         private void Update() {
+            if (!Visualization.Instance.Loaded)
+                return;
+
             CurrentColor = s_currentColor; //Triggers the property if _currentColor was changed in the editor
             HighlightChecked = s_highlightChecked;
             HighlightSelected = s_highlightSelected;

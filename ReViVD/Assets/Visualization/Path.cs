@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Revivd {
-
     [DisallowMultipleComponent]
-    public abstract class Path : MonoBehaviour {
+    public class Path : MonoBehaviour {
+        public List<Atom> atoms = new List<Atom>();
+
         public Dictionary<int, float> specialRadii = new Dictionary<int, float>();
         public float baseRadius = 0.1f;
-
-        public abstract IReadOnlyList<Atom> AtomsAsBase { get; }
-
+        
         public bool needsMeshUpdate = false; //Rebuild the whole mesh from scratch
 
         public bool needsTriangleUpdate = false; //Update which atoms are displayed
@@ -49,14 +48,14 @@ namespace Revivd {
         private void UpdateMesh() {
             mesh.Clear();
 
-            int AtomCount = AtomsAsBase.Count;
+            int AtomCount = atoms.Count;
             //Debug.Log(AtomCount * 5 - 6);
 
             Vector3[] vertices = new Vector3[AtomCount * 5 - 6];
             for (int p = 0; p < AtomCount - 1; p++) {
                 int i = 5 * p;
-                ref Vector3 currentPoint = ref AtomsAsBase[p].point;
-                ref Vector3 nextPoint = ref AtomsAsBase[p + 1].point;
+                ref Vector3 currentPoint = ref atoms[p].point;
+                ref Vector3 nextPoint = ref atoms[p + 1].point;
 
                 vertices[i] = currentPoint;
                 vertices[i + 1] = currentPoint;
@@ -65,7 +64,7 @@ namespace Revivd {
                 if (p < AtomCount - 2)
                     vertices[i + 4] = nextPoint;
             }
-            
+
             mesh.vertices = vertices;
             mesh.colors32 = new Color32[vertices.Length];
 
@@ -73,7 +72,7 @@ namespace Revivd {
 
             List<Vector4> uvs = new List<Vector4>(); //Sneakily putting extra vertex info in the uv textures field
             for (int p = 0; p < AtomCount - 1; p++) {
-                Vector3 v = AtomsAsBase[p + 1].point - AtomsAsBase[p].point;
+                Vector3 v = atoms[p + 1].point - atoms[p].point;
                 if (!specialRadii.TryGetValue(p, out float radius))
                     radius = baseRadius;
                 for (int i = 0; i < (p == AtomCount - 2 ? 4 : 5); i++) {
@@ -95,12 +94,12 @@ namespace Revivd {
         private void UpdateColor() {
             Color32[] colors = mesh.colors32;
 
-            int atomCount = AtomsAsBase.Count;
+            int atomCount = atoms.Count;
 
             for (int p = 0; p < atomCount - 1; p++) {
-                Atom currentAtom = AtomsAsBase[p];
+                Atom currentAtom = atoms[p];
 
-                if (!currentAtom.ShouldDisplay || (!currentAtom.ShouldUpdateColor && (p == 0 || !AtomsAsBase[p - 1].ShouldUpdateColor))) {
+                if (!currentAtom.ShouldDisplay || (!currentAtom.ShouldUpdateColor && (p == 0 || !atoms[p - 1].ShouldUpdateColor))) {
                     continue;
                 }
 
@@ -116,7 +115,7 @@ namespace Revivd {
                         colors[i + 4] = color;
                 }
                 else {
-                    Atom nextAtom = AtomsAsBase[p + 1];
+                    Atom nextAtom = atoms[p + 1];
                     colors[i] = currentAtom.BaseColor;
                     colors[i + 1] = currentAtom.BaseColor;
                     colors[i + 2] = nextAtom.BaseColor;
@@ -133,7 +132,7 @@ namespace Revivd {
         }
 
         private void UpdateTriangles() {
-            int totalAtoms = AtomsAsBase.Count;
+            int totalAtoms = atoms.Count;
 
             List<int> trianglesL = new List<int>();
             int[] generator = { 0, 2, 1, 1, 2, 3, 2, 5, 4, 3, 4, 6 }; //vertices to create the triangles for a ribbon
@@ -141,18 +140,18 @@ namespace Revivd {
 
             bool previousWasSpecial = false;
             for (int i = 0; i < totalAtoms - 1; i++) {
-                if (AtomsAsBase[i].ShouldDisplay) {
+                if (atoms[i].ShouldDisplay) {
                     for (int j = 0; j < (i == totalAtoms - 2 ? 6 : 12); j++) {
                         trianglesL.Add(generator[j] + 5 * i);
                     }
 
                     if (specialRadii.ContainsKey(i)) {
-                        if (!previousWasSpecial && i != 0 && AtomsAsBase[i - 1].ShouldDisplay) {
+                        if (!previousWasSpecial && i != 0 && atoms[i - 1].ShouldDisplay) {
                             for (int j = 0; j < 6; j++) {
                                 trianglesL.Add(bonusGenerator[j] + 5 * (i - 1));
                             }
                         }
-                        if (i != totalAtoms - 2 && AtomsAsBase[i + 1].ShouldDisplay) {
+                        if (i != totalAtoms - 2 && atoms[i + 1].ShouldDisplay) {
                             for (int j = 0; j < 6; j++) {
                                 trianglesL.Add(bonusGenerator[j] + 5 * (i));
                             }
@@ -170,7 +169,7 @@ namespace Revivd {
         }
 
         protected void CleanspecialRadii() {
-            int AtomCount = AtomsAsBase.Count;
+            int AtomCount = atoms.Count;
             List<int> keysToRemove = new List<int>();
             foreach (KeyValuePair<int, float> pair in specialRadii) {
                 if (pair.Key > AtomCount - 2 || pair.Key < 0)
@@ -179,9 +178,107 @@ namespace Revivd {
             foreach (int key in keysToRemove)
                 specialRadii.Remove(key);
         }
+
+        private GameObject timeSphere = null;
+
+        public float timeSphereTime = 0;
+        public bool timeSphereDropped = false;
+
+        protected virtual void CreateTimeSphere() {
+            timeSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            Destroy(timeSphere.GetComponent<SphereCollider>());
+            MeshRenderer renderer = timeSphere.GetComponent<MeshRenderer>();
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+            renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+            timeSphere.transform.parent = this.transform;
+            timeSphere.transform.localScale = Vector3.one * Visualization.Instance.timeSphereRadius;
+        }
+
+        public void UpdateTimeSphereRadius() {
+            if (timeSphere != null) {
+                timeSphere.transform.localScale = Vector3.one * Visualization.Instance.timeSphereRadius;
+            }
+        }
+
+        public void UpdateTimeSphere() {
+            Visualization viz = Visualization.Instance;
+
+            if (!viz.displayTimeSpheres) {
+                if (timeSphere != null) {
+                    Destroy(timeSphere);
+                    timeSphere = null;
+                }
+                return;
+            }
+
+            if (viz.useGlobalTime) {
+                timeSphereDropped = false;
+                timeSphereTime = viz.globalTime;
+                UpdateTimeSpherePosition();
+            }
+            else if (timeSphereDropped) {
+                if (viz.doTimeSphereAnimation)
+                    timeSphereTime += viz.timeSphereAnimationSpeed * Time.deltaTime;
+                UpdateTimeSpherePosition();
+            }
+            else {
+                if (timeSphere != null) {
+                    Destroy(timeSphere);
+                    timeSphere = null;
+                }
+            }
+
+        }
+
+        private void UpdateTimeSpherePosition() {
+            var it = atoms.GetEnumerator();
+            it.MoveNext();
+            float t = it.Current.time;
+            if (t > timeSphereTime) { //First point is already too late
+                if (timeSphere != null) {
+                    Destroy(timeSphere);
+                    timeSphere = null;
+                }
+                return;
+            }
+
+            Visualization viz = Visualization.Instance;
+            Atom a = it.Current;
+            while (it.MoveNext()) {
+                if (it.Current.time > timeSphereTime) { //Next point is too late
+                    if (!a.ShouldDisplayBecauseSelected) {
+                        if (timeSphere != null) {
+                            Destroy(timeSphere);
+                            timeSphere = null;
+                        }
+                        return;
+                    }
+
+                    if (timeSphere == null)
+                        CreateTimeSphere();
+
+                    Vector3 pos = a.point;
+                    pos += (timeSphereTime - a.time) / (it.Current.time - a.time) * (it.Current.point - a.point);
+                    timeSphere.transform.localPosition = pos;
+                    timeSphere.SetActive(true);
+                    if (viz.traceTimeSpheres) {
+                        a.ShouldDisplayBecauseTime = true;
+                    }
+                    return;
+                }
+                a = it.Current;
+            }
+
+            //Reached the end while still being too early
+            if (timeSphere != null) {
+                Destroy(timeSphere);
+                timeSphere = null;
+            }
+        }
     }
 
-    public abstract class Atom {
+    public class Atom {
         public Vector3 point;
         public Path path;
         public int indexInPath;
@@ -248,7 +345,7 @@ namespace Revivd {
         }
 
         public virtual bool ShouldDisplay {
-            get => shouldDisplay_selected;
+            get => shouldDisplay_selected && shouldDisplay_time;
         }
 
         public bool ShouldDisplayBecauseSelected {
@@ -299,6 +396,24 @@ namespace Revivd {
                 }
             }
         }
-    }
 
+        public float time;
+
+        private bool shouldDisplay_time = true;
+
+        public bool ShouldDisplayBecauseTime {
+            get => shouldDisplay_time;
+            set {
+                bool wasDisplayed = ShouldDisplay;
+                shouldDisplay_time = value;
+                if (wasDisplayed != ShouldDisplay) {
+                    path.needsTriangleUpdate = true;
+                    if (!wasDisplayed)
+                        path.needsColorUpdate = true;
+                }
+            }
+        }
+
+        public float colorValue;
+    }
 }

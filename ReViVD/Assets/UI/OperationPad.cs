@@ -58,8 +58,8 @@ namespace Revivd {
         }
 
         void ResetDisplayedPaths() {
-            foreach (Path p in Visualization.Instance.PathsAsBase) {
-                foreach (Atom a in p.AtomsAsBase) {
+            foreach (Path p in Visualization.Instance.paths) {
+                foreach (Atom a in p.atoms) {
                     a.ShouldDisplayBecauseSelected = true;
                 }
             }

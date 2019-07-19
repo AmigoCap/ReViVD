@@ -192,6 +192,9 @@ namespace Revivd {
         }
 
         private void Update() {
+            if (!Visualization.Instance.Loaded)
+                return;
+
             Color = s_color; //Une update se fera si nécessaire (couleur changée dans l'éditeur)
             Persistent = s_persistent; //idem
 
