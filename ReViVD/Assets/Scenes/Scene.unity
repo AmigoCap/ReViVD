@@ -4509,7 +4509,7 @@ MonoBehaviour:
   traceTimeSpheres: 0
   paths: []
   manualLoading: 1
-  jsonPath: json/aviation.json
+  jsonPath: json/foot.json
 --- !u!1 &2084646546
 GameObject:
   m_ObjectHideFlags: 0
@@ -5176,6 +5176,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Selectors
       objectReference: {fileID: 0}
+    - target: {fileID: 2272050962727453811, guid: b2b4f5e632ae8944c908da76cfd5fdb0,
+        type: 3}
+      propertyPath: leftSelectionCircleMask
+      value: 
+      objectReference: {fileID: 1583079861}
+    - target: {fileID: 2272050962727453811, guid: b2b4f5e632ae8944c908da76cfd5fdb0,
+        type: 3}
+      propertyPath: rightSelectionCircleMask
+      value: 
+      objectReference: {fileID: 2106293282}
     - target: {fileID: 2272050962727453810, guid: b2b4f5e632ae8944c908da76cfd5fdb0,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5231,16 +5241,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2272050962727453811, guid: b2b4f5e632ae8944c908da76cfd5fdb0,
-        type: 3}
-      propertyPath: leftSelectionCircleMask
-      value: 
-      objectReference: {fileID: 1583079861}
-    - target: {fileID: 2272050962727453811, guid: b2b4f5e632ae8944c908da76cfd5fdb0,
-        type: 3}
-      propertyPath: rightSelectionCircleMask
-      value: 
-      objectReference: {fileID: 2106293282}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b2b4f5e632ae8944c908da76cfd5fdb0, type: 3}
 --- !u!4 &4237538312343524731
