@@ -1,13 +1,13 @@
 {
   "pathAttributeUsedAs_id": "",
-  "pathAttributeUsedAs_n_atoms": "n",
+  "pathAttributeUsedAs_n_atoms": "",
   "atomAttributeUsedAs_x": "x",
-  "atomAttributeUsedAs_y": "y",
-  "atomAttributeUsedAs_z": "z",
+  "atomAttributeUsedAs_y": "z",
+  "atomAttributeUsedAs_z": "y",
   "atomAttributeUsedAs_t": "",
-  "atomAttributeUsedAs_color": "z",
-  "filename": "External Data/Bogey/turbine",
-  "severalFiles_splitInstants": false,
+  "atomAttributeUsedAs_color": "power",
+  "filename": "External Data/Naso/droplet_bundle_",
+  "severalFiles_splitInstants": true,
   "splitInstants_instantsPerFile": 50,
   "severalFiles_firstFileSuffix": "0001",
   "endianness": "little",
@@ -26,18 +26,18 @@
     "y": 500.0,
     "z": 3000.0
   },
-  "dataset_n_paths": 28913,
+  "dataset_n_paths": 1000000,
   "allPaths": false,
   "randomPaths": true,
   "chosen_n_paths": 1000,
   "chosen_paths_start": 0,
-  "chosen_paths_end": 28913,
-  "chosen_paths_step": 10,
-  "dataset_n_instants": 2147483647,
+  "chosen_paths_end": 1000000,
+  "chosen_paths_step": 1000,
+  "dataset_n_instants": 2500,
   "allInstants": false,
   "chosen_instants_start": 0,
-  "chosen_instants_end": 2147483647,
-  "chosen_instants_step": 100,
+  "chosen_instants_end": 50,
+  "chosen_instants_step": 1,
   "useGPSCoords": false,
   "GPSOrigin": {
     "x": 0.0,
@@ -48,29 +48,24 @@
   "spheresGlobalTime": 0.0,
   "spheresDisplay": false,
   "assetBundles": [],
-  "pathAttributes": [
-    {
-      "name": "n",
-      "type": "int32"
-    }
-  ],
+  "pathAttributes": [],
   "atomAttributes": [
     {
       "name": "x",
       "type": "float32",
-      "positionOffset": 0.0,
-      "sizeCoeff": 1.0,
+      "positionOffset": -317,
+      "sizeCoeff": 50.0,
       "colorStart": "Green",
       "colorEnd": "Red",
-      "valueColorUseMinMax": false,
-      "valueColorStart": -100.0,
-      "valueColorEnd": 100.0
+      "valueColorUseMinMax": true,
+      "valueColorStart": 0.0,
+      "valueColorEnd": 1.0
     },
     {
       "name": "y",
       "type": "float32",
-      "positionOffset": 0.0,
-      "sizeCoeff": 1.0,
+      "positionOffset": -317,
+      "sizeCoeff": 50.0,
       "colorStart": "Blue",
       "colorEnd": "Red",
       "valueColorUseMinMax": false,
@@ -80,13 +75,46 @@
     {
       "name": "z",
       "type": "float32",
-      "positionOffset": 0.0,
-      "sizeCoeff": 1.0,
+      "positionOffset": -317,
+      "sizeCoeff": 50.0,
       "colorStart": "Green",
       "colorEnd": "Red",
       "valueColorUseMinMax": true,
       "valueColorStart": 0.0,
       "valueColorEnd": 1.0
+    },
+    {
+      "name": "speed",
+      "type": "float32",
+      "positionOffset": 0.0,
+      "sizeCoeff": 1.0,
+      "colorStart": "Blue",
+      "colorEnd": "Red",
+      "valueColorUseMinMax": false,
+      "valueColorStart": 0.08,
+      "valueColorEnd": 0.39
+    },
+    {
+      "name": "accel",
+      "type": "float32",
+      "positionOffset": 0.0,
+      "sizeCoeff": 1.0,
+      "colorStart": "Blue",
+      "colorEnd": "Red",
+      "valueColorUseMinMax": true,
+      "valueColorStart": 0.0,
+      "valueColorEnd": 1.0
+    },
+    {
+      "name": "power",
+      "type": "float32",
+      "positionOffset": 0.0,
+      "sizeCoeff": 1.0,
+      "colorStart": "Blue",
+      "colorEnd": "Red",
+      "valueColorUseMinMax": false,
+      "valueColorStart": -0.04,
+      "valueColorEnd": 0.04
     }
   ]
 }

@@ -7,8 +7,9 @@
   "atomAttributeUsedAs_t": "t",
   "atomAttributeUsedAs_color": "altitude",
   "filename": "External Data/AirTraffic/aviation",
-  "severalFiles": false,
-  "n_instants_per_file": 50,
+  "severalFiles_splitInstants": false,
+  "splitInstants_instantsPerFile": 50,
+  "severalFiles_firstFileSuffix": "0001",
   "endianness": "little",
   "districtSize": {
     "x": 40.0,
@@ -25,17 +26,15 @@
     "y": 10000.0,
     "z": 10000.0
   },
-  "file_n_paths": 4309,
-  "randomPaths": false,
+  "dataset_n_paths": 4309,
   "allPaths": true,
-  "allInstants": true,
-  "randomColorPaths": false,
+  "randomPaths": false,
   "chosen_n_paths": 4309,
   "chosen_paths_start": 0,
   "chosen_paths_end": 4309,
   "chosen_paths_step": 1,
-  "constant_n_instants": false,
-  "file_n_instants": 100000,
+  "dataset_n_instants": 2147483647,
+  "allInstants": true,
   "chosen_instants_start": 0,
   "chosen_instants_end": 200,
   "chosen_instants_step": 1,
@@ -81,43 +80,47 @@
     }
   ],
   "atomAttributes": [
-      {
+    {
       "name": "t",
       "type": "float32",
+      "positionOffset": 0.0,
       "sizeCoeff": 1.0,
-      "valueColorUseMinMax": false,
       "colorStart": "Blue",
       "colorEnd": "Red",
+      "valueColorUseMinMax": false,
       "valueColorStart": 0.0,
       "valueColorEnd": 1.0
     },
     {
       "name": "x",
       "type": "float32",
+      "positionOffset": 0.0,
       "sizeCoeff": 1.0,
-      "valueColorUseMinMax": true,
       "colorStart": "Blue",
       "colorEnd": "Red",
+      "valueColorUseMinMax": true,
       "valueColorStart": 0.0,
       "valueColorEnd": 1.0
     },
     {
       "name": "z",
       "type": "float32",
+      "positionOffset": 0.0,
       "sizeCoeff": 1.0,
-      "valueColorUseMinMax": true,
       "colorStart": "Blue",
       "colorEnd": "Red",
+      "valueColorUseMinMax": true,
       "valueColorStart": 0.0,
       "valueColorEnd": 1.0
     },
-	{
+    {
       "name": "altitude",
       "type": "float32",
+      "positionOffset": 0.0,
       "sizeCoeff": 1.0,
-      "valueColorUseMinMax": true,
       "colorStart": "Blue",
       "colorEnd": "Red",
+      "valueColorUseMinMax": true,
       "valueColorStart": 0.0,
       "valueColorEnd": 1.0
     }
