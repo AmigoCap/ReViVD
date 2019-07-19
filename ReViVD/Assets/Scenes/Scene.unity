@@ -3860,8 +3860,8 @@ MonoBehaviour:
   timeSphereAnimationSpeed: 10
   traceTimeSpheres: 0
   paths: []
-  manualLoading: 0
-  json: External Data/Bogey/bogey.json
+  manualLoading: 1
+  json: External Data/GeoLife/geolife.json
 --- !u!114 &2043702385
 MonoBehaviour:
   m_ObjectHideFlags: 0

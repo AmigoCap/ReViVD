@@ -222,8 +222,6 @@ namespace Revivd {
             }
 
             for (int i=0; i < data.atomAttributes.Length; i++) {
-                CheckValue(ref data.atomAttributes[i].sizeCoeff, data.atomAttributes[i].sizeCoeff < 0, 1, "The size coeff of atom attribute " + data.atomAttributes[i].name + " is negative");
-
                 CheckValues_swap(ref data.atomAttributes[i].valueColorStart, ref data.atomAttributes[i].valueColorStart, "valueColorStart is bigger than valuecolorEnd for atom attribute " + data.atomAttributes[i].name);
             }
 
