@@ -355,6 +355,7 @@ public class Launcher : MonoBehaviour
 
         try {
             revivd.StandardInput.WriteLine(json);
+            revivd.StandardInput.WriteLine(selectFile.jsonDirectory);
         }
         catch (System.Exception e) {
             LogError("Error during IPC\n\n" + e.Message);

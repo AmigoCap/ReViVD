@@ -57,11 +57,16 @@ namespace Revivd {
             }
         }
 
+        string GetFullPath(string filename) {
+            return System.IO.Path.Combine(GetComponent<IPCReceiver>().workingDirectory, filename);
+        }
+
         bool CleanupData(IPCReceiver.LoadingData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
         
             if (data.severalFiles_splitInstants) {
-                if (!File.Exists(data.filename + data.severalFiles_firstFileSuffix)) {
-                    Debug.LogError("First data file not found");
+                string filename = GetFullPath(data.filename + data.severalFiles_firstFileSuffix);
+                if (!File.Exists(filename)) {
+                    Debug.LogError("First data file not found at " + filename);
                     return false;
                 }
 
@@ -69,8 +74,9 @@ namespace Revivd {
                     Debug.LogWarning("Uncommon non-empty n_atom path attribute for a split-file dataset, is this intentional?");
             }
             else {
-                if (!File.Exists(data.filename)) {
-                    Debug.LogError("Data file not found");
+                string filename = GetFullPath(data.filename);
+                if (!File.Exists(filename)) {
+                    Debug.LogError("Data file not found at " + filename);
                     return false;
                 }
             }
@@ -226,7 +232,7 @@ namespace Revivd {
 
         IPCReceiver.LoadingData data;
         public bool manualLoading = false;
-        public string jsonPath = "";
+        public string json = "";
         protected override bool LoadFromFile() {
             Tools.StartClock();
             
@@ -235,7 +241,8 @@ namespace Revivd {
                 Tools.AddClockStop("Received json data");
             }
             else {
-                StreamReader reader = new StreamReader(jsonPath);
+                GetComponent<IPCReceiver>().workingDirectory = new FileInfo(json).Directory.FullName;
+                StreamReader reader = new StreamReader(json);
                 data = JsonConvert.DeserializeObject<IPCReceiver.LoadingData>(reader.ReadToEnd());
                 Tools.AddClockStop("Loaded json data");
             }
@@ -378,7 +385,7 @@ namespace Revivd {
             int n_of_assetBundles = data.assetBundles.Length;
             for (int i = 0; i < n_of_assetBundles; i++) {
     
-                AssetBundle ab = AssetBundle.LoadFromFile(data.assetBundles[i].filename);
+                AssetBundle ab = AssetBundle.LoadFromFile(GetFullPath(data.assetBundles[i].filename));
                 if (ab == null) {
                     Debug.LogWarning("Failed to load AssetBundle " + data.assetBundles[i].name);
                     continue;
@@ -427,10 +434,13 @@ namespace Revivd {
             BinaryReader br = null;
 
             for (int i_file = fileStart; i_file < fileEnd; i_file++) {
-                string currentFileName = data.filename;
+                string currentFileName;
 
                 if (data.severalFiles_splitInstants) {
-                    currentFileName = GetCompositeFilename(data.filename, data.severalFiles_firstFileSuffix, i_file);
+                    currentFileName = GetFullPath(GetCompositeFilename(data.filename, data.severalFiles_firstFileSuffix, i_file));
+                }
+                else {
+                    currentFileName = GetFullPath(data.filename);
                 }
 
                 if (br != null)

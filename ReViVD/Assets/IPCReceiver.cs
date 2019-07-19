@@ -110,10 +110,12 @@ namespace Revivd {
             public AtomAttribute[] atomAttributes = new AtomAttribute[0];
         };
         public LoadingData data;
+        public string workingDirectory = "";
 
         public LoadingData CatchData() {
             try {
                 data = JsonConvert.DeserializeObject<IPCReceiver.LoadingData>(Console.ReadLine());
+                workingDirectory = Console.ReadLine();
             }
             catch (System.Exception e) {
                 Debug.Log("Error deserializing data: " + e.Message);

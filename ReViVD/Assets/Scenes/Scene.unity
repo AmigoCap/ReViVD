@@ -3932,6 +3932,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2043702383}
   - component: {fileID: 2043702384}
+  - component: {fileID: 2043702385}
   m_Layer: 0
   m_Name: Visualization
   m_TagString: Untagged
@@ -3979,7 +3980,20 @@ MonoBehaviour:
   traceTimeSpheres: 0
   paths: []
   manualLoading: 1
-  jsonPath: json/aviation.json
+  json: External Data/Naso/naso.json
+--- !u!114 &2043702385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2043702382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e13d07e5471484444a838628fc2e34c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  workingDirectory: 
 --- !u!1 &2084646546
 GameObject:
   m_ObjectHideFlags: 0

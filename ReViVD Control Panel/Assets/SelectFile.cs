@@ -6,6 +6,7 @@ using System.IO;
 public class SelectFile : MonoBehaviour
 {
     public InputField field;
+    public string jsonDirectory = "";
 
 #pragma warning disable 0649
     [SerializeField] GameObject indicator_found;
@@ -26,6 +27,7 @@ public class SelectFile : MonoBehaviour
 
         if (exists) {
             Launcher.Instance.LoadJson();
+            jsonDirectory = new FileInfo(field.text).Directory.FullName;
         }
     }
 
