@@ -153,13 +153,14 @@ public class Launcher : MonoBehaviour
             return;
         }
 
-        sampling.gameObject.SetActive(true);
-        axisConf.gameObject.SetActive(true);
-        spheres.gameObject.SetActive(true);
-        style.gameObject.SetActive(true);
-        advanced.gameObject.SetActive(true);
-        launch.interactable = true;
-        export.interactable = true;
+        _dataLoaded = false;
+        sampling.gameObject.SetActive(false);
+        axisConf.gameObject.SetActive(false);
+        spheres.gameObject.SetActive(false);
+        style.gameObject.SetActive(false);
+        advanced.gameObject.SetActive(false);
+        launch.interactable = false;
+        export.interactable = false;
 
         sampling.randomPaths.isOn = data.randomPaths;
         sampling.allPaths.isOn = data.allPaths;
@@ -231,6 +232,14 @@ public class Launcher : MonoBehaviour
         advanced.upperTrunc_x.text = data.upperTruncature.x.ToString();
         advanced.upperTrunc_y.text = data.upperTruncature.y.ToString();
         advanced.upperTrunc_z.text = data.upperTruncature.z.ToString();
+
+        sampling.gameObject.SetActive(true);
+        axisConf.gameObject.SetActive(true);
+        spheres.gameObject.SetActive(true);
+        style.gameObject.SetActive(true);
+        advanced.gameObject.SetActive(true);
+        launch.interactable = true;
+        export.interactable = true;
 
         _dataLoaded = true;
     }
@@ -404,7 +413,7 @@ public class Launcher : MonoBehaviour
     }
 
     private void Start() {
-        selectFile.field.text = "..\\..\\ReViVD\\json\\example.json";
+        selectFile.field.text = "..\\ReViVD\\External Data\\AirTraffic\\aviation.json";
     }
 
     private void OnEnable() {
