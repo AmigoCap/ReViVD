@@ -525,10 +525,12 @@ namespace Revivd {
                         instantsToRead = Math.Min(instantsToRead, data.chosen_instants_end - i_file * data.splitInstants_instantsPerFile);
                     }
 
+                    int atomIndex = p.atoms.Count;
+
                     while (localInstant < instantsToRead) {
                         GlobalAtom a = new GlobalAtom {
                             path = p,
-                            indexInPath = localInstant
+                            indexInPath = atomIndex
                         };
 
                         for (int k = 0; k < n_of_atomAttributes; k++) {
@@ -580,6 +582,7 @@ namespace Revivd {
 
                         p.atoms.Add(a);
 
+                        atomIndex++;
                         localInstant += data.chosen_instants_step;
                         br.BaseStream.Position += (data.chosen_instants_step - 1) * n_of_bytes_per_atom; //Skip atoms if necessary
                     }
