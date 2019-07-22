@@ -21,6 +21,7 @@ baseurl: "/ReViVD" # the subpath of your site, e.g. /blog
 url: "https://amigocap.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username1:  FHomps
 github_username2:  yohhaan
+github_username3: romsson
 show_downloads: false
 
 # Build settings
