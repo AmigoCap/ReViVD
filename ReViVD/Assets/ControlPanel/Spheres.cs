@@ -12,21 +12,52 @@ namespace Revivd {
         public InputField radius;
 
         private void OnEnable() {
-            display.onValueChanged.AddListener((bool isOn) => { ControlPanel.Instance.TransmitCommand<bool>(ControlPanel.Command.DisplaySpheres, isOn); });
-            animate.onValueChanged.AddListener((bool isOn) => { ControlPanel.Instance.TransmitCommand<bool>(ControlPanel.Command.AnimSpheres, isOn); });
+            display.onValueChanged.AddListener((bool isOn) => {
+                if (Visualization.Instance.Loaded) {
+                    Visualization.Instance.displayTimeSpheres = isOn;
+                    animate.interactable = isOn;
+                    if (!isOn)
+                        animate.isOn = false;
+                    drop.interactable = isOn;
+                }
+            });
+
+            animate.onValueChanged.AddListener((bool isOn) => {
+                if (Visualization.Instance.Loaded)
+                    Visualization.Instance.doTimeSphereAnimation = isOn;
+            });
+
             drop.onClick.AddListener(() => {
-                globalTime.gameObject.SetActive(false);
-                backToGlobalTime.gameObject.SetActive(true);
-                ControlPanel.Instance.TransmitCommand(ControlPanel.Command.DropSpheres);
+                if (Visualization.Instance.Loaded) {
+                    globalTime.gameObject.SetActive(false);
+                    backToGlobalTime.gameObject.SetActive(true);
+                    Visualization.Instance.useGlobalTime = false;
+                    Visualization.Instance.doSphereDrop = true;
+                }
             });
-            globalTime.onValueChanged.AddListener(delegate { ControlPanel.Instance.TransmitCommand<float>(ControlPanel.Command.SetSpheresGlobalTime, Tools.ParseField_f(globalTime, 0)); });
+
+            globalTime.onValueChanged.AddListener(delegate {
+                if (Visualization.Instance.Loaded && globalTime.isFocused) //Avoid setting the visualization's time if the visualization itself changed this field
+                    Visualization.Instance.globalTime = Tools.ParseField_f(globalTime, 0);
+            });
+
             backToGlobalTime.onClick.AddListener(() => {
-                globalTime.gameObject.SetActive(true);
-                backToGlobalTime.gameObject.SetActive(false);
-                ControlPanel.Instance.TransmitCommand(ControlPanel.Command.UseGlobalTime);
+                if (Visualization.Instance.Loaded) {
+                    globalTime.gameObject.SetActive(true);
+                    backToGlobalTime.gameObject.SetActive(false);
+                    Visualization.Instance.useGlobalTime = true;
+                }
             });
-            animSpeed.onValueChanged.AddListener(delegate { ControlPanel.Instance.TransmitCommand<float>(ControlPanel.Command.SetSpheresAnimSpeed, Tools.ParseField_f(animSpeed, 1)); });
-            radius.onValueChanged.AddListener(delegate { ControlPanel.Instance.TransmitCommand<float>(ControlPanel.Command.SetSpheresRadius, Tools.ParseField_f(radius, 2)); });
+
+            animSpeed.onValueChanged.AddListener(delegate {
+                if (Visualization.Instance.Loaded)
+                    Visualization.Instance.timeSphereAnimationSpeed = Tools.ParseField_f(animSpeed, 1);
+            });
+
+            radius.onValueChanged.AddListener(delegate {
+                if (Visualization.Instance.Loaded)
+                    Visualization.Instance.timeSphereRadius = Tools.ParseField_f(radius, 2);
+            });
         }
 
         private void OnDisable() {

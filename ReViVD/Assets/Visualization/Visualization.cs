@@ -61,6 +61,7 @@ namespace Revivd {
                 districts.Clear();
                 clearDistrictsToHighlight = true;
                 displayTimeSpheres = false;
+                _loaded = false;
             }
 
             if (!LoadFromFile()) {
@@ -303,8 +304,10 @@ namespace Revivd {
                     old_traceTimeSpheres = true;
                 }
 
-                if (useGlobalTime && doTimeSphereAnimation)
+                if (useGlobalTime && doTimeSphereAnimation) {
                     globalTime += timeSphereAnimationSpeed * Time.deltaTime;
+                    ControlPanel.Instance.spheres.globalTime.text = globalTime.ToString();
+                }
 
             }
 
@@ -347,24 +350,6 @@ namespace Revivd {
                 var data = base.ReadBytes(8);
                 Array.Reverse(data);
                 return BitConverter.ToDouble(data, 0);
-            }
-        }
-
-        Vector3 LDVector3_to_Vector3(ControlPanel.JsonData.Vector3D vector3D) {
-            return new Vector3(vector3D.x, vector3D.y, vector3D.z);
-        }
-        Vector2 LDVector2_to_Vector2(ControlPanel.JsonData.Vector2D vector2D) {
-            return new Vector2(vector2D.x, vector2D.y);
-        }
-
-        Color LDColor_to_Color(ControlPanel.JsonData.Color color) {
-            switch (color) {
-                case ControlPanel.JsonData.Color.Blue:
-                    return Color.blue;
-                case ControlPanel.JsonData.Color.Green:
-                    return Color.green;
-                default:
-                    return Color.red;
             }
         }
 
@@ -455,43 +440,48 @@ namespace Revivd {
             Color32 startColor = Color.blue;
             Color32 endColor = Color.red;
             if (Color_RoleIndex != -1) {
-                startColor = LDColor_to_Color(data.atomAttributes[Color_RoleIndex].colorStart);
-                endColor = LDColor_to_Color(data.atomAttributes[Color_RoleIndex].colorEnd);
+                startColor = ControlPanel.LDColor_to_Color(data.atomAttributes[Color_RoleIndex].colorStart);
+                endColor = ControlPanel.LDColor_to_Color(data.atomAttributes[Color_RoleIndex].colorEnd);
             }
 
-            Vector3 lowerTruncature = LDVector3_to_Vector3(data.lowerTruncature);
-            Vector3 upperTruncature = LDVector3_to_Vector3(data.upperTruncature);
+            Vector3 lowerTruncature = ControlPanel.LDVector3_to_Vector3(data.lowerTruncature);
+            Vector3 upperTruncature = ControlPanel.LDVector3_to_Vector3(data.upperTruncature);
 
             if (data.useGPSCoords)
-                Tools.SetGPSOrigin(LDVector2_to_Vector2(data.GPSOrigin));
+                Tools.SetGPSOrigin(ControlPanel.LDVector2_to_Vector2(data.GPSOrigin));
 
+            bool randomPaths = data.randomPaths;
+            int chosen_n_paths = data.chosen_n_paths;
+            int chosen_paths_start = data.chosen_paths_start;
+            int chosen_paths_end = data.chosen_paths_end;
+            int chosen_paths_step = data.chosen_paths_step;
             if (data.allPaths) {
-                data.randomPaths = false;
-                data.chosen_n_paths = data.dataset_n_paths;
-                data.chosen_paths_start = 0;
-                data.chosen_paths_end = data.dataset_n_paths;
-                data.chosen_paths_step = 1;
+                randomPaths = false;
+                chosen_n_paths = data.dataset_n_paths;
+                chosen_paths_start = 0;
+                chosen_paths_end = data.dataset_n_paths;
+                chosen_paths_step = 1;
             }
 
             int[] keptPaths;
             if (data.randomPaths) {
-                keptPaths = new int[data.chosen_n_paths];
+                keptPaths = new int[chosen_n_paths];
             }
             else {
-                keptPaths = new int[(data.chosen_paths_end - data.chosen_paths_start) / data.chosen_paths_step];
+                keptPaths = new int[(chosen_paths_end - chosen_paths_start) / chosen_paths_step];
             }
 
             if (data.randomPaths) {
                 SortedSet<int> chosenRandomPaths = new SortedSet<int>(); // SortedSet because keptPaths should always be sorted
                 System.Random rnd = new System.Random();
                 for (int i = 0; i < keptPaths.Length; i++) {
-                    while (!chosenRandomPaths.Add(rnd.Next(data.chosen_paths_start, data.chosen_paths_end))) { }
+                    while (!chosenRandomPaths.Add(rnd.Next(chosen_paths_start, chosen_paths_end))) { }
                 }
                 chosenRandomPaths.CopyTo(keptPaths);
             }
             else {
                 for (int i = 0; i < keptPaths.Length; i++) {
-                    keptPaths[i] = data.chosen_paths_start + i * data.chosen_paths_step;
+                    keptPaths[i] = chosen_paths_start + i * chosen_paths_step;
                 }
             }
 
@@ -516,9 +506,9 @@ namespace Revivd {
 
                 foreach (GameObject prefab in prefabs) {
                     if (data.assetBundles[i].overrideBundleTransform) {
-                        prefab.transform.position = LDVector3_to_Vector3(data.assetBundles[i].position);
-                        prefab.transform.eulerAngles = LDVector3_to_Vector3(data.assetBundles[i].rotation);
-                        prefab.transform.localScale = LDVector3_to_Vector3(data.assetBundles[i].scale);
+                        prefab.transform.position = ControlPanel.LDVector3_to_Vector3(data.assetBundles[i].position);
+                        prefab.transform.eulerAngles = ControlPanel.LDVector3_to_Vector3(data.assetBundles[i].rotation);
+                        prefab.transform.localScale = ControlPanel.LDVector3_to_Vector3(data.assetBundles[i].scale);
                     }
                     GameObject go = Instantiate(prefab);
                     go.transform.SetParent(this.transform, true);
@@ -539,18 +529,21 @@ namespace Revivd {
                 return filenameBase + suffix;
             }
 
+            int chosen_instants_start = data.chosen_instants_start;
+            int chosen_instants_end = data.chosen_instants_end;
+            int chosen_instants_step = data.chosen_instants_step;
             if (data.allInstants) {
-                data.chosen_instants_start = 0;
-                data.chosen_instants_end = data.dataset_n_instants;
-                data.chosen_instants_step = 1;
+                chosen_instants_start = 0;
+                chosen_instants_end = data.dataset_n_instants;
+                chosen_instants_step = 1;
             }
 
             int fileStart = 0;
             int fileEnd = 1;
 
             if (data.severalFiles_splitInstants) {
-                fileStart = data.chosen_instants_start / data.splitInstants_instantsPerFile;
-                fileEnd = (data.chosen_instants_end - 1) / data.splitInstants_instantsPerFile + 1;
+                fileStart = chosen_instants_start / data.splitInstants_instantsPerFile;
+                fileEnd = (chosen_instants_end - 1) / data.splitInstants_instantsPerFile + 1;
             }
 
             BinaryReader br = null;
@@ -627,7 +620,7 @@ namespace Revivd {
                         p = go.AddComponent<Path>();
                         p.atoms = new List<Atom>();
                         if (!data.severalFiles_splitInstants)
-                            p.atoms.Capacity = Math.Min((data.chosen_instants_end - data.chosen_instants_start) / data.chosen_instants_step, (readableInstants - data.chosen_instants_start) / data.chosen_instants_step);
+                            p.atoms.Capacity = Math.Min((chosen_instants_end - chosen_instants_start) / chosen_instants_step, (readableInstants - chosen_instants_start) / chosen_instants_step);
                         paths.Add(p);
                     }
                     else {
@@ -638,13 +631,13 @@ namespace Revivd {
 
                     int localInstant = 0;
                     if (i_file == fileStart) {
-                        localInstant = data.chosen_instants_start - i_file * data.splitInstants_instantsPerFile;
+                        localInstant = chosen_instants_start - i_file * data.splitInstants_instantsPerFile;
                         br.BaseStream.Position += localInstant * n_of_bytes_per_atom;
                     }
 
                     int instantsToRead = readableInstants;
                     if (i_file == fileEnd - 1) {
-                        instantsToRead = Math.Min(instantsToRead, data.chosen_instants_end - i_file * data.splitInstants_instantsPerFile);
+                        instantsToRead = Math.Min(instantsToRead, chosen_instants_end - i_file * data.splitInstants_instantsPerFile);
                     }
 
                     int atomIndex = p.atoms.Count;
@@ -685,7 +678,7 @@ namespace Revivd {
                         if (T_RoleIndex != -1)
                             a.time = atomAttributeValuesBuffer[T_RoleIndex];
                         else
-                            a.time = (float)(data.chosen_instants_start + localInstant * data.chosen_instants_step);
+                            a.time = (float)(chosen_instants_start + localInstant * chosen_instants_step);
 
                         if (Color_RoleIndex != -1) {
                             a.colorValue = atomAttributeValuesBuffer[Color_RoleIndex];
@@ -705,8 +698,8 @@ namespace Revivd {
                         p.atoms.Add(a);
 
                         atomIndex++;
-                        localInstant += data.chosen_instants_step;
-                        br.BaseStream.Position += (data.chosen_instants_step - 1) * n_of_bytes_per_atom; //Skip atoms if necessary
+                        localInstant += chosen_instants_step;
+                        br.BaseStream.Position += (chosen_instants_step - 1) * n_of_bytes_per_atom; //Skip atoms if necessary
                     }
 
                     br.BaseStream.Position = nextPathPosition;

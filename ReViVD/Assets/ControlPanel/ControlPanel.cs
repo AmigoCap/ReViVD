@@ -10,13 +10,14 @@ namespace Revivd {
         private static ControlPanel _instance;
         public static ControlPanel Instance { get { return _instance; } }
 
+        public SelectFile selectFile;
+        public AxisConf axisConf;
+        public Sampling sampling;
+        public Spheres spheres;
+        public Styles style;
+        public Advanced advanced;
+
 #pragma warning disable 0649
-        [SerializeField] SelectFile selectFile;
-        [SerializeField] AxisConf axisConf;
-        [SerializeField] Sampling sampling;
-        [SerializeField] Spheres spheres;
-        [SerializeField] Styles style;
-        [SerializeField] Advanced advanced;
         [SerializeField] Button load;
         [SerializeField] Button export;
 #pragma warning restore 0649
@@ -124,6 +125,24 @@ namespace Revivd {
             public PathAttribute[] pathAttributes = new PathAttribute[0];
             public AtomAttribute[] atomAttributes = new AtomAttribute[0];
         };
+
+        public static Vector3 LDVector3_to_Vector3(ControlPanel.JsonData.Vector3D vector3D) {
+            return new Vector3(vector3D.x, vector3D.y, vector3D.z);
+        }
+        public static Vector2 LDVector2_to_Vector2(ControlPanel.JsonData.Vector2D vector2D) {
+            return new Vector2(vector2D.x, vector2D.y);
+        }
+
+        public static Color LDColor_to_Color(ControlPanel.JsonData.Color color) {
+            switch (color) {
+                case ControlPanel.JsonData.Color.Blue:
+                    return Color.blue;
+                case ControlPanel.JsonData.Color.Green:
+                    return Color.green;
+                default:
+                    return Color.red;
+            }
+        }
 
         private bool _dataLoaded = false;
         public bool DataLoaded {
@@ -236,6 +255,9 @@ namespace Revivd {
             advanced.gameObject.SetActive(true);
             load.interactable = true;
             export.interactable = true;
+
+            spheres.animate.interactable = false;
+            spheres.drop.interactable = false;
 
             _dataLoaded = true;
             return data;
@@ -478,7 +500,7 @@ namespace Revivd {
 
             try {
                 dataInfo.Directory.Create();
-                StreamWriter w = new StreamWriter(dataInfo.DirectoryName + "\\export.json");
+                StreamWriter w = new StreamWriter(System.IO.Path.Combine(workingDirectory, "export.json"));
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 settings.FloatFormatHandling = FloatFormatHandling.String;
                 settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
@@ -496,7 +518,11 @@ namespace Revivd {
                 return;
             }
 
-            Visualization.Instance.Load();
+            UpdateDataFromUI();
+
+            Visualization viz = Visualization.Instance;
+
+            viz.Load();
         }
 
         public void LogError(string message) {
@@ -505,27 +531,8 @@ namespace Revivd {
             error.GetComponent<ErrorWindow>().message.text = message;
         }
 
-        public enum Command {
-            DisplaySpheres = 0,     //bool
-            AnimSpheres,            //bool
-            DropSpheres,            //void
-            SetSpheresGlobalTime,   //float
-            UseGlobalTime,          //void
-            SetSpheresAnimSpeed,    //float
-            SetSpheresRadius,       //float
-            Stop                    //void
-        }
-
-        public void TransmitCommand(Command c) {
-            
-        }
-
-        public void TransmitCommand<T>(Command c, T value) {
-           
-        }
-
         private void Start() {
-            selectFile.field.text = "..\\ReViVD\\External Data\\AirTraffic\\aviation.json";
+            selectFile.field.text = "..\\ReViVD\\External Data\\Bogey\\bogey.json";
         }
 
         private void OnEnable() {
