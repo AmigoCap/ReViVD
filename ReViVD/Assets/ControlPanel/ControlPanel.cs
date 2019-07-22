@@ -522,7 +522,7 @@ namespace Revivd {
             UpdateDataFromUI();
 
             Visualization viz = Visualization.Instance;
-
+            
             viz.Load();
         }
 

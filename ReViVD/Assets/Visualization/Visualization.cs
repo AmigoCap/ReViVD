@@ -54,15 +54,8 @@ namespace Revivd {
         public bool Loaded { get => _loaded; }
 
         public void Load() {
-            if (Loaded) {
-                foreach (Transform child in this.transform)
-                    Destroy(child.gameObject);
-                paths.Clear();
-                districts.Clear();
-                clearDistrictsToHighlight = true;
-                displayTimeSpheres = false;
-                _loaded = false;
-            }
+            if (Loaded)
+                Unload();
 
             if (!LoadFromFile()) {
                 Debug.LogError("Failed loading from file");
@@ -71,8 +64,30 @@ namespace Revivd {
             else {
                 Debug.Log("Successfully loaded file");
                 _loaded = true;
-                CreateDistricts();
             }
+
+            ControlPanel.JsonData data = ControlPanel.Instance.data;
+
+            districtSize = ControlPanel.LDVector3_to_Vector3(data.districtSize);
+            CreateDistricts();
+
+            displayTimeSpheres = data.spheresDisplay;
+            globalTime = data.spheresGlobalTime;
+            timeSphereRadius = data.spheresRadius;
+            timeSphereAnimationSpeed = data.spheresAnimSpeed;
+        }
+
+        public void Unload() {
+            foreach (Transform child in this.transform)
+                Destroy(child.gameObject);
+            paths.Clear();
+            districts.Clear();
+            clearDistrictsToHighlight = true;
+
+            useGlobalTime = false;
+            doTimeSphereAnimation = false;
+
+            _loaded = false;
         }
 
         public struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
