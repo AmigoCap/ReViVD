@@ -19,8 +19,8 @@ namespace Revivd {
 
         public Toggle gps;
 
-        void autofillScale(Dropdown axis, ref int prevValue, InputField scale) {
-            if (ControlPanel.Instance.DataLoaded) {
+        void AutoFillScale(Dropdown axis, ref int prevValue, InputField scale) {
+            if (ControlPanel.Instance.Loaded) {
                 if (prevValue != 0) {
                     ControlPanel.Instance.data.atomAttributes[prevValue - 1].sizeCoeff = Tools.ParseField_f(scale, 1f);
                 }
@@ -33,9 +33,9 @@ namespace Revivd {
         }
 
         private void OnEnable() {
-            xAxis.onValueChanged.AddListener(delegate { autofillScale(xAxis, ref prevValue_x, xScale); });
-            yAxis.onValueChanged.AddListener(delegate { autofillScale(yAxis, ref prevValue_y, yScale); });
-            zAxis.onValueChanged.AddListener(delegate { autofillScale(zAxis, ref prevValue_z, zScale); });
+            xAxis.onValueChanged.AddListener(delegate { AutoFillScale(xAxis, ref prevValue_x, xScale); });
+            yAxis.onValueChanged.AddListener(delegate { AutoFillScale(yAxis, ref prevValue_y, yScale); });
+            zAxis.onValueChanged.AddListener(delegate { AutoFillScale(zAxis, ref prevValue_z, zScale); });
         }
 
         private void OnDisable() {

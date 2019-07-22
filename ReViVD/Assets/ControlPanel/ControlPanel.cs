@@ -145,15 +145,19 @@ namespace Revivd {
             }
         }
 
-        private bool _dataLoaded = false;
-        public bool DataLoaded {
-            get => _dataLoaded;
+        private bool _loaded = false;
+        public bool Loaded {
+            get => _loaded;
         }
         public JsonData data;
         System.IO.FileInfo dataInfo;
 
         public string workingDirectory;
         public JsonData LoadJson() {
+            if (Loaded) {
+                UnloadJson();
+            }
+
             try {
                 dataInfo = new FileInfo(selectFile.field.text);
                 StreamReader r = new StreamReader(selectFile.field.text);
@@ -165,19 +169,8 @@ namespace Revivd {
             }
             catch (System.Exception e) {
                 LogError("Error while loading .json, make sure it is valid\n\n" + e.Message);
-                _dataLoaded = false;
-                sampling.gameObject.SetActive(false);
-                axisConf.gameObject.SetActive(false);
-                spheres.gameObject.SetActive(false);
-                style.gameObject.SetActive(false);
-                advanced.gameObject.SetActive(false);
-                load.interactable = false;
-                export.interactable = false;
-                export_results.interactable = false;
                 return null;
             }
-
-            _dataLoaded = false;
 
             sampling.randomPaths.isOn = data.randomPaths;
             sampling.allPaths.isOn = data.allPaths;
@@ -257,13 +250,26 @@ namespace Revivd {
             advanced.gameObject.SetActive(true);
             load.interactable = true;
             export.interactable = true;
-            export_results.interactable = true;
 
             spheres.animate.interactable = false;
             spheres.drop.interactable = false;
 
-            _dataLoaded = true;
+            _loaded = true;
             return data;
+        }
+
+        public void UnloadJson() {
+            if (Visualization.Instance.Loaded)
+                UnloadViz();
+
+            _loaded = false;
+            sampling.gameObject.SetActive(false);
+            axisConf.gameObject.SetActive(false);
+            spheres.gameObject.SetActive(false);
+            style.gameObject.SetActive(false);
+            advanced.gameObject.SetActive(false);
+            load.interactable = false;
+            export.interactable = false;
         }
 
         bool CleanupData(JsonData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
@@ -434,7 +440,7 @@ namespace Revivd {
         }
 
         void UpdateDataFromUI() { //Polls the UI for changes to the data class
-            if (!DataLoaded) {
+            if (!Loaded) {
                 LogError("Unexpected call to UpdateData() with non-loaded data");
                 return;
             }
@@ -498,34 +504,45 @@ namespace Revivd {
             data.upperTruncature.z = Tools.ParseField_f(advanced.upperTrunc_z, 1000);
         }
 
-        public void ExportJson() {
+        void ExportJson() {
             UpdateDataFromUI();
 
             try {
                 dataInfo.Directory.Create();
-                StreamWriter w = new StreamWriter(System.IO.Path.Combine(workingDirectory, "export.json"));
-                JsonSerializerSettings settings = new JsonSerializerSettings();
-                settings.FloatFormatHandling = FloatFormatHandling.String;
-                settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-                w.Write(JsonConvert.SerializeObject(data, Formatting.Indented, settings));
-                w.Close();
+                using (StreamWriter w = new StreamWriter(System.IO.Path.Combine(workingDirectory, "export.json"))) {
+                    JsonSerializerSettings settings = new JsonSerializerSettings();
+                    settings.FloatFormatHandling = FloatFormatHandling.String;
+                    settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+                    w.Write(JsonConvert.SerializeObject(data, Formatting.Indented, settings));
+                }
             }
             catch (System.Exception e) {
                 LogError("Error exporting .json: ensure export.json is not being used by another process\n\n" + e.Message);
             }
         }
 
-        public void Launch() {
-            if (!DataLoaded) {
+        void LoadViz() {
+            if (!Loaded) {
                 LogError("Attempted to launch main program without data being loaded properly");
                 return;
             }
 
+            if (Visualization.Instance.Loaded) {
+                UnloadViz();
+            }
+
             UpdateDataFromUI();
 
-            Visualization viz = Visualization.Instance;
-            
-            viz.Load();
+            Visualization.Instance.Load();
+
+            export_results.interactable = true;
+
+        }
+
+        void UnloadViz() {
+            Visualization.Instance.Unload();
+
+            export_results.interactable = false;
         }
 
         public void LogError(string message) {
@@ -534,17 +551,17 @@ namespace Revivd {
             error.GetComponent<ErrorWindow>().message.text = message;
         }
 
-        private void Start() {
-            selectFile.field.text = "..\\ReViVD\\External Data\\Bogey\\bogey.json";
+        void Start() {
+            selectFile.field.text = "External Data\\Bogey\\bogey.json";
         }
 
-        private void OnEnable() {
+        void OnEnable() {
             export.onClick.AddListener(ExportJson);
-            load.onClick.AddListener(Launch);
+            load.onClick.AddListener(LoadViz);
             export_results.onClick.AddListener(Visualization.ExportResults);
         }
 
-        private void OnDisable() {
+        void OnDisable() {
             export.onClick.RemoveAllListeners();
             load.onClick.RemoveAllListeners();
             export_results.onClick.RemoveAllListeners();

@@ -26,7 +26,7 @@ namespace Revivd {
 
         int previousValue = 0;
         void autofillValues() {
-            if (ControlPanel.Instance.DataLoaded) {
+            if (ControlPanel.Instance.Loaded) {
                 if (previousValue != 0) { //Save changed data so that it is not lost on switching
                     var prev_attr = ControlPanel.Instance.data.atomAttributes[previousValue - 1];
                     prev_attr.colorStart = (ControlPanel.JsonData.Color)startColor.value;

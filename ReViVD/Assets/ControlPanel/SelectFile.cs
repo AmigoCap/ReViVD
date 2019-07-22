@@ -13,7 +13,7 @@ namespace Revivd {
 #pragma warning restore 0649
 
         void CheckForFile() {
-            bool exists = File.Exists(field.text);
+            bool jsonExists = File.Exists(field.text) && new FileInfo(field.text).Extension == ".json";
             if (!indicator_found.activeSelf && !indicator_notFound.activeSelf) {
                 RectTransform rt = GetComponent<RectTransform>();
                 rt.sizeDelta = new Vector2(rt.sizeDelta.x, rt.sizeDelta.y + 30);
@@ -21,12 +21,15 @@ namespace Revivd {
                 lg.spacing = lg.spacing + 1; //Forcing update of the layout group
                 lg.spacing = lg.spacing - 1;
             }
-            indicator_found.SetActive(exists);
-            indicator_notFound.SetActive(!exists);
+            indicator_found.SetActive(jsonExists);
+            indicator_notFound.SetActive(!jsonExists);
 
-            if (exists) {
+            if (jsonExists) {
                 ControlPanel.Instance.workingDirectory = new FileInfo(field.text).Directory.FullName;
                 ControlPanel.Instance.LoadJson();
+            }
+            else {
+                ControlPanel.Instance.UnloadJson();
             }
         }
 

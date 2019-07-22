@@ -51,14 +51,14 @@ namespace Revivd {
         }
 
         void CapPaths() {
-            if (paths_end.text == "" || !ControlPanel.Instance.DataLoaded)
+            if (paths_end.text == "" || !ControlPanel.Instance.Loaded)
                 return;
             if (Tools.ParseField_i(paths_end, ControlPanel.Instance.data.dataset_n_paths) >= ControlPanel.Instance.data.dataset_n_paths)
                 paths_end.text = ControlPanel.Instance.data.dataset_n_paths.ToString();
         }
 
         void CapInstants() {
-            if (instants_end.text == "" || !ControlPanel.Instance.DataLoaded)
+            if (instants_end.text == "" || !ControlPanel.Instance.Loaded)
                 return;
 
             if (Tools.ParseField_i(instants_end, ControlPanel.Instance.data.dataset_n_instants) >= ControlPanel.Instance.data.dataset_n_instants)

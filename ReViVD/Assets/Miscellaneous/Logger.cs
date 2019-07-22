@@ -9,8 +9,8 @@ namespace Revivd {
         private static Logger _instance;
         public static Logger Instance { get { return _instance; } }
 
-        StreamWriter posLog;
-        StreamWriter eventLog;
+        string posLogBuffer = "";
+        string eventLogBuffer = "";
 
         public static NumberFormatInfo nfi = new NumberFormatInfo();
 
@@ -23,11 +23,11 @@ namespace Revivd {
 
         void LogPosition() {
             Vector3 pos = Camera.main.transform.position;
-            posLog.WriteLine(pos.x.ToString(nfi) + ',' + pos.y.ToString(nfi) + ',' + pos.z.ToString(nfi));
+            posLogBuffer += pos.x.ToString(nfi) + ',' + pos.y.ToString(nfi) + ',' + pos.z.ToString(nfi) + '\n';
         }
 
         public void LogEvent(string eventString) {
-            eventLog.WriteLine(Time.time.ToString(nfi) + ',' + eventString);
+            eventLogBuffer += Time.time.ToString(nfi) + ',' + eventString + '\n';
         }
 
         public static readonly string[] colorString = { "R", "G", "B", "Y", "C", "M" };
@@ -62,20 +62,21 @@ namespace Revivd {
         void Start() {
             DateTime now = DateTime.Now;
             string dir = "ReViVD Output/" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00");
-            Directory.CreateDirectory(dir);
+            Directory.CreateDirectory(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), dir));
             dirname = new FileInfo(dir).FullName;
 
             nfi.NumberDecimalSeparator = ".";
-            posLog = new StreamWriter(System.IO.Path.Combine(dirname, "position.csv"));
-            eventLog = new StreamWriter(System.IO.Path.Combine(dirname, "events.csv"));
 
             InvokeRepeating("LogPosition", 0, 0.5f);
         }
 
         private void OnDisable() {
             CancelInvoke();
-            posLog.Close();
-            eventLog.Close();
+            using (StreamWriter posLog = new StreamWriter(System.IO.Path.Combine(dirname, "position.csv")))
+            using (StreamWriter eventLog = new StreamWriter(System.IO.Path.Combine(dirname, "events.csv"))) {
+                posLog.Write(posLogBuffer);
+                eventLog.Write(eventLogBuffer);
+            }
         }
     }
 

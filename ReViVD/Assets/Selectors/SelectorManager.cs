@@ -27,8 +27,6 @@ namespace Revivd {
         public GameObject leftCreationCircleMask;
         public GameObject rightCreationCircleMask;
 
-        public HashSet<Path> pathsToKeep;
-
         public byte selectorTransparency = 172;
 
         private ControlMode _currentControlMode = ControlMode.SelectionMode;
@@ -188,7 +186,7 @@ namespace Revivd {
                 return;
             }
 
-            pathsToKeep = new HashSet<Path>();
+            HashSet<Path> pathsToKeep = new HashSet<Path>();
             if (operationMode == LogicMode.AND) {
                 bool firstPass = true;
                 foreach (ColorGroup c in operatingColors) {

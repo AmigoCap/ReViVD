@@ -223,12 +223,7 @@ namespace Revivd {
         public enum ColorGroup { Red = 0, Green, Blue, Yellow, Cyan, Magenta };
         public static NumberFormatInfo nfi = new NumberFormatInfo();
 
-
         public static void ExportResults() {
-
-            if (SelectorManager.Instance.pathsToKeep == null)
-                return;
-
             DateTime now = DateTime.Now;
             string dir = Logger.Instance.dirname;
 
@@ -236,39 +231,40 @@ namespace Revivd {
             // Log all displayed path names
             string export = "export_" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
 
-            StreamWriter displayExport = new StreamWriter(System.IO.Path.Combine(dir, export));
-            string s = "Displayed,";
+            using (StreamWriter displayExport = new StreamWriter(System.IO.Path.Combine(dir, export))) {
 
+                string s = "Displayed,";
 
-            foreach (Path path in SelectorManager.Instance.pathsToKeep) { 
-                s+= path.name + ',';
-            }
-            displayExport.WriteLine(s);
+                HashSet<Path> pathsToKeep = new HashSet<Path>();
 
-      
-            void displayExportColor(ColorGroup c) { 
-                HashSet<Path> currentColorPath = new HashSet<Path>();
-
-                foreach (Atom a in SelectorManager.Instance.selectedRibbons[(int)c]) {
-                    if (a.ShouldDisplay)
-                        currentColorPath.Add(a.path);
+                foreach (Path p in Visualization.Instance.paths) {
+                    foreach (Atom a in p.atoms) {
+                        if (a.ShouldDisplay)
+                            pathsToKeep.Add(a.path);
+                    }
                 }
 
-                string s_color = c.ToString() + ',';
-                foreach (Path path in currentColorPath) {
-                    s_color += path.name + ',';
+                foreach (Path p in pathsToKeep) {
+                    s += p.name + ',';
                 }
-                displayExport.WriteLine(s_color);
+                displayExport.WriteLine(s);
+
+                for (int c = 0; c < SelectorManager.colors.Length; c++) {
+                    pathsToKeep.Clear();
+
+                    foreach (Atom a in SelectorManager.Instance.selectedRibbons[c]) {
+                        if (a.ShouldDisplay)
+                            pathsToKeep.Add(a.path);
+                    }
+
+                    string s_color = Logger.colorString[c] + ',';
+                    foreach (Path path in pathsToKeep) {
+                        s_color += path.name + ',';
+                    }
+                    displayExport.WriteLine(s_color);
+                }
+
             }
-
-            // Log all displayed path names by color
-            displayExportColor(ColorGroup.Red);
-            displayExportColor(ColorGroup.Green);
-            displayExportColor(ColorGroup.Blue);
-            displayExportColor(ColorGroup.Yellow);
-            displayExportColor(ColorGroup.Cyan);
-            displayExportColor(ColorGroup.Magenta);
-
         }
 
         void Awake() {
