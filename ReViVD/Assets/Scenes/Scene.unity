@@ -345,8 +345,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 782958091}
   m_HandleRect: {fileID: 782958090}
   m_Direction: 2
-  m_Value: 1.000001
-  m_Size: 0.92765963
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2774,6 +2774,7 @@ MonoBehaviour:
   advanced: {fileID: 400100073}
   load: {fileID: 1574876027}
   export: {fileID: 782041978}
+  export_results: {fileID: 840989418}
   workingDirectory: 
 --- !u!1 &204453343
 GameObject:
@@ -24222,6 +24223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0c3e9dc8a35d88439291f933592fedb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dirname: 
 --- !u!4 &2007792042
 Transform:
   m_ObjectHideFlags: 0

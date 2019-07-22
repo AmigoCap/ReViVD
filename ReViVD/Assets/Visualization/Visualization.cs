@@ -209,7 +209,7 @@ namespace Revivd {
         public static NumberFormatInfo nfi = new NumberFormatInfo();
 
 
-        public void ExportResults() {
+        public static void ExportResults() {
 
             DateTime now = DateTime.Now;
             string dir = Logger.Instance.dirname;

@@ -20,6 +20,7 @@ namespace Revivd {
 #pragma warning disable 0649
         [SerializeField] Button load;
         [SerializeField] Button export;
+        [SerializeField] Button export_results;
 #pragma warning restore 0649
 
         public class JsonData {
@@ -538,11 +539,13 @@ namespace Revivd {
         private void OnEnable() {
             export.onClick.AddListener(ExportJson);
             load.onClick.AddListener(Launch);
+            export_results.onClick.AddListener(Visualization.ExportResults);
         }
 
         private void OnDisable() {
             export.onClick.RemoveAllListeners();
             load.onClick.RemoveAllListeners();
+            export_results.onClick.RemoveAllListeners();
         }
 
         void Awake() {
