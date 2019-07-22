@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using System;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace Revivd {
     public class Visualization : MonoBehaviour {
@@ -201,6 +202,53 @@ namespace Revivd {
                     p.timeSphereDropped = true;
                 }
             }
+        }
+
+        public enum ColorGroup { Red = 0, Green, Blue, Yellow, Cyan, Magenta };
+        public static NumberFormatInfo nfi = new NumberFormatInfo();
+
+
+        public void ExportResults() {
+
+            DateTime now = DateTime.Now;
+            string dir = Logger.Instance.dirname;
+
+            // Log all displayed path names
+            string export = "export" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
+
+            StreamWriter displayExport = new StreamWriter(System.IO.Path.Combine(dir, export));
+            string s = "Displayed,";
+            foreach  (Path path in SelectorManager.Instance.pathsToKeep) { 
+                s+= path.name + ',';
+            }
+            displayExport.WriteLine(s);
+
+      
+            void displayExportColor(ColorGroup c) {
+                string exportcolor = "export" + c + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
+                StreamWriter displayExportByColor = new StreamWriter(System.IO.Path.Combine(dir, exportcolor));
+                HashSet<Path> currentColorPath = new HashSet<Path>();
+
+                foreach (Atom a in SelectorManager.Instance.selectedRibbons[(int)c]) {
+                    if (a.ShouldDisplay)
+                        currentColorPath.Add(a.path);
+                }
+
+                string s_color = c.ToString() + ',';
+                foreach (Path path in currentColorPath) {
+                    s_color += path.name + ',';
+                }
+                displayExportByColor.WriteLine(s_color);
+            }
+
+            // Log all displayed path names by color
+            displayExportColor(ColorGroup.Red);
+            displayExportColor(ColorGroup.Green);
+            displayExportColor(ColorGroup.Blue);
+            displayExportColor(ColorGroup.Yellow);
+            displayExportColor(ColorGroup.Cyan);
+            displayExportColor(ColorGroup.Magenta);
+
         }
 
         void Awake() {

@@ -57,14 +57,17 @@ namespace Revivd {
             LogEvent(s);
         }
 
+        public string dirname;
+
         void Start() {
             DateTime now = DateTime.Now;
-            string dirname = "ReViVD Logs/" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00");
-            Directory.CreateDirectory(dirname);
+            string dir = "ReViVD Output/" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00");
+            Directory.CreateDirectory(dir);
+            dirname = new FileInfo(dir).Directory.FullName;
 
             nfi.NumberDecimalSeparator = ".";
-            posLog = new StreamWriter(dirname + "/position.csv");
-            eventLog = new StreamWriter(dirname + "/events.csv");
+            posLog = new StreamWriter(System.IO.Path.Combine(dirname, "position.csv"));
+            eventLog = new StreamWriter(System.IO.Path.Combine(dirname, "events.csv"));
 
             InvokeRepeating("LogPosition", 0, 0.5f);
         }
