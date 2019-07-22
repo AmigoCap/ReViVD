@@ -311,6 +311,9 @@ namespace Revivd {
         private static readonly float colorPulseAmplitude = 0.15f;
 
         protected virtual void Update() {
+            if (!Visualization.Instance.Loaded)
+                return;
+
             if (primitive == null || !primitive.activeInHierarchy)
                 return;
 

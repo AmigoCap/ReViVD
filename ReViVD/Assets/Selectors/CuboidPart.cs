@@ -83,7 +83,7 @@ namespace Revivd {
 
             //Segment in the world space coordinates
             Vector3 b = a.path.transform.TransformPoint(a.point);
-            Vector3 c = a.path.transform.TransformPoint(a.path.AtomsAsBase[a.indexInPath + 1].point);
+            Vector3 c = a.path.transform.TransformPoint(a.path.atoms[a.indexInPath + 1].point);
             //and then in the primitive's coordinates
             Vector3 bc = primitive.transform.InverseTransformPoint(b);
             Vector3 cc = primitive.transform.InverseTransformPoint(c);
