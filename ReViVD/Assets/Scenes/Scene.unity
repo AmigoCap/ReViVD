@@ -345,7 +345,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 782958091}
   m_HandleRect: {fileID: 782958090}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -24858,7 +24858,7 @@ MonoBehaviour:
   paths: []
   districtSize: {x: 15, y: 15, z: 15}
   material: {fileID: 2100000, guid: e0511c6796fee58469f59e5fbdb2737d, type: 2}
-  debugMode: 1
+  debugMode: 0
   clearDistrictsToHighlight: 0
   displayTimeSpheres: 0
   globalTime: 0
