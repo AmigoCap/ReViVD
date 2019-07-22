@@ -226,15 +226,21 @@ namespace Revivd {
 
         public static void ExportResults() {
 
+            if (SelectorManager.Instance.pathsToKeep == null)
+                return;
+
             DateTime now = DateTime.Now;
             string dir = Logger.Instance.dirname;
+
 
             // Log all displayed path names
             string export = "export" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
 
             StreamWriter displayExport = new StreamWriter(System.IO.Path.Combine(dir, export));
             string s = "Displayed,";
-            foreach  (Path path in SelectorManager.Instance.pathsToKeep) { 
+
+
+            foreach (Path path in SelectorManager.Instance.pathsToKeep) { 
                 s+= path.name + ',';
             }
             displayExport.WriteLine(s);
