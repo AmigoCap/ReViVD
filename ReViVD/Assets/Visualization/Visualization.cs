@@ -219,7 +219,7 @@ namespace Revivd {
 
 
             // Log all displayed path names
-            string export = "export" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
+            string export = "export_" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
 
             StreamWriter displayExport = new StreamWriter(System.IO.Path.Combine(dir, export));
             string s = "Displayed,";
@@ -231,9 +231,7 @@ namespace Revivd {
             displayExport.WriteLine(s);
 
       
-            void displayExportColor(ColorGroup c) {
-                string exportcolor = "export" + c + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
-                StreamWriter displayExportByColor = new StreamWriter(System.IO.Path.Combine(dir, exportcolor));
+            void displayExportColor(ColorGroup c) { 
                 HashSet<Path> currentColorPath = new HashSet<Path>();
 
                 foreach (Atom a in SelectorManager.Instance.selectedRibbons[(int)c]) {
@@ -245,7 +243,7 @@ namespace Revivd {
                 foreach (Path path in currentColorPath) {
                     s_color += path.name + ',';
                 }
-                displayExportByColor.WriteLine(s_color);
+                displayExport.WriteLine(s_color);
             }
 
             // Log all displayed path names by color
