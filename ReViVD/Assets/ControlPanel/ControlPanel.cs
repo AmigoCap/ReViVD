@@ -173,6 +173,7 @@ namespace Revivd {
                 advanced.gameObject.SetActive(false);
                 load.interactable = false;
                 export.interactable = false;
+                export_results.interactable = false;
                 return null;
             }
 
@@ -256,6 +257,7 @@ namespace Revivd {
             advanced.gameObject.SetActive(true);
             load.interactable = true;
             export.interactable = true;
+            export_results.interactable = true;
 
             spheres.animate.interactable = false;
             spheres.drop.interactable = false;

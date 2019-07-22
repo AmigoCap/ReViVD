@@ -210,6 +210,10 @@ namespace Revivd {
 
 
         public static void ExportResults() {
+            Debug.Log("export_results");
+
+            if (SelectorManager.Instance.pathsToKeep == null)
+                return;
 
             DateTime now = DateTime.Now;
             string dir = Logger.Instance.dirname;
@@ -219,6 +223,8 @@ namespace Revivd {
 
             StreamWriter displayExport = new StreamWriter(System.IO.Path.Combine(dir, export));
             string s = "Displayed,";
+
+
             foreach  (Path path in SelectorManager.Instance.pathsToKeep) { 
                 s+= path.name + ',';
             }

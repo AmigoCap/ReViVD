@@ -63,7 +63,7 @@ namespace Revivd {
             DateTime now = DateTime.Now;
             string dir = "ReViVD Output/" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00");
             Directory.CreateDirectory(dir);
-            dirname = new FileInfo(dir).Directory.FullName;
+            dirname = new FileInfo(dir).FullName;
 
             nfi.NumberDecimalSeparator = ".";
             posLog = new StreamWriter(System.IO.Path.Combine(dirname, "position.csv"));
