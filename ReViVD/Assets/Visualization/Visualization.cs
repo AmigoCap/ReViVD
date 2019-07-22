@@ -210,13 +210,13 @@ namespace Revivd {
 
 
         public static void ExportResults() {
-            Debug.Log("export_results");
 
             if (SelectorManager.Instance.pathsToKeep == null)
                 return;
 
             DateTime now = DateTime.Now;
             string dir = Logger.Instance.dirname;
+
 
             // Log all displayed path names
             string export = "export" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
@@ -225,7 +225,7 @@ namespace Revivd {
             string s = "Displayed,";
 
 
-            foreach  (Path path in SelectorManager.Instance.pathsToKeep) { 
+            foreach (Path path in SelectorManager.Instance.pathsToKeep) { 
                 s+= path.name + ',';
             }
             displayExport.WriteLine(s);
