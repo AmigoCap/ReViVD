@@ -17605,7 +17605,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   field: {fileID: 921001995}
-  jsonDirectory: 
   indicator_found: {fileID: 484276653}
   indicator_notFound: {fileID: 1986499147}
 --- !u!1 &1531591101
@@ -24620,7 +24619,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2043702383}
   - component: {fileID: 2043702384}
-  - component: {fileID: 2043702385}
   m_Layer: 0
   m_Name: Visualization
   m_TagString: Untagged
@@ -24669,25 +24667,6 @@ MonoBehaviour:
   traceTimeSpheres: 0
   manualLoading: 1
   json: External Data/AirTraffic/aviation.json
---- !u!114 &2043702385
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2043702382}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 64e50f400814f2e48aa91f58281cb3b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attribute: {fileID: 0}
-  startColor: {fileID: 0}
-  endColor: {fileID: 0}
-  useMinMax: {fileID: 0}
-  startValue: {fileID: 0}
-  endValue: {fileID: 0}
-  inputs_bounds: {fileID: 0}
 --- !u!1 &2045520505
 GameObject:
   m_ObjectHideFlags: 0

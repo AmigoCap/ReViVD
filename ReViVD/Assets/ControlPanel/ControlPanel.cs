@@ -157,13 +157,6 @@ namespace Revivd {
             }
 
             _dataLoaded = false;
-            sampling.gameObject.SetActive(false);
-            axisConf.gameObject.SetActive(false);
-            spheres.gameObject.SetActive(false);
-            style.gameObject.SetActive(false);
-            advanced.gameObject.SetActive(false);
-            load.interactable = false;
-            export.interactable = false;
 
             sampling.randomPaths.isOn = data.randomPaths;
             sampling.allPaths.isOn = data.allPaths;

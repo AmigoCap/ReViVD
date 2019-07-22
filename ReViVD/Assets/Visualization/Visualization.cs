@@ -9,6 +9,15 @@ namespace Revivd {
     public class Visualization : MonoBehaviour {
         public List<Path> paths;
 
+        public int GetPathIndex(string name) {
+            int c = paths.Count;
+            for (int i = 0; i < c; i++) {
+                if (paths[i].name == name)
+                    return i;
+            }
+            return -1;
+        }
+
         static Visualization _instance;
         public static Visualization Instance { get { return _instance; } }
 
@@ -40,23 +49,19 @@ namespace Revivd {
             }
         }
 
-        void Awake() {
-            if (_instance != null) {
-                Debug.LogWarning("Multiple instances of visualization singleton");
-            }
-            _instance = this;
-
-            if (material == null)
-                material = Resources.Load<Material>("Materials/Ribbon");
-
-            old_timeSphereRadius = timeSphereRadius;
-            old_traceTimeSpheres = traceTimeSpheres;
-        }
-
         bool _loaded = false;
         public bool Loaded { get => _loaded; }
 
         public void Load() {
+            if (Loaded) {
+                foreach (Transform child in this.transform)
+                    Destroy(child.gameObject);
+                paths.Clear();
+                districts.Clear();
+                clearDistrictsToHighlight = true;
+                displayTimeSpheres = false;
+            }
+
             if (!LoadFromFile()) {
                 Debug.LogError("Failed loading from file");
                 _loaded = false;
@@ -66,73 +71,6 @@ namespace Revivd {
                 _loaded = true;
                 CreateDistricts();
             }
-        }
-
-        void Update() {
-            if (!Loaded)
-                return;
-
-            foreach (Path p in paths) {
-                p.UpdatePath();
-            }
-
-            if (!traceTimeSpheres && old_traceTimeSpheres) {
-                foreach (Path p in paths) {
-                    foreach (Atom a in p.atoms) {
-                        a.ShouldDisplayBecauseTime = true;
-                    }
-                }
-                old_traceTimeSpheres = false;
-            }
-
-            if (displayTimeSpheres) {
-                if (doSphereDrop) {
-                    DropSpheres();
-                    doSphereDrop = false;
-                }
-
-                if (timeSphereRadius != old_timeSphereRadius) {
-                    foreach (Path p in paths) {
-                        p.UpdateTimeSphereRadius();
-                    }
-                    old_timeSphereRadius = timeSphereRadius;
-                }
-
-                if (traceTimeSpheres && !old_traceTimeSpheres) {
-                    foreach (Path p in paths) {
-                        foreach (Atom a in p.atoms) {
-                            a.ShouldDisplayBecauseTime = false;
-                        }
-                    }
-                    old_traceTimeSpheres = true;
-                }
-
-                if (useGlobalTime && doTimeSphereAnimation)
-                    globalTime += timeSphereAnimationSpeed * Time.deltaTime;
-
-            }
-
-            foreach (Path p in paths) {
-                p.UpdateTimeSphere();
-            }
-
-            if (debugMode) {
-                if (clearDistrictsToHighlight) {
-                    clearDistrictsToHighlight = false;
-                    foreach (HashSet<int[]> dth in districtsToHighlight) {
-                        dth.Clear();
-                    }
-                }
-            }
-        }
-
-        public int GetPathIndex(string name) {
-            int c = paths.Count;
-            for (int i = 0; i < c; i++) {
-                if (paths[i].name == name)
-                    return i;
-            }
-            return -1;
         }
 
         public struct District { //Subdivision discrète de la visualisation dans l'espace pour optimisation
@@ -265,6 +203,77 @@ namespace Revivd {
             }
         }
 
+        void Awake() {
+            if (_instance != null) {
+                Debug.LogWarning("Multiple instances of visualization singleton");
+            }
+            _instance = this;
+
+            if (material == null)
+                material = Resources.Load<Material>("Materials/Ribbon");
+
+            old_timeSphereRadius = timeSphereRadius;
+            old_traceTimeSpheres = traceTimeSpheres;
+        }
+
+        void Update() {
+            if (!Loaded)
+                return;
+
+            foreach (Path p in paths) {
+                p.UpdatePath();
+            }
+
+            if (!traceTimeSpheres && old_traceTimeSpheres) {
+                foreach (Path p in paths) {
+                    foreach (Atom a in p.atoms) {
+                        a.ShouldDisplayBecauseTime = true;
+                    }
+                }
+                old_traceTimeSpheres = false;
+            }
+
+            if (displayTimeSpheres) {
+                if (doSphereDrop) {
+                    DropSpheres();
+                    doSphereDrop = false;
+                }
+
+                if (timeSphereRadius != old_timeSphereRadius) {
+                    foreach (Path p in paths) {
+                        p.UpdateTimeSphereRadius();
+                    }
+                    old_timeSphereRadius = timeSphereRadius;
+                }
+
+                if (traceTimeSpheres && !old_traceTimeSpheres) {
+                    foreach (Path p in paths) {
+                        foreach (Atom a in p.atoms) {
+                            a.ShouldDisplayBecauseTime = false;
+                        }
+                    }
+                    old_traceTimeSpheres = true;
+                }
+
+                if (useGlobalTime && doTimeSphereAnimation)
+                    globalTime += timeSphereAnimationSpeed * Time.deltaTime;
+
+            }
+
+            foreach (Path p in paths) {
+                p.UpdateTimeSphere();
+            }
+
+            if (debugMode) {
+                if (clearDistrictsToHighlight) {
+                    clearDistrictsToHighlight = false;
+                    foreach (HashSet<int[]> dth in districtsToHighlight) {
+                        dth.Clear();
+                    }
+                }
+            }
+        }
+
         class BinaryReader_BigEndian : BinaryReader {
             public BinaryReader_BigEndian(System.IO.Stream stream) : base(stream) { }
 
@@ -311,8 +320,6 @@ namespace Revivd {
             }
         }
 
-        public bool manualLoading = false;
-        public string json = "";
         bool LoadFromFile() {
             Tools.StartClock();
 
@@ -450,7 +457,7 @@ namespace Revivd {
             // Load Assets Bundles
             int n_of_assetBundles = data.assetBundles.Length;
             for (int i = 0; i < n_of_assetBundles; i++) {
-    
+
                 AssetBundle ab = AssetBundle.LoadFromFile(Tools.GetFullPath(data.assetBundles[i].filename));
                 if (ab == null) {
                     Debug.LogWarning("Failed to load AssetBundle " + data.assetBundles[i].name);
@@ -458,14 +465,15 @@ namespace Revivd {
                 }
 
                 GameObject[] prefabs = ab.LoadAllAssets<GameObject>();
-                
+
                 foreach (GameObject prefab in prefabs) {
                     if (data.assetBundles[i].overrideBundleTransform) {
                         prefab.transform.position = LDVector3_to_Vector3(data.assetBundles[i].position);
                         prefab.transform.eulerAngles = LDVector3_to_Vector3(data.assetBundles[i].rotation);
                         prefab.transform.localScale = LDVector3_to_Vector3(data.assetBundles[i].scale);
                     }
-                    Instantiate(prefab);
+                    GameObject go = Instantiate(prefab);
+                    go.transform.SetParent(this.transform, true);
                 }
 
                 ab.Unload(false);
@@ -660,8 +668,8 @@ namespace Revivd {
             }
 
             if (Color_RoleIndex != -1 && data.atomAttributes[Color_RoleIndex].valueColorUseMinMax) {
-                for (int j=0; j < paths.Count; j++) {
-                    for (int i=0; i < paths[j].atoms.Count; i++) {
+                for (int j = 0; j < paths.Count; j++) {
+                    for (int i = 0; i < paths[j].atoms.Count; i++) {
                         Atom a = paths[j].atoms[i];
                         a.BaseColor = Color32.Lerp(startColor, endColor, (a.colorValue - AllTimeMinimumOfColorAttribute) / (AllTimeMaximumOfColorAttribute - AllTimeMinimumOfColorAttribute));
                     }
@@ -672,5 +680,6 @@ namespace Revivd {
 
             return true;
         }
+
     }
 }
