@@ -28,3 +28,9 @@ permalink: /documentation/
 * Clone the [ReViVD](https://github.com/AmigoCap/ReViVD) repository; the Unity project folder is the ReViVD folder inside the main folder
 * Download data into an **External Data** folder and use your VR headset to interact with it
 
+# JSON File Example
+
+```json
+
+```
+
