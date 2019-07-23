@@ -163,8 +163,8 @@ namespace Revivd {
                 StreamReader r = new StreamReader(selectFile.field.text);
                 string json = r.ReadToEnd();
                 data = JsonConvert.DeserializeObject<JsonData>(json);
-                if (!CleanupData(data)) {
-                    throw new System.Exception("Data cleanup failed");
+                if (!CheckJsonData(data)) {
+                    throw new System.Exception("Data checking failed");
                 }
             }
             catch (System.Exception e) {
@@ -272,22 +272,16 @@ namespace Revivd {
             export.interactable = false;
         }
 
-        bool CleanupData(JsonData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
+        bool CheckJsonData(JsonData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
 
             if (data.severalFiles_splitInstants) {
-                string filename = Tools.GetFullPath(data.filename + data.severalFiles_firstFileSuffix);
-                if (!File.Exists(filename)) {
-                    Debug.LogError("First data file not found at " + filename);
-                    return false;
-                }
-
                 if (data.pathAttributeUsedAs_n_atoms != "")
-                    Debug.LogWarning("Uncommon non-empty n_atom path attribute for a split-file dataset, is this intentional?");
+                    MakeWarningWindow("Uncommon non-empty n_atom path attribute for a split-file dataset, is this intentional?");
             }
             else {
                 string filename = Tools.GetFullPath(data.filename);
                 if (!File.Exists(filename)) {
-                    Debug.LogError("Data file not found at " + filename);
+                    MakeErrorWindow("Data file not found at " + filename);
                     return false;
                 }
             }
@@ -295,7 +289,7 @@ namespace Revivd {
 
             void CheckValue<T>(ref T value, bool condition, T defaultvalue, string log) {
                 if (condition) {
-                    Debug.LogWarning(log + "Replacing with " + defaultvalue.ToString());
+                    MakeWarningWindow(log + "\nReplacing with " + defaultvalue.ToString());
                     value = defaultvalue;
                 }
             }
@@ -305,7 +299,7 @@ namespace Revivd {
                     T temp = lowValue;
                     lowValue = highValue;
                     highValue = temp;
-                    Debug.LogWarning("Swapping values");
+                    MakeWarningWindow(log + "\nSwapping the two values.");
                 }
             }
 
@@ -316,15 +310,16 @@ namespace Revivd {
             if (data.lowerTruncature.x > data.upperTruncature.x ||
                 data.lowerTruncature.y > data.upperTruncature.y ||
                 data.lowerTruncature.z > data.upperTruncature.z) {
-                Debug.LogError("lowerTruncature is not strictly inferior to upperTruncature, resetting to default values");
+                MakeWarningWindow("lowerTruncature is not strictly inferior to upperTruncature, resetting to default values");
                 data.lowerTruncature = new ControlPanel.JsonData.Vector3D { x = -1000, y = -1000, z = -1000 };
                 data.upperTruncature = new ControlPanel.JsonData.Vector3D { x = 1000, y = 1000, z = 1000 };
             }
 
             if (data.dataset_n_paths <= 0) {
-                Debug.LogError("Negative number of paths");
+                MakeErrorWindow("Negative number of paths");
+                return false;
             }
-            else if (!data.allPaths) {
+            if (!data.allPaths) {
                 CheckValue(ref data.chosen_paths_start, data.chosen_paths_start < 0, 0, "Negative value for chosen_paths_start");
                 CheckValue(ref data.chosen_paths_start, data.chosen_paths_start > data.dataset_n_paths, 0, "Chosen_paths_start value bigger than number of paths");
 
@@ -338,9 +333,8 @@ namespace Revivd {
                 if (data.randomPaths) {
                     CheckValue(ref data.chosen_n_paths, data.chosen_n_paths <= 0, 500, "Negative value for chosen_n_paths");
                     CheckValue(ref data.chosen_n_paths, data.chosen_n_paths > data.dataset_n_paths, 500, "Chosen_n_paths value bigger than number of paths");
-                    if (data.chosen_n_paths > data.chosen_paths_end - data.chosen_paths_start) {
-                        Debug.LogError("Asking for more random paths than the range allows");
-                        Debug.LogWarning("Falling back to non-random paths in specified range");
+                    if (data.chosen_n_paths >= data.chosen_paths_end - data.chosen_paths_start) {
+                        MakeWarningWindow("Asking for more random paths than the range allows; Falling back to non-random paths in specified range");
                         data.randomPaths = false;
                         data.chosen_n_paths = data.chosen_paths_end - data.chosen_paths_start;
                         data.chosen_paths_step = 1;
@@ -351,9 +345,10 @@ namespace Revivd {
             //constant_n_instants
 
             if (data.dataset_n_instants <= 0) {
-                Debug.LogError("Negative number of instants");
+                MakeErrorWindow("Negative number of instants");
+                return false;
             }
-            else if (!data.allInstants) {
+            if (!data.allInstants) {
                 CheckValue(ref data.chosen_instants_start, data.chosen_instants_start < 0, 0, "Negative value for chosen_instants_start");
                 CheckValue(ref data.chosen_instants_start, data.chosen_instants_start > data.dataset_n_instants, 0, "Chosen_instants_start value bigger than number of instants");
 
@@ -390,16 +385,16 @@ namespace Revivd {
             }
 
             if (data.pathAttributeUsedAs_id != "" && !CheckIfPathAttributeExists(data.pathAttributeUsedAs_id, data.pathAttributes)) {
-                Debug.LogError("The path attribute to use as id doesn't exist");
+                MakeWarningWindow("The path attribute to use as id doesn't exist");
             }
             if (data.pathAttributeUsedAs_n_atoms != "" && !CheckIfPathAttributeExists(data.pathAttributeUsedAs_n_atoms, data.pathAttributes)) {
-                Debug.LogError("The path attribute to use as n_atoms doesn't exist");
+                MakeWarningWindow("The path attribute to use as n_atoms doesn't exist");
             }
 
             if (data.pathAttributes.Length > 0
                 + (data.pathAttributeUsedAs_id == "" ? 0 : 1)
                 + (data.pathAttributeUsedAs_n_atoms == "" ? 0 : 1)) {
-                Debug.LogWarning("Uncommon: some path attributes are unused, is this intentional?");
+                MakeWarningWindow("Uncommon: some path attributes are unused, is this intentional?");
             }
 
             //atomAttributes
@@ -412,24 +407,24 @@ namespace Revivd {
             }
 
             if (data.atomAttributeUsedAs_x == "" && data.atomAttributeUsedAs_y == "" && data.atomAttributeUsedAs_z == "") {
-                Debug.Log("No attributes used for any of the 3 dimensions");
+                MakeErrorWindow("No attributes used for any of the 3 dimensions");
                 return false;
             }
 
             if (data.atomAttributeUsedAs_x != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_x, data.atomAttributes)) {
-                Debug.LogError("The atom attribute to use as x doesn't exist");
+                MakeWarningWindow("The atom attribute to use as x doesn't exist");
             }
             if (data.atomAttributeUsedAs_y != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_y, data.atomAttributes)) {
-                Debug.LogError("The atom attribute to use as y doesn't exist");
+                MakeWarningWindow("The atom attribute to use as y doesn't exist");
             }
             if (data.atomAttributeUsedAs_z != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_z, data.atomAttributes)) {
-                Debug.LogError("The atom attribute to use as z doesn't exist");
+                MakeWarningWindow("The atom attribute to use as z doesn't exist");
             }
             if (data.atomAttributeUsedAs_t != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_t, data.atomAttributes)) {
-                Debug.LogError("The atom attribute to use as t doesn't exist");
+                MakeWarningWindow("The atom attribute to use as t doesn't exist");
             }
             if (data.atomAttributeUsedAs_color != "" && !CheckIfAtomAttributeExists(data.atomAttributeUsedAs_color, data.atomAttributes)) {
-                Debug.LogError("The atom attribute to use as color doesn't exist");
+                MakeWarningWindow("The atom attribute to use as color doesn't exist");
             }
 
             for (int i = 0; i < data.atomAttributes.Length; i++) {
@@ -563,6 +558,10 @@ namespace Revivd {
             window.transform.SetParent(this.transform.parent, false);
             window.GetComponent<MessageWindow>().message.text = message;
             window.GetComponent<MessageWindow>().title.text = title;
+        }
+
+        public void MakeWarningWindow(string message) {
+            MakeMessageWindow("Warning", message);
         }
 
         public void MakeErrorWindow(string message) {
