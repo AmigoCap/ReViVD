@@ -31,6 +31,6 @@ permalink: /documentation/
 # JSON File Example
 
 ```json
-
+{{md  '../ReViVD//External Data/example.json'}}
 ```
 

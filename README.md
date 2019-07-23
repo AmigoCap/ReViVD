@@ -13,6 +13,12 @@ References of the project can be found on our [website](https://amigocap.github.
 ## Docs
 Some documentation can be found on our [website](https://amigocap.github.io/ReViVD/documentation/).
 
+## JSON File Example
+```json
+{{md  'ReViVD//External Data/example.json'}}
+```
+
+
 ## Roadmap
 - [x] Research on the state of the art of VR technologies
 - [x] Bibliography
