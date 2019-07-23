@@ -570,7 +570,7 @@ namespace Revivd {
         }
 
         void Start() {
-            selectFile.field.text = "External Data\\AirTraffic\\airtraffic.json";
+            selectFile.field.text = "External Data\\";
         }
 
         void OnEnable() {
