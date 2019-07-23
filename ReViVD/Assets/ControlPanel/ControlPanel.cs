@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Revivd {
     public class ControlPanel : MonoBehaviour {
-        public GameObject errorWindow;
+        public GameObject messageWindow;
 
         private static ControlPanel _instance;
         public static ControlPanel Instance { get { return _instance; } }
@@ -168,9 +168,20 @@ namespace Revivd {
                 }
             }
             catch (System.Exception e) {
-                LogError("Error while loading .json, make sure it is valid\n\n" + e.Message);
+                MakeErrorWindow("Error while loading .json, make sure it is valid\n\n" + e.Message);
                 return null;
             }
+
+            sampling.gameObject.SetActive(true);
+            axisConf.gameObject.SetActive(true);
+            spheres.gameObject.SetActive(true);
+            style.gameObject.SetActive(true);
+            advanced.gameObject.SetActive(true);
+            load.interactable = true;
+            export.interactable = true;
+
+            spheres.animate.interactable = false;
+            spheres.drop.interactable = false;
 
             sampling.randomPaths.isOn = data.randomPaths;
             sampling.allPaths.isOn = data.allPaths;
@@ -242,17 +253,6 @@ namespace Revivd {
             advanced.upperTrunc_x.text = data.upperTruncature.x.ToString();
             advanced.upperTrunc_y.text = data.upperTruncature.y.ToString();
             advanced.upperTrunc_z.text = data.upperTruncature.z.ToString();
-
-            sampling.gameObject.SetActive(true);
-            axisConf.gameObject.SetActive(true);
-            spheres.gameObject.SetActive(true);
-            style.gameObject.SetActive(true);
-            advanced.gameObject.SetActive(true);
-            load.interactable = true;
-            export.interactable = true;
-
-            spheres.animate.interactable = false;
-            spheres.drop.interactable = false;
 
             _loaded = true;
             return data;
@@ -441,7 +441,7 @@ namespace Revivd {
 
         void UpdateDataFromUI() { //Polls the UI for changes to the data class
             if (!Loaded) {
-                LogError("Unexpected call to UpdateData() with non-loaded data");
+                MakeErrorWindow("Unexpected call to UpdateData() with non-loaded data");
                 return;
             }
 
@@ -507,9 +507,12 @@ namespace Revivd {
         void ExportJson() {
             UpdateDataFromUI();
 
+            string path = "";
+
             try {
                 dataInfo.Directory.Create();
-                using (StreamWriter w = new StreamWriter(System.IO.Path.Combine(workingDirectory, "export.json"))) {
+                path = System.IO.Path.Combine(workingDirectory, "export.json");
+                using (StreamWriter w = new StreamWriter(path)) {
                     JsonSerializerSettings settings = new JsonSerializerSettings();
                     settings.FloatFormatHandling = FloatFormatHandling.String;
                     settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
@@ -517,13 +520,15 @@ namespace Revivd {
                 }
             }
             catch (System.Exception e) {
-                LogError("Error exporting .json: ensure export.json is not being used by another process\n\n" + e.Message);
+                MakeErrorWindow("Error exporting .json: ensure export.json is not being used by another process\n\n" + e.Message);
             }
+
+            MakeMessageWindow(".json export", "Succesfully exported configuration to " + path);
         }
 
         void LoadViz() {
             if (!Loaded) {
-                LogError("Attempted to launch main program without data being loaded properly");
+                MakeErrorWindow("Attempted to launch main program without data being loaded properly");
                 return;
             }
 
@@ -544,15 +549,20 @@ namespace Revivd {
 
             export_results.interactable = false;
         }
+        
+        public void MakeMessageWindow(string title, string message) {
+            GameObject window = Instantiate(messageWindow);
+            window.transform.SetParent(this.transform.parent, false);
+            window.GetComponent<MessageWindow>().message.text = message;
+            window.GetComponent<MessageWindow>().title.text = title;
+        }
 
-        public void LogError(string message) {
-            GameObject error = Instantiate(errorWindow);
-            error.transform.SetParent(this.transform.parent, false);
-            error.GetComponent<ErrorWindow>().message.text = message;
+        public void MakeErrorWindow(string message) {
+            MakeMessageWindow("An error occured", message);
         }
 
         void Start() {
-            selectFile.field.text = "External Data\\Bogey\\bogey.json";
+            selectFile.field.text = "External Data\\AirTraffic\\airtraffic.json";
         }
 
         void OnEnable() {

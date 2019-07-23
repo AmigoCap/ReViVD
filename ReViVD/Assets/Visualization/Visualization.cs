@@ -228,43 +228,47 @@ namespace Revivd {
             string dir = Logger.Instance.dirname;
 
 
-            // Log all displayed path names
-            string export = "export_" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv";
+            string path = System.IO.Path.Combine(dir, "export_" + now.Day.ToString("00") + '-' + now.Month.ToString("00") + '-' + now.Year.ToString().Substring(2, 2) + "_" + now.Hour.ToString("00") + 'h' + now.Minute.ToString("00") + ".csv");
 
-            using (StreamWriter displayExport = new StreamWriter(System.IO.Path.Combine(dir, export))) {
+            try {
+                using (StreamWriter displayExport = new StreamWriter(path)) {
+                    string s = "Displayed,";
 
-                string s = "Displayed,";
+                    HashSet<Path> pathsToKeep = new HashSet<Path>();
 
-                HashSet<Path> pathsToKeep = new HashSet<Path>();
-
-                foreach (Path p in Visualization.Instance.paths) {
-                    foreach (Atom a in p.atoms) {
-                        if (a.ShouldDisplay)
-                            pathsToKeep.Add(a.path);
-                    }
-                }
-
-                foreach (Path p in pathsToKeep) {
-                    s += p.name + ',';
-                }
-                displayExport.WriteLine(s);
-
-                for (int c = 0; c < SelectorManager.colors.Length; c++) {
-                    pathsToKeep.Clear();
-
-                    foreach (Atom a in SelectorManager.Instance.selectedRibbons[c]) {
-                        if (a.ShouldDisplay)
-                            pathsToKeep.Add(a.path);
+                    foreach (Path p in Visualization.Instance.paths) {
+                        foreach (Atom a in p.atoms) {
+                            if (a.ShouldDisplay)
+                                pathsToKeep.Add(a.path);
+                        }
                     }
 
-                    string s_color = Logger.colorString[c] + ',';
-                    foreach (Path path in pathsToKeep) {
-                        s_color += path.name + ',';
+                    foreach (Path p in pathsToKeep) {
+                        s += p.name + ',';
                     }
-                    displayExport.WriteLine(s_color);
-                }
+                    displayExport.WriteLine(s);
 
+                    for (int c = 0; c < SelectorManager.colors.Length; c++) {
+                        pathsToKeep.Clear();
+
+                        foreach (Atom a in SelectorManager.Instance.selectedRibbons[c]) {
+                            if (a.ShouldDisplay)
+                                pathsToKeep.Add(a.path);
+                        }
+
+                        string s_color = Logger.colorString[c] + ',';
+                        foreach (Path p in pathsToKeep) {
+                            s_color += p.name + ',';
+                        }
+                        displayExport.WriteLine(s_color);
+                    }
+
+                }
             }
+            catch (System.Exception e) {
+                ControlPanel.Instance.MakeErrorWindow("Error exporting results\n\n" + e.Message);
+            }
+            ControlPanel.Instance.MakeMessageWindow("Results export", "Successfully exported selection results to " + path);
         }
 
         void Awake() {
