@@ -26,7 +26,7 @@ Requirements: SteamVR
 ### Unity setup
 
 * Download and install [Unity3D](https://unity3d.com/fr/get-unity/download) (you can use Unity Hub to manage several Unity versions). For optimal compatibility, use version 2019.1.9f1
-* Setup Visual Studio Code to be the Unity Script Editor. [HowTo](https://code.visualstudio.com/docs/other/unity)
+* Setup Visual Studio to be the Unity Script Editor. [HowTo](https://code.visualstudio.com/docs/other/unity)
 * Add the OpenVR (Standalone) package using the Package Manager Window.
 
 ### Steam setup
