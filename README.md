@@ -14,7 +14,7 @@ References of the project can be found on our [website](https://amigocap.github.
 Some documentation can be found on our [website](https://amigocap.github.io/ReViVD/documentation/).
 
 ## JSON File Example
-```json
+```
 /*
 json file example for airtraffic data adapted from http://recherche.enac.fr/~hurter/FromDaDy.html
 This json file describes your binary file to let ReViVD know how to read your dataset.

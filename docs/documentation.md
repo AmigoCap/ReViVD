@@ -30,7 +30,7 @@ permalink: /documentation/
 
 # JSON File Example
 
-```json
+```
 /*
 json file example for airtraffic data adapted from http://recherche.enac.fr/~hurter/FromDaDy.html
 This json file describes your binary file to let ReViVD know how to read your dataset.
