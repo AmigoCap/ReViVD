@@ -84,9 +84,6 @@ namespace Revivd {
             districts.Clear();
             clearDistrictsToHighlight = true;
 
-            useGlobalTime = false;
-            doTimeSphereAnimation = false;
-
             _loaded = false;
         }
 
@@ -322,6 +319,8 @@ namespace Revivd {
                     }
                     old_traceTimeSpheres = true;
                 }
+
+                Debug.Log("anim: " + doTimeSphereAnimation + "; gtime: " + useGlobalTime + ", " + globalTime);
 
                 if (useGlobalTime && doTimeSphereAnimation) {
                     globalTime += timeSphereAnimationSpeed * Time.deltaTime;

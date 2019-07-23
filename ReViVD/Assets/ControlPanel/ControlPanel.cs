@@ -540,12 +540,20 @@ namespace Revivd {
 
             Visualization.Instance.Load();
 
+            spheres.animate.interactable = spheres.display.isOn;
+            spheres.drop.interactable = spheres.display.isOn;
+
             export_results.interactable = true;
 
         }
 
         void UnloadViz() {
             Visualization.Instance.Unload();
+
+            spheres.animate.isOn = false;
+            Visualization.Instance.doTimeSphereAnimation = false;
+            spheres.animate.interactable = false;
+            spheres.drop.interactable = false;
 
             export_results.interactable = false;
         }
