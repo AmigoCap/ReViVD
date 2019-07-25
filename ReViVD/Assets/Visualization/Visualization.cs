@@ -504,9 +504,9 @@ namespace Revivd {
             }
 
             paths = new List<Path>(keptPaths.Length);
-            Color32[] pathColors = new Color32[keptPaths.Length];
+            Color32[] randomPathColors = new Color32[keptPaths.Length];
             for (int i = 0; i < keptPaths.Length; i++)
-                pathColors[i] = UnityEngine.Random.ColorHSV();
+                randomPathColors[i] = UnityEngine.Random.ColorHSV();
 
             Tools.AddClockStop("Generated paths array");
 
@@ -694,11 +694,11 @@ namespace Revivd {
                         a.point.x += data.atomAttributes[X_RoleIndex].positionOffset;
                         a.point.y += data.atomAttributes[Y_RoleIndex].positionOffset;
                         a.point.z += data.atomAttributes[Z_RoleIndex].positionOffset;
-                        a.point = Vector3.Max(a.point, lowerTruncature);
-                        a.point = Vector3.Min(a.point, upperTruncature);
                         a.point.x *= data.atomAttributes[X_RoleIndex].sizeCoeff;
                         a.point.y *= data.atomAttributes[Y_RoleIndex].sizeCoeff;
                         a.point.z *= data.atomAttributes[Z_RoleIndex].sizeCoeff;
+                        a.point = Vector3.Max(a.point, lowerTruncature);
+                        a.point = Vector3.Min(a.point, upperTruncature);
 
                         if (T_RoleIndex != -1)
                             a.time = atomAttributeValuesBuffer[T_RoleIndex];
@@ -717,7 +717,7 @@ namespace Revivd {
                             }
                         }
                         else {
-                            a.BaseColor = pathColors[i_path];
+                            a.BaseColor = randomPathColors[i_path];
                         }
 
                         p.atoms.Add(a);

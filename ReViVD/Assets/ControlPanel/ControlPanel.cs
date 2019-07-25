@@ -454,21 +454,25 @@ namespace Revivd {
             data.chosen_instants_step = Tools.ParseField_i(sampling.instants_step, 1);
 
             data.useGPSCoords = axisConf.gps.isOn;
+            data.atomAttributeUsedAs_x = "";
             if (axisConf.xAxis.value != 0) {
                 JsonData.AtomAttribute attr = data.atomAttributes[axisConf.xAxis.value - 1];
                 attr.sizeCoeff = Tools.ParseField_f(axisConf.xScale, 1f);
                 data.atomAttributeUsedAs_x = attr.name;
             }
+            data.atomAttributeUsedAs_y = "";
             if (axisConf.yAxis.value != 0) {
                 JsonData.AtomAttribute attr = data.atomAttributes[axisConf.yAxis.value - 1];
                 attr.sizeCoeff = Tools.ParseField_f(axisConf.yScale, 1f);
                 data.atomAttributeUsedAs_y = attr.name;
             }
+            data.atomAttributeUsedAs_z = "";
             if (axisConf.zAxis.value != 0) {
                 JsonData.AtomAttribute attr = data.atomAttributes[axisConf.zAxis.value - 1];
                 attr.sizeCoeff = Tools.ParseField_f(axisConf.zScale, 1f);
                 data.atomAttributeUsedAs_z = attr.name;
             }
+            data.atomAttributeUsedAs_t = "";
             if (axisConf.time.value != 0) {
                 data.atomAttributeUsedAs_t = data.atomAttributes[axisConf.time.value - 1].name;
             }
@@ -478,6 +482,7 @@ namespace Revivd {
             data.spheresAnimSpeed = Tools.ParseField_f(spheres.animSpeed, 1);
             data.spheresRadius = Tools.ParseField_f(spheres.radius, 2);
 
+            data.atomAttributeUsedAs_color = "";
             if (style.attribute.value != 0) {
                 JsonData.AtomAttribute attr = data.atomAttributes[style.attribute.value - 1];
                 attr.colorStart = (JsonData.Color)style.startColor.value;
