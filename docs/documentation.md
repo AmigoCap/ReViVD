@@ -250,6 +250,12 @@ This json file describes your binary file to let ReViVD know how to read your da
 }
 ```
 
+# Building Asset Bundles
+
+To add context to the visualization such as maps and 3D models, the user creates AssetBundles and then loads it through the JSON file. 
+The Unity documentation to create Asset Bundles is available [here](https://docs.unity3d.com/Manual/AssetBundles-Workflow.html).
+Be sure to check ***Single Pass*** as ***Stereo Rendering Mode*** option in the ***Build Settings>Player Settings>XR Settings*** before building the Asset Bundles.
+
 # VR recording
 To record what the user does in VR, you can use [OBS](https://obsproject.com/download) with the [OpenVR input plugin](https://obsproject.com/forum/resources/openvr-input-plugin.534/).
 
@@ -259,28 +265,33 @@ The next figure displays the input mapping used in ReViVD:
 ![picture](assets/documentation/Input_mapping_name_buttons.png)
 
 ReViVD has 2 modes: 
-* a selection mode in which the user perform the selection of trajectories with the selectors
+* a selection mode in which the user can select trajectories with the selectors
 * a creation mode in which the user can edit the primitive used into the selection process.
 
 ## Selection mode
 
-In selection mode, the user perform the selection of trajectories with the selectors. 
+In selection mode, the user selects trajectories with the selectors.
 Like in a video game, the joysticks of the controllers monitor the movement of the user in the world space. Movement speed can be increased pressing the left grip.
 
-To perform a selection, the user has to hold the right trigger and all trajectories in collision with the selector will be selected. The right menu button places a persistent selector at the current location of the selector, to select with the persistent selectors, the user has to press the right grip.
-By swiping the right pad, the user changes the color and the selector.
+To perform a selection, the user holds the right trigger; all trajectories colliding with the selector will be selected. The right menu button places a persistent selector at the current location of the selector: to select with the persistent selectors, the user presses the right grip.
+By swiping the right pad, the user changes the currently selection color.
 
-The left pad allows the user to achieve boolean operations on the selected trajectories. Swiping the left pad provides several options: OR, AND, RESET and HARD RESET operators. To add or remove colors in the operation, the user has to click on the right pad to toggle the colors available in the operation.
+The left pad provides a summary of the current logical operation the user can perform to keep only part of the currently displayed trajectories. In the center of the pad, a symbol shows whether the operation is in "AND" mode or "OR" mode. Around this symbol, colored squares show which colors are included in the operation.
+An operation is built by switching between its two modes and by giving it colors to operate on; to add or remove a color to the operation, the user presses the right pad, which displays the color in question.
+To change the operation mode, the user pulls down the "AND/OR" menu from the top part of the left pad, then presses the left pad.
+Once an operation is built, it can be executed by pressing the left pad.
 
-Holding the left trigger allow the user to perform most of the opposite actions of the actions we have previously detailed. The next figure summarizes the input mapping in the selection mode, in blue are the actions available in invert mode (while holding the left trigger).
+Resetting the effects of operations requires pulling up from the bottom part of the left pad to bring up the "RESET" button, then pressing it.
+
+Holding the left trigger allows the user to perform the opposite of most of the actions previously detailed. The next figure summarizes the input mapping in selection mode. The actions available in invert mode (while holding the left trigger) are written in blue.
 
 ![picture](assets/documentation/Input_mapping_selection.png)
 
 
 ## Creation mode
 
-In creation mode, the user can edit the primitive used into the selection process. \\
-With the right joystick and pad, the user can edit the offset of the primitive relative to the right controller. Holding the right trigger scales up the primitive whereas holding the left one allows the user to perform the opposite actions.
+In creation mode, the user can edit the primitive used into the selection process. 
+With the right joystick and pad, the user edits the offset of the primitive relative to the right controller. Holding the right trigger scales up the primitive whereas holding the left one allows the user to perform the opposite actions.
 
 For the cuboid and cylinder primitives, with the left joystick and pad, the user can edit some parameters of the scale of those primitives: length, width, height or radius.\\
 The next figure summarizes the input mapping in the creation mode.
