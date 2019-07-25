@@ -4,29 +4,44 @@ title: Documentation
 permalink: /documentation/
 ---
 
-# Installation
-## Windows Mixed Reality setup
+# Installation instructions
+
+## Using the last release
+Requirements: SteamVR
+
+* Download and install [Steam](https://store.steampowered.com/about/?l=french)
+* Setup a VPN to pass through the restrictions of your network if necessary
+* Setup [Steam VR](https://store.steampowered.com/steamvr?l=french)
+* Setup [Windows Mixed Reality for Steam VR](https://store.steampowered.com/app/719950/Windows_Mixed_Reality_for_SteamVR/)
+* Extract the archive from [here](https://github.com/AmigoCap/ReViVD/releases) and launch ReViVD.exe after ensuring that Windows Mixed Reality loaded properly when you plugged in your headset.
+* Indicate the path to your json file that describes your binary dataset. See the **JSON File Example** for details on how to format your json file.
+
+## Cloning the source code
+ 
+### Windows Mixed Reality setup
 
 * Plug in your HMD to launch the Windows Mixed Reality App
 * Setup your headset and controllers
 
-## Unity setup
+### Unity setup
 
-* Download and install [Unity3D](https://unity3d.com/fr/get-unity/download) (you can use Unity Hub to manage several Unity versions). For optimal compatibility, use version 2019.1.1f1
-* Setup Visual Studio Code to be the Unity Script Editor. [HowTo](https://code.visualstudio.com/docs/other/unity)
+* Download and install [Unity3D](https://unity3d.com/fr/get-unity/download) (you can use Unity Hub to manage several Unity versions). For optimal compatibility, use version 2019.1.9f1
+* Setup Visual Studio to be the Unity Script Editor. [HowTo](https://code.visualstudio.com/docs/other/unity)
 * Add the OpenVR (Standalone) package using the Package Manager Window.
 
-## Steam setup
+### Steam setup
 
 * Download and install [Steam](https://store.steampowered.com/about/?l=french)
 * Setup a VPN to pass through the restrictions of your network if necessary
 * Setup [Steam VR](https://store.steampowered.com/steamvr?l=french)
 * Setup [Windows Mixed Reality for Steam VR](https://store.steampowered.com/app/719950/Windows_Mixed_Reality_for_SteamVR/)
 
-## Unity project setup
+### Unity project setup
 
 * Clone the [ReViVD](https://github.com/AmigoCap/ReViVD) repository; the Unity project folder is the ReViVD folder inside the main folder
 * Download data into an **External Data** folder and use your VR headset to interact with it
+
+
 
 # JSON File Example
 
@@ -234,4 +249,57 @@ This json file describes your binary file to let ReViVD know how to read your da
   ]
 }
 ```
+
+# Building Asset Bundles
+
+To add context to the visualization such as maps and 3D models, the user creates AssetBundles and then loads it through the JSON file. 
+The Unity documentation to create Asset Bundles is available [here](https://docs.unity3d.com/Manual/AssetBundles-Workflow.html).
+Be sure to check ***Single Pass*** as ***Stereo Rendering Mode*** option in the ***Build Settings>Player Settings>XR Settings*** before building the Asset Bundles.
+
+# VR recording
+To record what the user does in VR, you can use [OBS](https://obsproject.com/download) with the [OpenVR input plugin](https://obsproject.com/forum/resources/openvr-input-plugin.534/).
+
+# Input mapping
+
+The next figure displays the input mapping used in ReViVD: 
+![picture](assets/documentation/Input_mapping_name_buttons.png)
+
+ReViVD has 2 modes: 
+* a selection mode in which the user can select trajectories with the selectors
+* a creation mode in which the user can edit the primitive used into the selection process.
+
+## Selection mode
+
+In selection mode, the user selects trajectories with the selectors.
+Like in a video game, the joysticks of the controllers monitor the movement of the user in the world space. Movement speed can be increased pressing the left grip.
+
+To perform a selection, the user holds the right trigger; all trajectories colliding with the selector will be selected. The right menu button places a persistent selector at the current location of the selector: to select with the persistent selectors, the user presses the right grip.
+By swiping the right pad, the user changes the currently selection color.
+
+The left pad provides a summary of the current logical operation the user can perform to keep only part of the currently displayed trajectories. In the center of the pad, a symbol shows whether the operation is in "AND" mode or "OR" mode. Around this symbol, colored squares show which colors are included in the operation.
+An operation is built by switching between its two modes and by giving it colors to operate on; to add or remove a color to the operation, the user presses the right pad, which displays the color in question.
+To change the operation mode, the user pulls down the "AND/OR" menu from the top part of the left pad, then presses the left pad.
+Once an operation is built, it can be executed by pressing the left pad.
+
+Resetting the effects of operations requires pulling up from the bottom part of the left pad to bring up the "RESET" button, then pressing it.
+
+Holding the left trigger allows the user to perform the opposite of most of the actions previously detailed. The next figure summarizes the input mapping in selection mode. The actions available in invert mode (while holding the left trigger) are written in blue.
+
+![picture](assets/documentation/Input_mapping_selection.png)
+
+
+## Creation mode
+
+In creation mode, the user can edit the primitive used into the selection process. 
+With the right joystick and pad, the user edits the offset of the primitive relative to the right controller. Holding the right trigger scales up the primitive whereas holding the left one allows the user to perform the opposite actions.
+
+For the cuboid and cylinder primitives, with the left joystick and pad, the user can edit some parameters of the scale of those primitives: length, width, height or radius.\\
+The next figure summarizes the input mapping in the creation mode.
+
+![picture](assets/documentation/Input_mapping_creation.png)
+
+
+
+
+
 
