@@ -652,15 +652,22 @@ namespace Revivd {
                         localInstant = chosen_instants_start - i_file * data.splitInstants_instantsPerFile;
                         br.BaseStream.Position += localInstant * n_of_bytes_per_atom;
                     }
+                    else {
+                        //Handles the following problem:
+                        //Files of 10, step of 4, start at 0: on the second file, should start at localInstant = 2 because 12%4 == 0 (and not 0 because 10%4 != 0)
+                        int passedInstantsAtFileStart = i_file * data.splitInstants_instantsPerFile - data.chosen_instants_start;
+                        localInstant = (data.chosen_instants_step - (passedInstantsAtFileStart % data.chosen_instants_step)) % data.chosen_instants_step;
+                        br.BaseStream.Position += localInstant * n_of_bytes_per_atom;
+                    }
 
-                    int instantsToRead = readableInstants;
+                    int lastInstantToRead = readableInstants;
                     if (i_file == fileEnd - 1) {
-                        instantsToRead = Math.Min(instantsToRead, chosen_instants_end - i_file * data.splitInstants_instantsPerFile);
+                        lastInstantToRead = Math.Min(lastInstantToRead, chosen_instants_end - i_file * data.splitInstants_instantsPerFile);
                     }
 
                     int atomIndex = p.atoms.Count;
 
-                    while (localInstant < instantsToRead) {
+                    while (localInstant < lastInstantToRead) {
                         Atom a = new Atom {
                             path = p,
                             indexInPath = atomIndex
@@ -696,7 +703,7 @@ namespace Revivd {
                         if (T_RoleIndex != -1)
                             a.time = atomAttributeValuesBuffer[T_RoleIndex];
                         else
-                            a.time = (float)(chosen_instants_start + localInstant * chosen_instants_step);
+                            a.time = i_file * data.splitInstants_instantsPerFile + localInstant;
 
                         if (Color_RoleIndex != -1) {
                             a.colorValue = atomAttributeValuesBuffer[Color_RoleIndex];

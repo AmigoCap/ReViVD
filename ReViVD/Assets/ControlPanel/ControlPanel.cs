@@ -275,8 +275,10 @@ namespace Revivd {
         bool CheckJsonData(JsonData data) { //Fixes potential errors in the .json (ensures end > start, n_ values positive, etc.)
 
             if (data.severalFiles_splitInstants) {
-                if (data.pathAttributeUsedAs_n_atoms != "")
-                    MakeWarningWindow("Uncommon non-empty n_atom path attribute for a split-file dataset, is this intentional?");
+                if (data.pathAttributeUsedAs_n_atoms != "") {
+                    MakeErrorWindow("Uncommon non-empty n_atom path attribute for a split-file dataset, please use splitInstants_instantsPerFile instead");
+                    return false;
+                }
             }
             else {
                 string filename = Tools.GetFullPath(data.filename);
