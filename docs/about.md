@@ -2,6 +2,8 @@
 layout: page
 title: About
 permalink: /about/
+youtubeId: MlNFpABouzg
+
 ---
 ![picture](assets/img/teaser_website.png)
 
@@ -16,3 +18,6 @@ You can find the source code for ReViVD at GitHub:
 
 
 [amigocap-organization]: https://github.com/AmigoCap
+
+# Video
+{% include youtubePlayer.html id=page.youtubeId %}
