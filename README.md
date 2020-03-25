@@ -7,9 +7,6 @@
 ## Objective
 ReViVD's main objective is to develop new 3D data visualization and exploration tools in Virtual Reality. We intend to showcase methods of interacting with data in VR which are simply not possible in other desktop configurations.
 
-## Bibliography
-References of the project can be found on our [website](https://amigocap.github.io/ReViVD/bibliography/).
-
 ## Docs
 Some documentation can be found on our [website](https://amigocap.github.io/ReViVD/documentation/).
 
