@@ -2,15 +2,16 @@
 layout: page
 title: Visualizations
 permalink: /visualizations/
+youtubeId: MlNFpABouzg
 ---
+## Video
+{% include youtubePlayer.html id=page.youtubeId %}
+
 
 ## Traffic Data
 
 ### Airtraffic
 ![picture](assets/airtraffic/around_paris.png)
-
-### GeoLife
-![picture](assets/geolife/pekin3.png)
 
 ### Lyon 6
 ![picture](assets/traffic/traffic2.png)
