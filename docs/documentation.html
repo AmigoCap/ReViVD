@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <!-- Icons css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css"
+        integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css"
+        integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="css/custom.css">
+    <title>ReViVD | Unity-based Virtual Reality trajectory data visualizer</title>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="./index.html">ReViVD</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar"
+                aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="./about.html">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="./documentation.html">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="./visualizations.html">Visualizations</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="./ieeevr.html">IEEE VR 2020</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mt-4 container mb-4">
+        <div class="col-md-12 ">
+            <h2>Documentation</h2>
+
+            <h1>Installation Instructions</h1>
+            <h4>Using the latest release</h4>
+
+            <p><strong>Requirements:</strong> SteamVR</p>
+
+            <p>
+            <ul>
+
+                <li> Download and install <a href="https://store.steampowered.com/about/" target="_blank">Steam</a>
+                </li>
+                <li> Setup a VPN to pass through the restrictions of your network if necessary </li>
+                <li> Setup <a href="https://store.steampowered.com/steamvr" target="_blank">Steam VR</a>
+                </li>
+                <li> Setup <a href="https://store.steampowered.com/app/719950/Windows_Mixed_Reality_for_SteamVR/"
+                        target="_blank">Windows Mixed Reality for Steam VR</a> </li>
+                <li> Extract the archive from <a href="https://github.com/AmigoCap/ReViVD/releases"
+                        target="_blank">here</a> and launch ReViVD.exe after ensuring that Windows Mixed Reality loaded
+                    properly when you plugged in your headset. </li>
+                <li> Indicate the path to your json file that describes your binary dataset. See the <a href="#json"
+                        target="_blank">JSON File Example</a> for details on how to format your json file. </li>
+
+            </ul>
+
+            </p>
+
+            <h4>Cloning the source code</h4>
+
+
+            <h5> Windows Mixed Reality setup </h5>
+
+            <ul>
+                <li>Plug in your HMD to launch the Windows Mixed Reality App</li>
+                <li>Setup your headset and controllers</li>
+            </ul>
+
+            <h5> Unity setup </h5>
+
+            <ul>
+                <li>Download and install <a href="https://unity3d.com/fr/get-unity/download" target="_blank">Unity3D</a>
+                    (you can use Unity Hub to manage several Unity versions). For optimal compatibility, use version
+                    2019.1.9f1</li>
+                <li>Setup Visual Studio to be the Unity Script Editor. <a
+                        href="https://code.visualstudio.com/docs/other/unity" target="_blank">HowTo</a></li>
+                <li>Add the OpenVR (Standalone) package using the Package Manager Window.</li>
+            </ul>
+
+
+            <h5>Steam setup</h5>
+
+            <ul>
+                <li>Download and install <a href="https://store.steampowered.com/about/" target="_blank">Steam</a></li>
+                <li>Setup a VPN to pass through the restrictions of your network if necessary</li>
+                <li>Setup <a href="https://store.steampowered.com/steamvr" target="_blank">Steam VR</a></li>
+                <li>Setup <a href="https://store.steampowered.com/app/719950/Windows_Mixed_Reality_for_SteamVR/"
+                        target="_blank">Windows Mixed Reality for Steam VR</a></li>
+            </ul>
+
+
+            <h5>Unity project setup</h5>
+
+            <ul>
+                <li>Clone the <a href="https://github.com/AmigoCap/ReViVD" target="_blank">ReViVD</a> repository; the
+                    Unity project folder is the ReViVD folder inside the main folder</li>
+                <li>Download data into an <code>External Data</code> folder and use your VR headset to interact with it
+                </li>
+            </ul>
+
+            <h1 id="json">JSON File Example</h1>
+
+            <pre><code>
+            /*
+            json file example for airtraffic data adapted from http://recherche.enac.fr/~hurter/FromDaDy.html
+            This json file describes your binary file to let ReViVD know how to read your dataset.
+            */
+            {
+            //The path attribute names to use as id and/or as number of atoms, keep it void ("") if it doesn't apply to
+            your dataset. The names must match with the ones in the path attributes array of this json.
+            "pathAttributeUsedAs_id": "id",
+            "pathAttributeUsedAs_n_atoms": "n",
+
+            //The atom attribute names to use as x, y, z (mandatory) and/or as t and color, keep it void ("") if it
+            doesn't apply to your dataset. The names must match with the ones in the atom attributes array of this json.
+            "atomAttributeUsedAs_x": "x",
+            //y attribute is the vertical axis (toward the sky)
+            "atomAttributeUsedAs_y": "altitude",
+            "atomAttributeUsedAs_z": "z",
+            "atomAttributeUsedAs_t": "t",
+            "atomAttributeUsedAs_color": "altitude",
+
+            //Name of the binary file to load, must be in the same folder of this json file.
+            "filename": "airtraffic",
+
+            //If you have several binary files split by instants, turn the following option to true, set the number of
+            instants per file and fill in the suffix of the first file (assuming that it is an incremental int)
+            "severalFiles_splitInstants": false,
+            "splitInstants_instantsPerFile": 50,
+            "severalFiles_firstFileSuffix": "0001",
+
+            //Binary endianness
+            "endianness": "little",
+
+            /* District size of the visualization
+            * Used for collision detection optimization with selectors
+            * Bigger districts are generally better for big selectors
+            * Smaller districts are generally better for small selectors and very atom-dense visualizations
+            * Try to fiddle around with those values if you find selection performance lacking.
+            * Cubical districts are not mandatory but will go faster, especially on isotropic visualizations;
+            * However, if a visualization is very atom-dense on only one axis, try reducing the district size on that
+            axis.
+            */
+            "districtSize": {
+            "x": 40.0,
+            "y": 40.0,
+            "z": 40.0
+            },
+
+            //Coordinates of the lower truncature point
+            "lowerTruncature": {
+            "x": -10000.0,
+            "y": -10000.0,
+            "z": -10000.0
+            },
+
+            //Coordinates of the upper truncature point
+            "upperTruncature": {
+            "x": 10000.0,
+            "y": 10000.0,
+            "z": 10000.0
+            },
+
+            //Number of paths in the entire dataset
+            //Can be left blank / too large if unknown, at your own risks.
+            "dataset_n_paths": 4309,
+
+            //Display all paths in the dataset if set to true.
+            "allPaths": true,
+
+            //If allPaths is false, those paramaters handle the sampling of paths.
+            "randomPaths": false,
+            "chosen_n_paths": 4309,
+            "chosen_paths_start": 0,
+            "chosen_paths_end": 4309,
+            "chosen_paths_step": 1,
+
+            //Number of instants in the dataset, set it to a large number or leave it blank if unknown.
+            //Will be overriden by pathAttributeUsedAs_n_atoms if it is defined.
+            "dataset_n_instants": 2147483647,
+
+            //Display all instants in the dataset if set to true.
+            "allInstants": true,
+
+            //If allInstants is false, those paramaters handle the sampling of instants.
+            "chosen_instants_start": 0,
+            "chosen_instants_end": 200,
+            "chosen_instants_step": 1,
+
+            //If true x and z axis will be interpreted as latitude and longitude (decimal degree)
+            "useGPSCoords": false,
+
+            //Set the origin of the visualization to be at these specific GPS coordinates
+            "GPSOrigin": {
+            "x": 0.0,
+            "y": 0.0
+            },
+
+            //Control of the parameters of the spheres animation: radius, animation speed, beginning time of the
+            animation and if spheres are display.
+            "spheresRadius": 2.0,
+            "spheresAnimSpeed": 1.0,
+            "spheresGlobalTime": 0.0,
+            "spheresDisplay": false,
+
+            //array of asset Bundles to load with the visualization, keep it empty ([]) if it doesn't apply to your
+            dataset.
+            "assetBundles": [
+            {
+            //Name of the asset bundle
+            "name": "airtraffic_map",
+
+            //Filename of the asset bundle to load, must be in the same folder of this json file.
+            "filename": "airtraffic_map",
+
+            //If set to true, let you override the position, rotation and scale of the asset bundle.
+            "overrideBundleTransform": false,
+            "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+            },
+            "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+            },
+            "scale": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+            }
+            }
+            ],
+
+            //Path attributes array, keep it empty ([]) if it doesn't apply to your dataset.
+            "pathAttributes": [
+            {
+            //Name of the attribute, if the attribute is used as id or n_atoms the names must match!
+            "name": "id",
+
+            //Type of the attribute : int32, float32, int64 or float64.
+            "type": "int32"
+            },
+            {
+            "name": "n",
+            "type": "int32"
+            }
+            ],
+
+            //Atom attributes array.
+            "atomAttributes": [
+            {
+            //Name of the attribute, if the attribute is used as x, y, z, t or color the names must match!
+            "name": "t",
+
+            //Type of the attribute : int32, float32, int64 or float64.
+            "type": "float32",
+
+            //Position offset if the attribute is used as an axis
+            "positionOffset": 0.0,
+
+            //Size multiplier if the attribute is used as an axis; applied after position offset
+            "sizeCoeff": 1.0,
+
+            //Those parameters handle the color interpolation if this attribute is used as color
+            "colorStart": "Blue",
+            "colorEnd": "Red",
+
+            //If set to true, color interpolation is done between the min and max values of this attribute
+            "valueColorUseMinMax": false,
+
+            //If valueColorUseMinMax is false, color interpolation is done between those two values
+            "valueColorStart": 0.0,
+            "valueColorEnd": 1.0
+            },
+            {
+            "name": "x",
+            "type": "float32",
+            "positionOffset": 0.0,
+            "sizeCoeff": 1.0,
+            "colorStart": "Blue",
+            "colorEnd": "Red",
+            "valueColorUseMinMax": true,
+            "valueColorStart": 0.0,
+            "valueColorEnd": 1.0
+            },
+            {
+            "name": "z",
+            "type": "float32",
+            "positionOffset": 0.0,
+            "sizeCoeff": 1.0,
+            "colorStart": "Blue",
+            "colorEnd": "Red",
+            "valueColorUseMinMax": true,
+            "valueColorStart": 0.0,
+            "valueColorEnd": 1.0
+            },
+            {
+            "name": "altitude",
+            "type": "float32",
+            "positionOffset": 0.0,
+            "sizeCoeff": 1.0,
+            "colorStart": "Blue",
+            "colorEnd": "Red",
+            "valueColorUseMinMax": true,
+            "valueColorStart": 0.0,
+            "valueColorEnd": 1.0
+            }
+            ]
+            }
+            </code></pre>
+
+            <h1>Building Asset Bundles</h1>
+
+            <p>To add context to the visualization such as maps and 3D models, the user creates AssetBundles and then
+                loads it through the JSON file. The Unity documentation to create Asset Bundles is available
+                <a href="https://docs.unity3d.com/Manual/AssetBundles-Workflow.html" target="_blank">here</a>.
+                Be sure to check <code>Single Pass</code> as <code>Stereo Rendering Mode</code> option in the
+                <code>Build Settings>Player Settings>XR Settings</code> before building the Asset Bundles.
+            </p>
+
+            <h1>VR recording</h1>
+            <p>To record what the user does in VR, you can use <a href="https://obsproject.com/download"
+                    target="_blank">OBS</a> with the <a
+                    href="https://obsproject.com/forum/resources/openvr-input-plugin.534/" target="_blank">OpenVR input
+                    plugin</a>.</p>
+
+            <h1>Input mapping</h1>
+
+            <p>The next figure displays the input mapping used in ReViVD:</p>
+
+            <div class="col-md-8">
+                <img src="assets/documentation/Input_mapping_name_buttons.png" class="rounded img-fluid"
+                    alt="Input mapping">
+            </div>
+
+
+            <p>ReViVD has 2 modes:
+            <ul>
+                <li>a selection mode in which the user can select trajectories with the selectors</li>
+                <li>a creation mode in which the user can edit the primitive used into the selection process</li>
+            </ul>
+            </p>
+
+            <h3>Selection mode</h3>
+
+            <p>In selection mode, the user selects trajectories with the selectors.
+                Like in a video game, the joysticks of the controllers monitor the movement of the user in the world
+                space.
+                Movement speed can be increased pressing the left grip.</p>
+
+            <p>To perform a selection, the user holds the right trigger; all trajectories colliding with the selector
+                will
+                be selected. The right menu button places a persistent selector at the current location of the selector:
+                to
+                select with the persistent selectors, the user presses the right grip.
+                By swiping the right pad, the user changes the currently selection color.</p>
+
+            <p>The left pad provides a summary of the current logical operation the user can perform to keep only part
+                of
+                the currently displayed trajectories. In the center of the pad, a symbol shows whether the operation is
+                in
+                "AND" mode or "OR" mode. Around this symbol, colored squares show which colors are included in the
+                operation.
+                An operation is built by switching between its two modes and by giving it colors to operate on; to add
+                or
+                remove a color to the operation, the user presses the right pad, which displays the color in question.
+                To change the operation mode, the user pulls down the "AND/OR" menu from the top part of the left pad,
+                then
+                presses the left pad.
+                Once an operation is built, it can be executed by pressing the left pad.</p>
+
+            <p>Resetting the effects of operations requires pulling up from the bottom part of the left pad to bring up
+                the
+                "RESET" button, then pressing it.</p>
+
+            <p>Holding the left trigger allows the user to perform the opposite of most of the actions previously
+                detailed.
+                The next figure summarizes the input mapping in selection mode. The actions available in invert mode
+                (while
+                holding the left trigger) are written in blue.</p>
+
+            <div class="col-md-8">
+                <img src="assets/documentation/Input_mapping_selection.png" class="rounded img-fluid"
+                    alt="Input mapping">
+            </div>
+
+
+            <h3>Creation mode</h3>
+
+            <p>In creation mode, the user can edit the primitive used into the selection process.
+                With the right joystick and pad, the user edits the offset of the primitive relative to the right
+                controller. Holding the right trigger scales up the primitive whereas holding the left one allows the
+                user
+                to perform the opposite actions.</p>
+
+            <p>For the cuboid and cylinder primitives, with the left joystick and pad, the user can edit some parameters
+                of
+                the scale of those primitives: length, width, height or radius. The next figure summarizes the input
+                mapping
+                in the creation mode.</p>
+
+            <div class="col-md-8">
+                <img src="assets/documentation/Input_mapping_creation.png" class="rounded img-fluid"
+                    alt="Input mapping">
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-lg-start bg-light text-muted">
+        <!-- Section: Links  -->
+        <section class="border-top">
+            <div class="container text-center text-md-start mt-5">
+                <!-- Grid row -->
+                <div class="row mt-3">
+                    <!-- Grid column -->
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <!-- Content -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            </i>ReViVD
+                        </h6>
+                        <p>
+                            Unity-based Virtual Reality trajectory data visualizer
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+
+                    <!-- Grid column -->
+                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            Links
+                        </h6>
+                        <p>
+                            <a href="./about.html" class="text-reset">About</a>
+                        </p>
+                        <p>
+                            <a href="./documentation.html" class="text-reset">Documentation</a>
+                        </p>
+                        <p>
+                            <a href="./visualizations.html" class="text-reset">Visualizations</a>
+                        </p>
+                        <p>
+                            <a href="./ieeevr.html" class="text-reset">IEEE VR 2020</a>
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+
+                    <!-- Grid column -->
+                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            Contact
+                        </h6>
+                        <a href="https://github.com/FHomps" class="me-4 text-reset">
+                            <i class="fab fa-github"> FHomps</i>
+                        </a>
+
+                        <br />
+
+                        <a href="https://github.com/yohhaan" class="me-4 text-reset">
+                            <i class="fab fa-github"> yohhaan</i>
+                        </a>
+
+                        <br />
+
+                        <a href="https://github.com/romsson" class="me-4 text-reset">
+                            <i class="fab fa-github"> romsson</i>
+                        </a>
+
+                        <br />
+
+                        <a href="https://youtu.be/MlNFpABouzg" class="me-4 text-reset">
+                            <i class="fab fa-youtube"> ReViVD</i>
+                        </a>
+                    </div>
+                    <!-- Grid column -->
+                </div>
+                <!-- Grid row -->
+            </div>
+        </section>
+        <!-- Section: Links  -->
+
+    </footer>
+    <!-- Footer -->
+
+
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh41eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+    -->
+</body>
+
+</html>

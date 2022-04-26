@@ -1,0 +1,101 @@
+.big-icon {
+  font-size: 2rem;
+  margin-right: 2%;
+}
+
+li {
+  margin: 0;
+  padding: 0.2em;
+}
+
+
+.thumbnail {
+  position: relative;
+}
+
+.caption {
+  position: absolute;
+  top: 45%;
+  left: 0;
+  width: 100%;
+}
+
+a:link {
+  text-decoration: none;
+}
+
+a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+a:active {
+  text-decoration: none;
+}
+
+.award {
+  color: #c43535;
+  font-style: italic
+}
+
+.box:before {
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 11px;
+  position: relative;
+  bottom: 2.5px;
+  padding: 2.2px
+}
+
+.chapter:before {
+  background: #1c912b;
+  content: "Chapter"
+}
+
+.conference:before {
+  background: #006cbf;
+  content: "Conference"
+}
+
+.journal:before {
+  background: #bf0000;
+  content: "Journal"
+}
+
+.technical-report:before {
+  background: #6b6b6b;
+  content: "Technical Report"
+}
+
+.preprint:before {
+  background: #6b6b6b;
+  content: "Preprint"
+}
+
+.thesis:before {
+  background: #480ad8;
+  content: "Thesis"
+}
+
+.workshop:before {
+  background: #ffb236;
+  content: "Workshop"
+}
+
+.talk:before {
+  background: #ffb236;
+  content: "Talk"
+}
+
+.code:before {
+  background: #000000;
+  content: "Code"
+}
+
+.pdf:before {
+  background: #000000;
+  content: "PDF"
+}
