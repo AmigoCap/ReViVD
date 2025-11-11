@@ -13,13 +13,13 @@ authors:
 license: "MIT"
 version: 1.0.2-zenodo
 date-released: "2019-05-09"
-# identifiers:
-#   - type: doi
-#     value: 10.5281/zenodo.
-#     description: "The concept DOI that represent all versions and will always resolve to the latest one"
-#   - type: doi
-#     value: 10.5281/zenodo.
-#     description: "The versioned DOI for the version 1.0.2-zenodo of the software"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.17584380
+    description: "The concept DOI that represent all versions and will always resolve to the latest one"
+  - type: doi
+    value: 10.5281/zenodo.17584381
+    description: "The versioned DOI for the version 1.0.2-zenodo of the software"
 repository-code: https://github.com/AmigoCap/ReViVD
 url: https://amigocap.github.io/ReViVD/documentation.html
 abstract: Unity-based VR trajectory data visualizer with an emphasis on innovative 3D brush shapes.

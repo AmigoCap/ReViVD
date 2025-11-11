@@ -1,5 +1,6 @@
 # ReViVD
 **Github Repository - PAr 118 - ReViVD (2018-2019)**
+[![DOI](https://zenodo.org/badge/153621628.svg)](https://doi.org/10.5281/zenodo.17584380)
 
 **Full name: 3D data exploration with Virtual Reality Headset (aircraft trajectories, sports data)**
 ![picture](docs/assets/img/teaser_website.png)
