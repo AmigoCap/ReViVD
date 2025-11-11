@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+title: "ReViVD: Unity-based Virtual Reality trajectory data visualizer"
+message: "If you use this software, please cite both the associated paper (see preferred-citation) and the software itself."
+type: software
+authors:
+  - given-names: Yohan
+    family-names: Beugin
+    affiliation: École Centrale de Lyon
+    orcid: https://orcid.org/0000-0003-0991-7926
+  - given-names: François
+    family-names: Homps
+    affiliation: École Centrale de Lyon
+license: "MIT"
+version: 1.0.2-zenodo
+date-released: "2019-05-09"
+# identifiers:
+#   - type: doi
+#     value: 10.5281/zenodo.
+#     description: "The concept DOI that represent all versions and will always resolve to the latest one"
+#   - type: doi
+#     value: 10.5281/zenodo.
+#     description: "The versioned DOI for the version 1.0.2-zenodo of the software"
+repository-code: https://github.com/AmigoCap/ReViVD
+url: https://amigocap.github.io/ReViVD/documentation.html
+abstract: Unity-based VR trajectory data visualizer with an emphasis on innovative 3D brush shapes.
+preferred-citation:
+  title: "ReViVD: Exploration and Filtering of Trajectories in an Immersive Environment using 3D Shapes"
+  type: conference-paper
+  authors:
+    - given-names: Yohan
+      family-names: Beugin
+      affiliation: École Centrale de Lyon
+      orcid: https://orcid.org/0000-0003-0991-7926
+    - given-names: François
+      family-names: Homps
+      affiliation: École Centrale de Lyon
+    - given-names: Romain
+      family-names: Vuillemot
+      affiliation: École Centrale de Lyon
+      orcid: https://orcid.org/0000-0003-1447-6926
+  collection-title: 2020 IEEE Conference on Virtual Reality and 3D User Interfaces (IEEE VR)
+  conference:
+    name: 2020 IEEE Conference on Virtual Reality and 3D User Interfaces (IEEE VR 2020)
+  year: 2020
+  doi: https://doi.org/10.1109/VR46266.2020.00096
+keywords:
+  - Computer Science
+  - Virtual Reality
+  - Trajectories visualization

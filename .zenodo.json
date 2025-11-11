@@ -1,0 +1,26 @@
+{
+  "creators": [
+    {
+      "name": "Yohan Beugin",
+      "affiliation": "École Centrale de Lyon",
+      "orcid": "0000-0003-0991-7926"
+    }
+  ],
+  "title": "ReViVD: Unity-based Virtual Reality trajectory data visualizer",
+  "version": "1.0.2-zenodo",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://doi.org/10.1109/VR46266.2020.00096",
+      "relation": "isSupplementTo",
+      "resource_type": "publication-article"
+    }
+  ],
+  "keywords": [
+    "Computer Science",
+    "Virtual Reality",
+    "Trajectories Visualization"
+  ],
+  "license": "MIT",
+  "upload_type": "software"
+}
